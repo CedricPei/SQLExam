@@ -45,35 +45,217 @@ After completing all items, aggregate the objects into a **single JSON array** a
 2. List each NECESSARY join that is STRICTLY REQUIRED to answer the question.
     - Consider `JOIN`, `LEFT JOIN`, `RIGHT JOIN`, `FULL JOIN`, `CROSS JOIN`, `INNER JOIN`, `OUTER JOIN`, `NATURAL JOIN`, `SELF JOIN`.
     - Record both the join type and the join keys.
-    - Example: `orders INNER JOIN customers ON orders.customer_id = customers.id`.
+    - Example: "orders INNER JOIN customers ON orders.customer_id = customers.id"
 
-3. List NECESSARY columns the answer MUST reveal and that MUST appear in the provided schema.  
-    - Express each column in fully-qualified `table.column` form; DO NOT output bare column names.
+3. List all NECESSARY columns that appear in the provided schema.  
+    - **IMPORTANT** DO NOT output derived columns like `COUNT(order_id)` or bare column names.
+    - Express each column in fully-qualified `table.column` form.
+    - Include all columns in `WHERE`, `SELECT`, `ORDER BY`, `HAVING`, and `GROUP BY` clauses, except for those in ON clause.
     - For ambiguous questions, include only the minimal column(s) needed.
         - for "Which/What <Entity>?" query, return either id or name (not both).
     - If all columns of one table are required, use `table.*`.
-    - Consider all columns in the SQL query.
 
 4. List NECESSARY row-level filters or limits STRICTLY REQUIRED to answer the question.  
     - Consider `WHERE`, `ORDER BY`, `LIMIT/FETCH FIRST`, `OFFSET`, `NULLS FIRST`, `NULLS LAST`.
-    - Consider sub-query predicates such as `EXISTS` or `NOT EXISTS`.
+    - For sub-query predicates such as `EXISTS` or `NOT EXISTS`, answer in natural language.
+    - Example: "ORDER BY orders.order_date DESC"
 
-5. List each NECESSARY `GROUP-BY-HAVING` clause STRICTLY REQUIRED to answer the question.
+5. List each NECESSARY `GROUP BY` clause STRICTLY REQUIRED to answer the question.
+    - Example: "GROUP BY customer_id"
 
-6. List NECESSARY aggregate functions that the query MUST call
+6. List NECESSARY group-level filters in `HAVING` clause STRICTLY REQUIRED to answer the question.
+    - Example: "SUM(assignments.hours_worked) > 500"
+
+7. List NECESSARY aggregate functions that the query MUST call
+    - **IMPORTANT** ONLY focus on aggregate functions between `SELECT` and `FROM`.
     - `COUNT`, `SUM`, `AVG`, `MAX`, `MIN`, `STDDEV`, `VAR_SAMP`, `VARIANCE`.  
     - `GROUP_CONCAT` / `STRING_AGG`, `BOOL_AND`, `BOOL_OR`, `JSON_AGG`, `ARRAY_AGG`, `MEDIAN`, `PERCENTILE_CONT`, `PERCENTILE_DISC`.
+    - Example: "COUNT(order_id)"
 
-7. List columns the user EXPLICITLY REQUIRES to have unique values.
+8. List columns the user REQUIRES to have unique values.
     - DO NOT include columns that are unique merely because they are primary keys.
-    - List only those the question explicitly asks to be distinct.
+    - **IMPORTANT** ONLY focus on columns between `SELECT` and `FROM`.
+    - Consider keywords like "unique" or "distinct" in the question.
+    - Consider `DISTINCT` keyword in GOLD_SQL.
+    - Example: "orders.email"
 
-8. List output aliases the user EXPLICITLY REQUESTS.
-    - DO NOT include aliases that appear in GOLD_SQL but are not required.
+9. List output aliases the user EXPLICITLY REQUESTS in the question.
+    - **IMPORTANT** DO NOT include aliases that appear in GOLD_SQL but are not required by the question.
 
-
-
+10. List EXPLICITLY or IMPLICITLY REQUIRED output format details.
+    - **IMPORTANT** ONLY foucus on the clause between `SELECT` and `FROM`.
+    - Consider clear formatting instructions, such as rounding to a specific decimal place.
+    - Identify implied formatting, like representing ratios or percentages as floats.
+    - Answer in natural language.
 ###### CHECKLIST END
+
+###### EXAMPLE1:
+### SCHEMA
+CREATE TABLE customers (
+    customer_id INTEGER PRIMARY KEY,
+    first_name TEXT,
+    last_name TEXT,
+    email TEXT,
+    phone TEXT
+);
+
+CREATE TABLE orders (
+    order_id INTEGER PRIMARY KEY,
+    customer_id INTEGER,
+    order_date DATE,
+    total_amount DECIMAL
+);
+
+### QUESTION
+"Which customers made orders over $1000?"
+
+### BACKGROUND
+""
+
+### GOLD_SQL
+SELECT customers.first_name, customers.last_name 
+FROM customers
+INNER JOIN orders ON customers.customer_id = orders.customer_id
+WHERE orders.total_amount > 1000;
+
+### ANSWER (single JSON array):
+```json
+[
+  {{
+    "question_id": "1",
+    "answer": ["customers", "orders"]
+  }},
+  {{
+    "question_id": "2",
+    "answer": ["customers INNER JOIN orders ON customers.customer_id = orders.customer_id"]
+  }},
+  {{
+    "question_id": "3",
+    "answer": ["customers.first_name", "customers.last_name", "orders.total_amount"]
+  }},
+  {{
+    "question_id": "4",
+    "answer": ["WHERE orders.total_amount > 1000"]
+  }},
+  {{
+    "question_id": "5",
+    "answer": "NA"
+  }},
+  {{
+    "question_id": "6",
+    "answer": "NA"
+  }},
+  {{
+    "question_id": "7",
+    "answer": "NA"
+  }},
+  {{
+    "question_id": "8",
+    "answer": "NA"
+  }},
+  {{
+    "question_id": "9",
+    "answer": "NA"
+  }},
+  {{
+    "question_id": "10",
+    "answer": "NA"
+  }}
+]
+```
+
+###### EXAMPLE2:
+### SCHEMA
+CREATE TABLE employees (
+    employee_id INTEGER PRIMARY KEY,
+    name TEXT,
+    department_id INTEGER,
+    salary DECIMAL
+);
+
+CREATE TABLE departments (
+    department_id INTEGER PRIMARY KEY,
+    department_name TEXT
+);
+
+CREATE TABLE projects (
+    project_id INTEGER PRIMARY KEY,
+    project_name TEXT,
+    department_id INTEGER
+);
+
+CREATE TABLE assignments (
+    assignment_id INTEGER PRIMARY KEY,
+    employee_id INTEGER,
+    project_id INTEGER,
+    hours_worked INTEGER
+);
+
+CREATE TABLE performance_reviews (
+    review_id INTEGER PRIMARY KEY,
+    employee_id INTEGER,
+    review_date DATE,
+    performance_score DECIMAL
+);
+
+### QUESTION
+"How many employees in the 'Engineering' department have worked on projects with a total of over 500 hours, have received performance reviews in at least 3 different months, and whose total salary exceeds $100,000?"
+
+### BACKGROUND
+"Total hours worked is SUM(assignments.hours_worked). Distinct review months are counted using strftime('%Y-%m', performance_reviews.review_date)"
+
+### GOLD_SQL
+SELECT COUNT(DISTINCT employees.employee_id) FROM employees INNER JOIN departments ON employees.department_id = departments.department_id INNER JOIN assignments ON employees.employee_id = assignments.employee_id INNER JOIN projects ON assignments.project_id = projects.project_id INNER JOIN performance_reviews ON employees.employee_id = performance_reviews.employee_id WHERE departments.department_name = 'Engineering' GROUP BY employees.employee_id HAVING SUM(assignments.hours_worked) > 500 AND COUNT(DISTINCT strftime('%Y-%m', performance_reviews.review_date)) >= 3 AND SUM(employees.salary) > 100000;
+
+### ANSWER (single JSON array):
+[
+  {{
+    "question_id": "1",
+    "answer": ["employees", "departments", "projects", "assignments", "performance_reviews"]
+  }},
+  {{
+    "question_id": "2",
+    "answer": [
+      "employees INNER JOIN departments ON employees.department_id = departments.department_id",
+      "employees INNER JOIN assignments ON employees.employee_id = assignments.employee_id",
+      "assignments INNER JOIN projects ON assignments.project_id = projects.project_id",
+      "employees INNER JOIN performance_reviews ON employees.employee_id = performance_reviews.employee_id"
+    ]
+  }},
+  {{
+    "question_id": "3",
+    "answer": ["employees.employee_id", "departments.department_name", "assignments.hours_worked", "performance_reviews.review_date", "employees.salary"]
+  }},
+  {{
+    "question_id": "4",
+    "answer": ["WHERE departments.department_name = 'Engineering'"]
+  }},
+  {{
+    "question_id": "5",
+    "answer": ["GROUP BY employees.employee_id"]
+  }},
+  {{
+    "question_id": "6",
+    "answer": ["SUM(assignments.hours_worked) > 500", "COUNT(DISTINCT strftime('%Y-%m', performance_reviews.review_date)) >= 3", "SUM(employees.salary) > 100000"]
+  }},
+  {{
+    "question_id": "7",
+    "answer": ["COUNT(DISTINCT employees.employee_id)"]
+  }},
+  {{
+    "question_id": "8",
+    "answer": ["employees.employee_id"]
+  }},
+  {{
+    "question_id": "9",
+    "answer": "NA"
+  }},
+  {{
+    "question_id": "10",
+    "answer": "NA"
+  }}
+]
+```
 
 ###### For you to answer:
 ### SCHEMA
