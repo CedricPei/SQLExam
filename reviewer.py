@@ -2,7 +2,7 @@ import os
 import json
 import openai
 from dotenv import load_dotenv
-from prompt_designer import system_prompt_designer, user_prompt_designer, constraint_templates
+from prompt_reviewer import system_prompt_reviewer, user_prompt_reviewer, constraint_templates
 
 load_dotenv()
 
@@ -16,7 +16,8 @@ class Reviewer:
         os.makedirs(self.output_dir, exist_ok=True)
 
     def call(self) -> list:
-        constraints_desc = build_constraints_desc(self.constraints, constraint_templates)
+        constraints_desc, mapping = build_constraints_desc(self.constraints, constraint_templates)
+
         user_content = user_prompt_reviewer.format(
             schema=self.schema,
             question=self.question,
@@ -39,30 +40,42 @@ class Reviewer:
         try:
             review = json.loads(response_content)
             if not isinstance(review, list):
-                raise ValueError("Rubric JSON is not an array")
+                raise ValueError("Review JSON is not an array")
         except json.JSONDecodeError as e:
-            print(response_content)
             raise ValueError(f"Response is not valid JSON: {e}")
 
         filename = os.path.join(self.output_dir, f"{self.question_id}_review.json")
         with open(filename, "w", encoding="utf-8") as f:
             json.dump(review, f, ensure_ascii=False, indent=2)
-            
-        return review
+        
+        revised_constraints = prune_constraints(mapping, review)
+        filename = os.path.join(self.output_dir, f"{self.question_id}_revised.json")
+        with open(filename, "w", encoding="utf-8") as f:
+            json.dump(revised_constraints, f, ensure_ascii=False, indent=2)
+        return revised_constraints
 
 
 def build_constraints_desc(constraints, templates):
-    desc_lines = []
-    line_no = 1
-
+    lines = []
+    mapping = {}
+    n = 1
     for item in constraints:
         qid = str(item.get("question_id"))
         answers = item.get("answer")
         if answers == "NA":
             continue
-        template = templates.get(qid)
+        tmpl = templates.get(qid)
         for ans in answers:
-            desc_lines.append(f"{line_no}. " + template.format(answer=str(ans)))
-            line_no += 1
-    return "\n".join(desc_lines)
+            lines.append(f"{n}. {tmpl.format(answer=str(ans))}")
+            mapping[str(n)] = {"question_id": qid, "answer": ans}
+            n += 1
+    return "\n".join(lines), mapping
+
+def prune_constraints(mapping, review_results):
+    remove = {r["question_id"] for r in review_results if not r.get("necessity")}
+    retained = []
+    for ln, info in mapping.items():
+        if ln not in remove:
+            retained.append(info)
+    return retained
 

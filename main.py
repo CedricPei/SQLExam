@@ -1,5 +1,6 @@
 import json
 from observer import Observer
+from reviewer import Reviewer
 from utils import get_schema_by_db_id
 from tqdm import tqdm
 
