@@ -55,22 +55,23 @@ After completing all items, aggregate the objects into a **single JSON array** a
         - for "Which/What <Entity>?" query, return either id or name (not both).
     - If all columns of one table are required, use `table.*`.
 
-4. List NECESSARY row-level filters or limits STRICTLY REQUIRED to answer the question.  
+4. List NECESSARY aggregate functions that the query MUST call
+    - **IMPORTANT** ONLY focus on aggregate functions between `SELECT` and `FROM`.
+    - IGNORE aggregate functions in `WHERE`, `ORDER BY`, `GROUP BY`, `HAVING` clauses.
+    - `COUNT`, `SUM`, `AVG`, `MAX`, `MIN`, `VARIANCE`, `GROUP_CONCAT`.
+    - If functions are used inside an arithmetic expression, record the entire expression.
+    - Example: "COUNT(customer_id)", "SUM(amount)/COUNT(order_id)"
+
+5. List NECESSARY row-level filters or limits STRICTLY REQUIRED to answer the question.  
     - Consider `WHERE`, `ORDER BY`, `LIMIT/FETCH FIRST`, `OFFSET`, `NULLS FIRST`, `NULLS LAST`.
     - For sub-query predicates such as `EXISTS` or `NOT EXISTS`, answer in natural language.
-    - Example: "ORDER BY orders.order_date DESC"
+    - Example: "ORDER BY orders.order_date DESC" "LIMIT 1" "WHERE orders.total_amount > 100"
 
-5. List each NECESSARY `GROUP BY` clause STRICTLY REQUIRED to answer the question.
+6. List each NECESSARY `GROUP BY` clause STRICTLY REQUIRED to answer the question.
     - Example: "GROUP BY customer_id"
 
-6. List NECESSARY group-level filters in `HAVING` clause STRICTLY REQUIRED to answer the question.
-    - Example: "SUM(assignments.hours_worked) > 500"
-
-7. List NECESSARY aggregate functions that the query MUST call
-    - **IMPORTANT** ONLY focus on aggregate functions between `SELECT` and `FROM`.
-    - `COUNT`, `SUM`, `AVG`, `MAX`, `MIN`, `STDDEV`, `VAR_SAMP`, `VARIANCE`.  
-    - `GROUP_CONCAT` / `STRING_AGG`, `BOOL_AND`, `BOOL_OR`, `JSON_AGG`, `ARRAY_AGG`, `MEDIAN`, `PERCENTILE_CONT`, `PERCENTILE_DISC`.
-    - Example: "COUNT(order_id)"
+7. List NECESSARY group-level filters in `HAVING` clause STRICTLY REQUIRED to answer the question.
+    - Example: "HAVING SUM(assignments.hours_worked) > 500"
 
 8. List columns the user REQUIRES to have unique values.
     - DO NOT include columns that are unique merely because they are primary keys.
@@ -81,7 +82,56 @@ After completing all items, aggregate the objects into a **single JSON array** a
 
 9. List output aliases the user EXPLICITLY REQUESTS in the question.
     - **IMPORTANT** DO NOT include aliases that appear in GOLD_SQL but are not required by the question.
+    - Answer in natural language.
+    
+10. List EXPLICITLY or IMPLICITLY REQUIRED output format details.
+    - **IMPORTANT** ONLY foucus on the clause between `SELECT` and `FROM`.
+    - Consider clear formatting instructions, such as rounding to a specific decimal place.
+    - Identify implied formatting, like representing ratios or percentages as floats.
+    - Answer in natural language.1. List NECESSARY tables the answer MUST reference and that MUST appear in the provided schema.
 
+2. List each NECESSARY join that is STRICTLY REQUIRED to answer the question.
+    - Consider `JOIN`, `LEFT JOIN`, `RIGHT JOIN`, `FULL JOIN`, `CROSS JOIN`, `INNER JOIN`, `OUTER JOIN`, `NATURAL JOIN`, `SELF JOIN`.
+    - Record both the join type and the join keys.
+    - Example: "orders INNER JOIN customers ON orders.customer_id = customers.id"
+
+3. List all NECESSARY columns that appear in the provided schema.  
+    - **IMPORTANT** DO NOT output derived columns like `COUNT(order_id)` or bare column names.
+    - Express each column in fully-qualified `table.column` form.
+    - Include all columns in `WHERE`, `SELECT`, `ORDER BY`, `HAVING`, and `GROUP BY` clauses, except for those in ON clause.
+    - For ambiguous questions, include only the minimal column(s) needed.
+        - for "Which/What <Entity>?" query, return either id or name (not both).
+    - If all columns of one table are required, use `table.*`.
+
+4. List NECESSARY aggregate functions that the query MUST call
+    - **IMPORTANT** ONLY focus on aggregate functions between `SELECT` and `FROM`.
+    - IGNORE aggregate functions in `WHERE`, `ORDER BY`, `GROUP BY`, `HAVING` clauses.
+    - `COUNT`, `SUM`, `AVG`, `MAX`, `MIN`, `VARIANCE`, `GROUP_CONCAT`.
+    - If functions are used inside an arithmetic expression, record the entire expression.
+    - Example: "COUNT(customer_id)", "SUM(amount)/COUNT(order_id)"
+
+5. List NECESSARY row-level filters or limits STRICTLY REQUIRED to answer the question.  
+    - Consider `WHERE`, `ORDER BY`, `LIMIT/FETCH FIRST`, `OFFSET`, `NULLS FIRST`, `NULLS LAST`.
+    - For sub-query predicates such as `EXISTS` or `NOT EXISTS`, answer in natural language.
+    - Example: "ORDER BY orders.order_date DESC" "LIMIT 1" "WHERE orders.total_amount > 100"
+
+6. List each NECESSARY `GROUP BY` clause STRICTLY REQUIRED to answer the question.
+    - Example: "GROUP BY customer_id"
+
+7. List NECESSARY group-level filters in `HAVING` clause STRICTLY REQUIRED to answer the question.
+    - Example: "HAVING SUM(assignments.hours_worked) > 500"
+
+8. List columns the user REQUIRES to have unique values.
+    - DO NOT include columns that are unique merely because they are primary keys.
+    - **IMPORTANT** ONLY focus on columns between `SELECT` and `FROM`.
+    - Consider keywords like "unique" or "distinct" in the question.
+    - Consider `DISTINCT` keyword in GOLD_SQL.
+    - Example: "orders.email"
+
+9. List output aliases the user EXPLICITLY REQUESTS in the question.
+    - **IMPORTANT** DO NOT include aliases that appear in GOLD_SQL but are not required by the question.
+    - Answer in natural language.
+    
 10. List EXPLICITLY or IMPLICITLY REQUIRED output format details.
     - **IMPORTANT** ONLY foucus on the clause between `SELECT` and `FROM`.
     - Consider clear formatting instructions, such as rounding to a specific decimal place.
@@ -207,7 +257,8 @@ CREATE TABLE performance_reviews (
 ### GOLD_SQL
 SELECT COUNT(DISTINCT employees.employee_id) FROM employees INNER JOIN departments ON employees.department_id = departments.department_id INNER JOIN assignments ON employees.employee_id = assignments.employee_id INNER JOIN projects ON assignments.project_id = projects.project_id INNER JOIN performance_reviews ON employees.employee_id = performance_reviews.employee_id WHERE departments.department_name = 'Engineering' GROUP BY employees.employee_id HAVING SUM(assignments.hours_worked) > 500 AND COUNT(DISTINCT strftime('%Y-%m', performance_reviews.review_date)) >= 3 AND SUM(employees.salary) > 100000;
 
-### ANSWER (single JSON array):
+### ANSWER:
+```json
 [
   {{
     "question_id": "1",
@@ -270,5 +321,5 @@ SELECT COUNT(DISTINCT employees.employee_id) FROM employees INNER JOIN departmen
 ### GOLD_SQL
 {gold_sql}
 
-### ANSWER (single JSON array):
+### ANSWER:
 """.strip()

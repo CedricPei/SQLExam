@@ -8,12 +8,18 @@ if __name__ == "__main__":
         questions = json.load(f)
 
     for q in tqdm(questions):
-        question_id = str(q["question_id"])
-        db_id = q["db_id"]
-        question = q["question"]
-        evidence = q["evidence"]
-        gold_sql = q["SQL"]
+        schema = get_schema_by_db_id(q["db_id"])
+        question_obj = {
+            "question_id": str(q["question_id"]),
+            "db_id": q["db_id"],
+            "question": q["question"],
+            "evidence": q["evidence"],
+            "gold_sql": q["SQL"],
+            "schema": schema
+        }
 
-        schema = get_schema_by_db_id(db_id)
-        obs = Observer(schema, question_id, question, evidence, gold_sql)
-        obs.call()
+        obs = Observer(question_obj)
+        constraints = obs.call()
+
+        reviewer = Reviewer(question_obj, constraints)
+        rubric = reviewer.call()
