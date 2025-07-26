@@ -24,8 +24,13 @@ The constraint hypotheses below capture what the user thinks must appear in the 
 """.strip()
 
 user_prompt_reviewer = """
-### INSTRUCTIONS
-For each hypothesis in the “CONSTRAINT HYPOTHESES” section, decide whether it is strictly necessary to answer the QUESTION given the SCHEMA, justify your decision in the `reason`, and set `necessity` accordingly. Output **only** the JSON array.
+######  Instructions
+For each hypothesis in the “CONSTRAINT HYPOTHESES” section, output **one** JSON object with exactly:
+- "question_id": the hypothesis's identifier.
+- "necessity": "true" if it's strictly necessary to answer the QUESTION given the SCHEMA; otherwise "false".
+- "reason": a brief justification for your decision.
+
+After evaluating all hypotheses, aggregate the objects into a **single JSON array** and output only the array.
 
 ###### EXAMPLE
 ### QUESTION:
@@ -50,7 +55,7 @@ CREATE TABLE orders (
 4. The user considers the column **customers.name** indispensable for solving the problem via SQL.
 5. The user requires applying the row-level filter **ORDER BY customers.id** to obtain the desired result set.
 
-### ANSWER:
+### ANSWER (JSON array):
 ```json
 [
   {{
@@ -91,7 +96,7 @@ CREATE TABLE orders (
 ### CONSTRAINT HYPOTHESES:
 {constraints_desc}
 
-### ANSWER:
+### ANSWER (JSON array):
 """.strip()
 
 constraint_templates = {
@@ -123,7 +128,7 @@ constraint_templates = {
   "9": "The output alias requirement **{answer}** should be followed to answer the question.",
   
   # 10. output format details
-  "10": "The output format detail **{answer}** must be satisfied to answer the question."
+  "10": "The explicit or implicit output format detail **{answer}** must be satisfied to answer the question."
 }
 
 

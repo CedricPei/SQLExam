@@ -8,8 +8,11 @@ load_dotenv()
 
 class Reviewer:
     def __init__(self, question_obj: dict, constraints: list):
-        self.question_obj = question_obj
+        # self.question_obj = question_obj
         self.constraints = constraints
+        self.schema = question_obj["schema"]
+        self.evidence = question_obj["evidence"]
+        self.gold_sql = question_obj["gold_sql"]
         self.question_id = question_obj["question_id"]
         self.question = question_obj["question"]
         self.output_dir = "reviewer_outputs"
@@ -40,8 +43,10 @@ class Reviewer:
         try:
             review = json.loads(response_content)
             if not isinstance(review, list):
+                print(response_content)
                 raise ValueError("Review JSON is not an array")
         except json.JSONDecodeError as e:
+            print(response_content)
             raise ValueError(f"Response is not valid JSON: {e}")
 
         filename = os.path.join(self.output_dir, f"{self.question_id}_review.json")
@@ -53,7 +58,6 @@ class Reviewer:
         with open(filename, "w", encoding="utf-8") as f:
             json.dump(revised_constraints, f, ensure_ascii=False, indent=2)
         return revised_constraints
-
 
 def build_constraints_desc(constraints, templates):
     lines = []

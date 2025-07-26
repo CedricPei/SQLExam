@@ -23,4 +23,4 @@ if __name__ == "__main__":
         constraints = obs.call()
 
         reviewer = Reviewer(question_obj, constraints)
-        rubric = reviewer.call()
+        revised_constraints = reviewer.call()
