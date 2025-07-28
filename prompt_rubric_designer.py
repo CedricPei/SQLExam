@@ -6,22 +6,22 @@ Your task is to convert the constraint descriptions into clear, evaluable questi
   - constraint_descriptions: JSON array with descriptions and weighting rules for each constraint
   - schema: the database schema as CREATE TABLE statements
   - question: the original natural language question
+  - background: helpful hints for the question
 
 ### Task
 1. For each constraint description, generate a natural language question that can be used to evaluate whether a SQL query meets the constraint
 2. Assign a weight based on the constraint type and importance
 3. Provide a brief explanation of how to assign points (1-2 sentences) before the weight
 4. Output a JSON array with objects containing:
-   - question_id: string — the original question_id from the constraint
    - question: string — the natural language question
-   - weighting_explanation: string — brief explanation of how to assign points for this question
+   - explanation: string — brief explanation of how to assign points for this question
    - weight: number — the point value for this question
 
 ### Rules
 - Keep questions clear and specific using natural language
 - Use consistent weighting based on constraint type
 - Make questions evaluable (yes/no or specific answer format)
-- Preserve the original question_id from the constraint
+
 - Use natural language for column references (e.g., "column `name` in table `customers`")
 """
 
@@ -30,9 +30,8 @@ user_prompt_rubric_designer = """
 Design evaluation rubrics by translating constraint descriptions into natural language questions. Each constraint should become a clear question that can be used to assess whether a generated SQL query meets the requirement.
 
 For each constraint, create a JSON object with:
-- "question_id": the original question_id from the constraint
 - "question": natural language question
-- "weighting_explanation": brief explanation of how to assign points for this question
+- "explanation": brief explanation of how to assign points for this question
 - "weight": point value based on constraint type
 
 Aggregate all objects into a single JSON array.
@@ -53,22 +52,25 @@ CREATE TABLE orders (
   total DECIMAL
 );
 
+### BACKGROUND:
+"Customers who have placed orders"
+
 ### CONSTRAINT DESCRIPTIONS:
 [
   {
     "question_id": "1",
-    "description": "To build the SQL query to answer the question, customers is compulsory",
-    "weighting_rule": "Each table one point"
+    "description": "The SQL query must reference the table: customers.",
+    "weighting_rule": "Give one point for each required table."
   },
   {
     "question_id": "1",
-    "description": "To build the SQL query to answer the question, orders is compulsory", 
-    "weighting_rule": "Each table one point"
+    "description": "The SQL query must reference the table: orders.", 
+    "weighting_rule": "Give one point for each required table."
   },
   {
     "question_id": "3",
-    "description": "To build the SQL query to answer the question, the column customers.name is compulsory",
-    "weighting_rule": "Each column one point"
+    "description": "The SQL query must reference the column: customers.name.",
+    "weighting_rule": "Assign one point for each required column."
   }
 ]
 
@@ -76,21 +78,18 @@ CREATE TABLE orders (
 ```json
 [
   {
-    "question_id": "1",
     "question": "Does the generated SQL query use the customers table?",
-    "weighting_explanation": "Each table used in the query receives one point.",
+    "explanation": "Each table used in the query receives one point.",
     "weight": 1
   },
   {
-    "question_id": "1", 
     "question": "Does the generated SQL query use the orders table?",
-    "weighting_explanation": "Each table used in the query receives one point.",
+    "explanation": "Each table used in the query receives one point.",
     "weight": 1
   },
   {
-    "question_id": "3",
     "question": "Does the generated SQL query select the column `name` in table `customers`?",
-    "weighting_explanation": "Each required column selected in the query receives one point.",
+    "explanation": "Each required column selected in the query receives one point.",
     "weight": 1
   }
 ]
@@ -103,6 +102,9 @@ CREATE TABLE orders (
 ### SCHEMA:
 {schema}
 
+### BACKGROUND:
+{background}
+
 ### CONSTRAINT DESCRIPTIONS:
 {constraint_descriptions}
 
@@ -110,57 +112,57 @@ CREATE TABLE orders (
 """
 
 rubric_templates = {
-  # 1. tables
-  "1": {
-    "description": "To build the SQL query to answer the question, {answer} is compulsory",
-    "weighting_rule": "Each table one point"
-  },
-  
-  # 2. joins
-  "2": {
-    "description": "To build the SQL query to answer the question, the join {answer} is compulsory",
-    "weighting_rule": "Each join one point"
-  },
-  
-  # 3. columns
-  "3": {
-    "description": "To build the SQL query to answer the question, the column {answer} is compulsory",
-    "weighting_rule": "Each column one point"
-  },
-  
-  # 4. aggregate functions
-  "4": {
-    "description": "To build the SQL query to answer the question, the aggregate function {answer} is compulsory",
-    "weighting_rule": "Each aggregate function one point"
-  },
-  
-  # 5. row-level filters / limits
-  "5": {
-    "description": "To build the SQL query to answer the question, the filter {answer} is compulsory",
-    "weighting_rule": "Each filter one point"
-  },
-  
-  # 6. GROUP BY clauses
-  "6": {
-    "description": "To build the SQL query to answer the question, the GROUP BY {answer} is compulsory",
-    "weighting_rule": "Each GROUP BY clause one point"
-  },
-  
-  # 7. HAVING clauses
-  "7": {
-    "description": "To build the SQL query to answer the question, the HAVING {answer} is compulsory",
-    "weighting_rule": "Each HAVING clause one point"
-  },
-  
-  # 8. unique columns
-  "8": {
-    "description": "To build the SQL query to answer the question, the uniqueness on {answer} is compulsory",
-    "weighting_rule": "Each uniqueness requirement one point"
-  },
-  
-  # 9. output format details
-  "9": {
-    "description": "To build the SQL query to answer the question, the format requirement {answer} is compulsory",
-    "weighting_rule": "Each format requirement one point"
-  }
-} 
+    # 1. required tables
+    "1": {
+        "description": "The SQL query must reference the table: {answer}.",
+        "weighting_rule": "Give one point for each required table."
+    },
+    
+    # 2. required joins
+    "2": {
+        "description": "The SQL query must include the join: {answer}.",
+        "weighting_rule": "Give one point for the required join between the specified tables; For joins other than NATURAL JOIN or CROSS JOIN, give one point for each independent ON clause condition; If the specified join type is not INNER, award one additional point for using that join type."
+    },
+    
+    # 3. required columns
+    "3": {
+        "description": "The SQL query must reference the column: {answer}.",
+        "weighting_rule": "Assign one point for each required column."
+    },
+    
+    # 4. required aggregate functions
+    "4": {
+        "description": "The SQL query must apply the aggregate function: {answer}.",
+        "weighting_rule": "Give one point for every aggregate function present; if an expression contains several aggregates, credit as many points as the number of aggregate functions."
+    },
+    
+    # 5. required row‑level filters and limits
+    "5": {
+        "description": "The SQL query must satisfy the row-level requirement: {answer}.",
+        "weighting_rule": "Award one point for each predicate in the WHERE clause; Credit one point for each sort key in ORDER BY; Add one point when ORDER BY specifies a direction other than ASC; Give one point for each row-limit directive such as LIMIT or OFFSET."
+    },
+    
+    # 6. required GROUP BY clauses
+    "6": {
+        "description": "The SQL query must group results by: {answer}.",
+        "weighting_rule": "Award one point for each field listed in GROUP BY."
+    },
+    
+    # 7. required HAVING clauses
+    "7": {
+        "description": "The SQL query must include a HAVING condition: {answer}.",
+        "weighting_rule": "Assign one point for each condition in the HAVING clause."
+    },
+    
+    # 8. uniqueness requirements
+    "8": {
+        "description": "The SQL query must ensure uniqueness for {answer}.",
+        "weighting_rule": "Give one point for each column that must be unique."
+    },
+    
+    # 9. output‑format requirements
+    "9": {
+        "description": "The result set must meet the output-format requirement: {answer}.",
+        "weighting_rule": "Award one point for each formatting directive."
+    }
+}

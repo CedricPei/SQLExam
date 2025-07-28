@@ -24,6 +24,7 @@ class RubricDesigner:
         user_content = user_prompt_rubric_designer.format(
             schema=self.schema,
             question=self.question,
+            background=self.evidence,
             constraint_descriptions=json.dumps(constraint_descriptions, ensure_ascii=False, indent=2)
         )
         
@@ -60,7 +61,7 @@ class RubricDesigner:
         
         for constraint in constraints:
             qid = constraint.get("question_id")
-            answer = constraint.get("answer", [])
+            answer = constraint.get("answer")
             if answer == "NA":
                 continue
             template_info = rubric_templates.get(qid)
