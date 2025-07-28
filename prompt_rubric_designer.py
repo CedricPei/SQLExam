@@ -22,7 +22,11 @@ Your task is to convert the constraint descriptions into clear, evaluable natura
 - Keep questions clear and specific using natural language
 - Use consistent weighting based on constraint type
 - Make questions evaluable (yes/no or specific answer format)
-- Use natural language for column references (e.g., "column `name` in table `customers`")
+- **IMPORTANT**: Use natural language throughout, avoid SQL syntax and symbols
+    - Instead of "table.column", use "column [column_name] of the table [table_name]"
+    - Instead of SQL functions like COUNT, SUM, etc., use natural language like "count", "sum", "average"
+    - Avoid using backticks, SQL keywords, or technical SQL syntax in questions
+- Return ONLY the JSON array, do not wrap it in any object or add any keys
 """
 
 user_prompt_rubric_designer = """
@@ -34,7 +38,8 @@ For each constraint, create a JSON object with:
 - "explanation": brief explanation of how to assign points for this question
 - "weight": point value based on constraint type
 
-Aggregate all objects into a single JSON array.
+After designing all questions from the constraints, aggregate all objects into a single JSON array. Return ONLY the JSON array directly, do not wrap it in any object or add any keys.
+**IMPORTANT**: Use natural language throughout. Avoid SQL syntax, symbols, and technical terms. 
 
 ###### EXAMPLE
 ### QUESTION
@@ -66,106 +71,102 @@ Christopher Nolan is identified by the condition movies.director = 'Christopher 
 SELECT a.name, COUNT(*) AS movie_count FROM actors AS a JOIN roles AS r ON r.actor_id = a.id JOIN movies AS m ON m.id = r.movie_id WHERE m.director = 'Christopher Nolan' GROUP BY a.id ORDER BY movie_count DESC LIMIT 1;
 
 ### CONSTRAINT DESCRIPTIONS
-```json
 [
-  {
+  {{
     "description": "The SQL query must reference the table: actors.",
     "weighting_rule": "Give one point for each required table."
-  },
-  {
+  }},
+  {{
     "description": "The SQL query must reference the table: movies.",
     "weighting_rule": "Give one point for each required table."
-  },
-  {
+  }},
+  {{
     "description": "The SQL query must reference the table: roles.",
     "weighting_rule": "Give one point for each required table."
-  },
-  {
+  }},
+  {{
     "description": "The SQL query must include the join: actors JOIN roles ON roles.actor_id = actors.id.",
     "weighting_rule": "Give one point for the required join between the specified tables; For joins other than NATURAL JOIN or CROSS JOIN, give one point for each independent ON clause condition; If the specified join type is not INNER, award one additional point for using that join type."
-  },
-  {
+  }},
+  {{
     "description": "The SQL query must include the join: roles JOIN movies ON movies.id = roles.movie_id.",
     "weighting_rule": "Give one point for the required join between the specified tables; For joins other than NATURAL JOIN or CROSS JOIN, give one point for each independent ON clause condition; If the specified join type is not INNER, award one additional point for using that join type."
-  },
-  {
+  }},
+  {{
     "description": "The SQL query must reference the column: actors.name.",
     "weighting_rule": "Assign one point for each required column."
-  },
-  {
+  }},
+  {{
     "description": "The SQL query must satisfy the row-level requirement: WHERE movies.director = 'Christopher Nolan'.",
     "weighting_rule": "Award one point for each predicate in the WHERE clause; Credit one point for each sort key in ORDER BY; Add one point when ORDER BY specifies a direction other than ASC; Give one point for each row-limit directive such as LIMIT or OFFSET."
-  },
-  {
+  }},
+  {{
     "description": "The SQL query must satisfy the row-level requirement: ORDER BY movie_count DESC.",
     "weighting_rule": "Award one point for each predicate in the WHERE clause; Credit one point for each sort key in ORDER BY; Add one point when ORDER BY specifies a direction other than ASC; Give one point for each row-limit directive such as LIMIT or OFFSET."
-  },
-  {
+  }},
+  {{
     "description": "The SQL query must satisfy the row-level requirement: LIMIT 1.",
     "weighting_rule": "Award one point for each predicate in the WHERE clause; Credit one point for each sort key in ORDER BY; Add one point when ORDER BY specifies a direction other than ASC; Give one point for each row-limit directive such as LIMIT or OFFSET."
-  },
-  {
+  }},
+  {{
     "description": "The SQL query must group results by: GROUP BY actors.id.",
     "weighting_rule": "Award one point for each field listed in GROUP BY."
-  }
+  }}
 ]
-```
 
-### DESIGNED RUBRIC:
-```json
+### OUTPUT (return ONLY this JSON array):
 [
-  {
-    "question": "Does the query read from the `actors` table?",
+  {{
+    "question": "Does the query read from the actors table?",
     "explanation": "Presence of this table yields one point.",
     "weight": 1
-  },
-  {
-    "question": "Is the `movies` table included in the query?",
+  }},
+  {{
+    "question": "Is the movies table included in the query?",
     "explanation": "Presence of this table yields one point.",
     "weight": 1
-  },
-  {
-    "question": "Does the query reference the `roles` table?",
+  }},
+  {{
+    "question": "Does the query reference the roles table?",
     "explanation": "Presence of this table yields one point.",
     "weight": 1
-  },
-  {
-    "question": "Is there a join between `roles` and `actors` on matching actor IDs?",
+  }},
+  {{
+    "question": "Is there a join between roles and actors on matching actor IDs?",
     "explanation": "One point for the join plus one for the correct ON condition.",
     "weight": 2
-  },
-  {
-    "question": "Does the query join `roles` to `movies` using movie IDs?",
+  }},
+  {{
+    "question": "Does the query join roles to movies using movie IDs?",
     "explanation": "One point for the join plus one for the correct ON condition.",
     "weight": 2
-  },
-  {
-    "question": "Is the actor's identifier (`actors.name` or `actors.id`) selected in the output?",
+  }},
+  {{
+    "question": "Is the actor's identifier selected in the output?",
     "explanation": "Referencing this required column earns one point.",
     "weight": 1
-  },
-  {
+  }},
+  {{
     "question": "Does the query filter for movies directed by Christopher Nolan?",
     "explanation": "Each predicate in the WHERE clause is worth one point.",
     "weight": 1
-  },
-  {
+  }},
+  {{
     "question": "Are results ordered by movie count in descending order?",
     "explanation": "One point for the correct sort key and one point for specifying descending direction.",
     "weight": 2
-  },
-  {
+  }},
+  {{
     "question": "Is the result limited to only the top actor?",
     "explanation": "Limiting the output to one row earns one point.",
     "weight": 1
-  },
-  {
+  }},
+  {{
     "question": "Does the query group the rows so that each actor's movies are aggregated together?",
     "explanation": "Each grouping key required is worth one point.",
     "weight": 1
-  }
+  }}
 ]
-```
 
 ###### For you to design:
 ### QUESTION
@@ -181,11 +182,9 @@ SELECT a.name, COUNT(*) AS movie_count FROM actors AS a JOIN roles AS r ON r.act
 {gold_sql}
 
 ### CONSTRAINT DESCRIPTIONS
-```json
 {constraint_descriptions}
-```
 
-### DESIGNED RUBRIC:
+### OUTPUT (return ONLY the JSON array):
 """
 
 rubric_templates = {

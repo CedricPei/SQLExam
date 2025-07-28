@@ -20,14 +20,15 @@ class RubricDesigner:
 
     def call(self) -> list:
         constraint_descriptions = self.build_constraint_description(self.constraints)
-
+        # print(constraint_descriptions)
         user_content = user_prompt_rubric_designer.format(
             schema=self.schema,
             question=self.question,
             background=self.evidence,
             gold_sql=self.gold_sql,
-            constraint_descriptions=json.dumps(constraint_descriptions, ensure_ascii=False, indent=2)
+            constraint_descriptions=constraint_descriptions
         )
+        # print(user_content)
         
         client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"), base_url="https://api.deepseek.com/v1")
         response = client.chat.completions.create(
@@ -46,6 +47,7 @@ class RubricDesigner:
             answer = extract_json_from_response(response_content)
             designed_rubric = json.loads(answer)
             if not isinstance(designed_rubric, list):
+                print(response_content)
                 raise ValueError("Response JSON is not an array")
         except json.JSONDecodeError as e:
             print(response_content)
@@ -72,5 +74,5 @@ class RubricDesigner:
                     "weighting_rule": template_info["weighting_rule"]
                 }
                 constraint_descriptions.append(constraint_description)
-        
+        constraint_descriptions = json.dumps(constraint_descriptions, ensure_ascii=False, indent=2)
         return constraint_descriptions 

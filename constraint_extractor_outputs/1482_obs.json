@@ -1,0 +1,53 @@
+[
+  {
+    "question_id": "1",
+    "answer": [
+      "customers",
+      "yearmonth"
+    ]
+  },
+  {
+    "question_id": "2",
+    "answer": [
+      "customers INNER JOIN yearmonth ON customers.CustomerID = yearmonth.CustomerID"
+    ]
+  },
+  {
+    "question_id": "3",
+    "answer": [
+      "customers.Segment",
+      "yearmonth.Date",
+      "yearmonth.Consumption"
+    ]
+  },
+  {
+    "question_id": "4",
+    "answer": [
+      "CAST((SUM(IIF(customers.Segment = 'SME' AND yearmonth.Date LIKE '2013%', yearmonth.Consumption, 0)) - SUM(IIF(customers.Segment = 'SME' AND yearmonth.Date LIKE '2012%', yearmonth.Consumption, 0))) AS FLOAT) * 100 / SUM(IIF(customers.Segment = 'SME' AND yearmonth.Date LIKE '2012%', yearmonth.Consumption, 0))",
+      "CAST(SUM(IIF(customers.Segment = 'LAM' AND yearmonth.Date LIKE '2013%', yearmonth.Consumption, 0)) - SUM(IIF(customers.Segment = 'LAM' AND yearmonth.Date LIKE '2012%', yearmonth.Consumption, 0)) AS FLOAT) * 100 / SUM(IIF(customers.Segment = 'LAM' AND yearmonth.Date LIKE '2012%', yearmonth.Consumption, 0))",
+      "CAST(SUM(IIF(customers.Segment = 'KAM' AND yearmonth.Date LIKE '2013%', yearmonth.Consumption, 0)) - SUM(IIF(customers.Segment = 'KAM' AND yearmonth.Date LIKE '2012%', yearmonth.Consumption, 0)) AS FLOAT) * 100 / SUM(IIF(customers.Segment = 'KAM' AND yearmonth.Date LIKE '2012%', yearmonth.Consumption, 0))"
+    ]
+  },
+  {
+    "question_id": "5",
+    "answer": [
+      "WHERE yearmonth.Date LIKE '2012%' OR yearmonth.Date LIKE '2013%'"
+    ]
+  },
+  {
+    "question_id": "6",
+    "answer": "NA"
+  },
+  {
+    "question_id": "7",
+    "answer": "NA"
+  },
+  {
+    "question_id": "8",
+    "answer": "NA"
+  },
+  {
+    "question_id": "9",
+    "answer": "NA"
+  }
+]

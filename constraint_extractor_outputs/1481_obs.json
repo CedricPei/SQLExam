@@ -1,0 +1,56 @@
+[
+  {
+    "question_id": "1",
+    "answer": [
+      "customers",
+      "yearmonth"
+    ]
+  },
+  {
+    "question_id": "2",
+    "answer": [
+      "customers INNER JOIN yearmonth ON customers.CustomerID = yearmonth.CustomerID"
+    ]
+  },
+  {
+    "question_id": "3",
+    "answer": [
+      "customers.Segment",
+      "yearmonth.Consumption",
+      "customers.Currency",
+      "yearmonth.Date"
+    ]
+  },
+  {
+    "question_id": "4",
+    "answer": [
+      "CAST(SUM(IIF(customers.Segment = 'SME', yearmonth.Consumption, 0)) AS REAL) / COUNT(customers.CustomerID)",
+      "CAST(SUM(IIF(customers.Segment = 'LAM', yearmonth.Consumption, 0)) AS REAL) / COUNT(customers.CustomerID)",
+      "CAST(SUM(IIF(customers.Segment = 'KAM', yearmonth.Consumption, 0)) AS REAL) / COUNT(customers.CustomerID)"
+    ]
+  },
+  {
+    "question_id": "5",
+    "answer": [
+      "WHERE customers.Currency = 'CZK'",
+      "WHERE yearmonth.Consumption = (SELECT MIN(Consumption) FROM yearmonth)",
+      "WHERE yearmonth.Date BETWEEN 201301 AND 201312"
+    ]
+  },
+  {
+    "question_id": "6",
+    "answer": "NA"
+  },
+  {
+    "question_id": "7",
+    "answer": "NA"
+  },
+  {
+    "question_id": "8",
+    "answer": "NA"
+  },
+  {
+    "question_id": "9",
+    "answer": "NA"
+  }
+]

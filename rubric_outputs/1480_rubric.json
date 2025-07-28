@@ -1,0 +1,57 @@
+[
+  {
+    "question": "Does the query read from the customers table?",
+    "explanation": "Presence of this table yields one point.",
+    "weight": 1
+  },
+  {
+    "question": "Is the yearmonth table included in the query?",
+    "explanation": "Presence of this table yields one point.",
+    "weight": 1
+  },
+  {
+    "question": "Is there a join between customers and yearmonth on matching customer IDs?",
+    "explanation": "One point for the join plus one for the correct ON condition.",
+    "weight": 2
+  },
+  {
+    "question": "Does the query reference the date column of the yearmonth table?",
+    "explanation": "Referencing this required column earns one point.",
+    "weight": 1
+  },
+  {
+    "question": "Is the consumption column of the yearmonth table used in the query?",
+    "explanation": "Referencing this required column earns one point.",
+    "weight": 1
+  },
+  {
+    "question": "Does the query reference the segment column of the customers table?",
+    "explanation": "Referencing this required column earns one point.",
+    "weight": 1
+  },
+  {
+    "question": "Does the query calculate the sum of consumption from the yearmonth table?",
+    "explanation": "Using this aggregate function earns one point.",
+    "weight": 1
+  },
+  {
+    "question": "Does the query filter for the year 2013 and SME segment customers?",
+    "explanation": "Each predicate in the WHERE clause is worth one point.",
+    "weight": 2
+  },
+  {
+    "question": "Does the query group the results by month extracted from the date?",
+    "explanation": "Each grouping key required is worth one point.",
+    "weight": 1
+  },
+  {
+    "question": "Are results ordered by the sum of consumption in descending order?",
+    "explanation": "One point for the correct sort key and one point for specifying descending direction.",
+    "weight": 2
+  },
+  {
+    "question": "Is the result limited to only the peak month?",
+    "explanation": "Limiting the output to one row earns one point.",
+    "weight": 1
+  }
+]

@@ -54,9 +54,9 @@ After completing all items, aggregate the objects into a **single JSON array** a
         - for "Which/What <Entity>?" query, return either id or name (not both).
     - If all columns of one table are required, use `table.*`.
 
-4. List NECESSARY aggregate functions that the query MUST call
-    - **IMPORTANT** ONLY focus on aggregate functions between `SELECT` and `FROM`.
+4. List NECESSARY aggregate functions that the query MUST call in the **SELECT** clause.
     - IGNORE aggregate functions in `WHERE`, `ORDER BY`, `GROUP BY`, `HAVING` clauses.
+    - **IMPORTANT** ONLY focus on aggregate functions between `SELECT` and `FROM`.
     - `COUNT`, `SUM`, `AVG`, `MAX`, `MIN`, `VARIANCE`, `GROUP_CONCAT`.
     - If functions are used inside an arithmetic expression, record the entire expression.
     - Example: ["COUNT(customer_id)", "SUM(amount)/COUNT(order_id)"]
