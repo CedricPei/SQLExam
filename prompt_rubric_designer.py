@@ -1,13 +1,13 @@
 system_prompt_rubric_designer = """
 You are **SQL Rubric Designer**, a component that designs evaluation rubrics for SQL constraints.
-Your task is to convert the constraint descriptions into clear, evaluable questions with assigned weights.
+Your task is to convert the constraint descriptions into clear, evaluable natural language questions with assigned weights.
 
 ### Inputs
   - constraint_descriptions: JSON array with descriptions and weighting rules for each constraint
   - schema: the database schema as CREATE TABLE statements
   - question: the original natural language question
   - background: helpful hints for the question
-  - gold_sql: the correct SQL query (for reference only)
+  - gold_sql: the ground truth SQL query (for reference only)
 
 ### Task
 1. For each constraint description, generate a natural language question that can be used to evaluate whether a SQL query meets the constraint
@@ -81,20 +81,16 @@ SELECT a.name, COUNT(*) AS movie_count FROM actors AS a JOIN roles AS r ON r.act
     "weighting_rule": "Give one point for each required table."
   },
   {
-    "description": "The SQL query must include the join: roles JOIN actors ON roles.actor_id = actors.id.",
+    "description": "The SQL query must include the join: actors JOIN roles ON roles.actor_id = actors.id.",
     "weighting_rule": "Give one point for the required join between the specified tables; For joins other than NATURAL JOIN or CROSS JOIN, give one point for each independent ON clause condition; If the specified join type is not INNER, award one additional point for using that join type."
   },
   {
-    "description": "The SQL query must include the join: roles JOIN movies ON roles.movie_id = movies.id.",
+    "description": "The SQL query must include the join: roles JOIN movies ON movies.id = roles.movie_id.",
     "weighting_rule": "Give one point for the required join between the specified tables; For joins other than NATURAL JOIN or CROSS JOIN, give one point for each independent ON clause condition; If the specified join type is not INNER, award one additional point for using that join type."
   },
   {
     "description": "The SQL query must reference the column: actors.name.",
     "weighting_rule": "Assign one point for each required column."
-  },
-  {
-    "description": "The SQL query must apply the aggregate function: COUNT(*) in the SELECT clause.",
-    "weighting_rule": "Give one point for every aggregate function present; if an expression contains several aggregates, credit as many points as the number of aggregate functions."
   },
   {
     "description": "The SQL query must satisfy the row-level requirement: WHERE movies.director = 'Christopher Nolan'.",
@@ -144,13 +140,8 @@ SELECT a.name, COUNT(*) AS movie_count FROM actors AS a JOIN roles AS r ON r.act
     "weight": 2
   },
   {
-    "question": "Is the actor's name (`actors.name`) selected in the output?",
+    "question": "Is the actor's identifier (`actors.name` or `actors.id`) selected in the output?",
     "explanation": "Referencing this required column earns one point.",
-    "weight": 1
-  },
-  {
-    "question": "Does the query count the number of Nolan-directed movies per actor with `COUNT(*)`?",
-    "explanation": "Each required aggregate function used is worth one point.",
     "weight": 1
   },
   {
@@ -169,7 +160,7 @@ SELECT a.name, COUNT(*) AS movie_count FROM actors AS a JOIN roles AS r ON r.act
     "weight": 1
   },
   {
-    "question": "Are results grouped by `actors.id` in the GROUP BY clause?",
+    "question": "Does the query group the rows so that each actor's movies are aggregated together?",
     "explanation": "Each grouping key required is worth one point.",
     "weight": 1
   }
