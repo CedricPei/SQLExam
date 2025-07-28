@@ -2,13 +2,13 @@ import os
 import json
 import openai
 from dotenv import load_dotenv
-from prompt_observer import system_prompt_observer, user_prompt_observer
+from prompt_constraint_extractor import system_prompt_constraint_extractor, user_prompt_constraint_extractor
 from utils import extract_json_from_response
 
 load_dotenv()
 
-class Observer:
-    def __init__(self, question_obj: dict, output_dir: str = "obs_outputs"):
+class ConstraintExtractor:
+    def __init__(self, question_obj: dict, output_dir: str = "constraint_extractor_outputs"):
         self.schema = question_obj["schema"]
         self.question_id = question_obj["question_id"]
         self.question = question_obj["question"]
@@ -18,7 +18,7 @@ class Observer:
         os.makedirs(self.output_dir, exist_ok=True)
 
     def call(self) -> list:
-        user_content = user_prompt_observer.format(
+        user_content = user_prompt_constraint_extractor.format(
             schema=self.schema,
             question=self.question, 
             evidence=self.evidence,
@@ -29,7 +29,7 @@ class Observer:
         response = client.chat.completions.create(
             model="deepseek-chat",
             messages=[
-                {"role": "system", "content": system_prompt_observer},
+                {"role": "system", "content": system_prompt_constraint_extractor},
                 {"role": "user", "content": user_content}
             ],
             response_format={

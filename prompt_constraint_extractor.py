@@ -1,4 +1,4 @@
-system_prompt_observer = """
+system_prompt_constraint_extractor = """
 You are an **Constraint Extractor** in an LLM-based SQL-evaluation pipeline.
 
 ### Inputs
@@ -24,7 +24,7 @@ You are an **Constraint Extractor** in an LLM-based SQL-evaluation pipeline.
 """.strip()
 
 
-user_prompt_observer = """
+user_prompt_constraint_extractor = """
 ######  Instructions
 For each checklist item below, output **one** JSON object with exactly:
 - "question_id": the item's identifier (e.g., "2").
@@ -78,18 +78,13 @@ After completing all items, aggregate the objects into a **single JSON array** a
     - Consider keywords like "unique" or "distinct" in the question.
     - Consider `DISTINCT` keyword in GOLD_SQL.
     - Example: ["orders.email"]
-
-9. List output aliases the user EXPLICITLY REQUESTS in the question.
-    - **IMPORTANT** DO NOT include aliases that appear in GOLD_SQL but are not required by the question.
-    - Answer in concise natural language.
-    - Example: ["user requested the alias 'total_sales' for the output column"]
     
-10. List EXPLICITLY or IMPLICITLY REQUIRED output format details.
+9. List EXPLICITLY or IMPLICITLY REQUIRED output format details.
     - **IMPORTANT** ONLY foucus on the clause between `SELECT` and `FROM`.
     - Consider clear formatting instructions, such as rounding to a specific decimal place.
     - Identify implied formatting, like representing ratios or percentages as floats.
     - Answer in concise natural language.
-    - Example: ["ratio should be represented as a float", "output should contain 2 decimal places"]
+    - Example: ["ratio should be represented as float", "output should contain 2 decimal places"]
 
 ###### CHECKLIST END
 
@@ -159,10 +154,6 @@ WHERE orders.total_amount > 1000;
   }},
   {{
     "question_id": "9",
-    "answer": "NA"
-  }},
-  {{
-    "question_id": "10",
     "answer": "NA"
   }}
 ]
@@ -253,10 +244,6 @@ SELECT COUNT(DISTINCT employees.employee_id) FROM employees INNER JOIN departmen
   }},
   {{
     "question_id": "9",
-    "answer": "NA"
-  }},
-  {{
-    "question_id": "10",
     "answer": "NA"
   }}
 ]

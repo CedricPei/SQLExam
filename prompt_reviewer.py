@@ -25,7 +25,7 @@ The constraint hypotheses below capture what the user thinks must appear in the 
 
 user_prompt_reviewer = """
 ######  Instructions
-For each hypothesis in the “CONSTRAINT HYPOTHESES” section, output **one** JSON object with exactly:
+For each hypothesis in the "CONSTRAINT HYPOTHESES" section, output **one** JSON object with exactly:
 - "question_id": the hypothesis's identifier.
 - "necessity": "true" if it's strictly necessary to answer the QUESTION given the SCHEMA; otherwise "false".
 - "reason": a brief justification for your decision.
@@ -115,7 +115,7 @@ constraint_templates = {
   # 5. row-level filters / limits
   "5": "The user requires applying the row-level filter **{answer}** to obtain the desired result set.",
   
-  # 6. GROUP BY clauses
+  # 6. GROUP BY clauses
   "6": "The user judges that the grouping **{answer}** is mandatory in the SQL query.",
   
   # 7. HAVING clauses
@@ -124,11 +124,8 @@ constraint_templates = {
   # 8. unique columns
   "8": "The user insists that the uniqueness on the **{answer}** column is necessary.",
   
-  # 9. output aliases
-  "9": "The output alias requirement **{answer}** should be followed to answer the question.",
-  
-  # 10. output format details
-  "10": "The explicit or implicit output format detail **{answer}** must be satisfied to answer the question."
+  # 9. output format details
+  "9": "The explicit or implicit output format detail **{answer}** must be satisfied to answer the question."
 }
 
 

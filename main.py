@@ -1,5 +1,6 @@
 import json
-from observer import Observer
+from constraint_extractor import ConstraintExtractor
+from rubric_designer import RubricDesigner
 from reviewer import Reviewer
 from utils import get_schema_by_db_id
 from tqdm import tqdm
@@ -19,8 +20,11 @@ if __name__ == "__main__":
             "schema": schema
         }
 
-        obs = Observer(question_obj)
-        constraints = obs.call()
+        constraint_extractor = ConstraintExtractor(question_obj)
+        constraints = constraint_extractor.call()
 
-        reviewer = Reviewer(question_obj, constraints)
-        revised_constraints = reviewer.call()
+        rubric_designer = RubricDesigner(question_obj, constraints)
+        designed_rubric = rubric_designer.call()
+
+        # reviewer = Reviewer(question_obj, constraints)
+        # revised_constraints = reviewer.call()
