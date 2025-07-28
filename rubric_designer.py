@@ -25,6 +25,7 @@ class RubricDesigner:
             schema=self.schema,
             question=self.question,
             background=self.evidence,
+            gold_sql=self.gold_sql,
             constraint_descriptions=json.dumps(constraint_descriptions, ensure_ascii=False, indent=2)
         )
         
@@ -67,9 +68,8 @@ class RubricDesigner:
             template_info = rubric_templates.get(qid)
             for ans in answer:
                 constraint_description = {
-                    "question_id": qid,
                     "description": template_info["description"].format(answer=ans),
-                    "weighting_rule":  template_info["weighting_rule"]
+                    "weighting_rule": template_info["weighting_rule"]
                 }
                 constraint_descriptions.append(constraint_description)
         

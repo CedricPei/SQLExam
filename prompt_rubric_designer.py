@@ -7,6 +7,7 @@ Your task is to convert the constraint descriptions into clear, evaluable questi
   - schema: the database schema as CREATE TABLE statements
   - question: the original natural language question
   - background: helpful hints for the question
+  - gold_sql: the correct SQL query (for reference only)
 
 ### Task
 1. For each constraint description, generate a natural language question that can be used to evaluate whether a SQL query meets the constraint
@@ -21,7 +22,6 @@ Your task is to convert the constraint descriptions into clear, evaluable questi
 - Keep questions clear and specific using natural language
 - Use consistent weighting based on constraint type
 - Make questions evaluable (yes/no or specific answer format)
-
 - Use natural language for column references (e.g., "column `name` in table `customers`")
 """
 
@@ -37,76 +37,162 @@ For each constraint, create a JSON object with:
 Aggregate all objects into a single JSON array.
 
 ###### EXAMPLE
-### ORIGINAL QUESTION:
-"List the names of customers who have placed at least one order."
+### QUESTION
+Which actor has appeared in the greatest number of movies directed by Christopher Nolan?
 
-### SCHEMA:
-CREATE TABLE customers (
-  id INT PRIMARY KEY,
+### SCHEMA
+CREATE TABLE actors (
+  id   INT PRIMARY KEY,
   name TEXT
 );
 
-CREATE TABLE orders (
-  id INT PRIMARY KEY,
-  customer_id INT,
-  total DECIMAL
+CREATE TABLE movies (
+  id       INT PRIMARY KEY,
+  title    TEXT,
+  director TEXT
 );
 
-### BACKGROUND:
-"Customers who have placed orders"
+CREATE TABLE roles (
+  actor_id  INT,
+  movie_id  INT,
+  FOREIGN KEY (actor_id) REFERENCES actors(id),
+  FOREIGN KEY (movie_id) REFERENCES movies(id)
+);
 
-### CONSTRAINT DESCRIPTIONS:
+### BACKGROUND
+Christopher Nolan is identified by the condition movies.director = 'Christopher Nolan'; The greatest number of movies is obtained by taking the maximum count of movies per actor; Actor names are stored in the column actors.name.
+
+### GOLD SQL
+SELECT a.name, COUNT(*) AS movie_count FROM actors AS a JOIN roles AS r ON r.actor_id = a.id JOIN movies AS m ON m.id = r.movie_id WHERE m.director = 'Christopher Nolan' GROUP BY a.id ORDER BY movie_count DESC LIMIT 1;
+
+### CONSTRAINT DESCRIPTIONS
+```json
 [
   {
-    "question_id": "1",
-    "description": "The SQL query must reference the table: customers.",
+    "description": "The SQL query must reference the table: actors.",
     "weighting_rule": "Give one point for each required table."
   },
   {
-    "question_id": "1",
-    "description": "The SQL query must reference the table: orders.", 
+    "description": "The SQL query must reference the table: movies.",
     "weighting_rule": "Give one point for each required table."
   },
   {
-    "question_id": "3",
-    "description": "The SQL query must reference the column: customers.name.",
+    "description": "The SQL query must reference the table: roles.",
+    "weighting_rule": "Give one point for each required table."
+  },
+  {
+    "description": "The SQL query must include the join: roles JOIN actors ON roles.actor_id = actors.id.",
+    "weighting_rule": "Give one point for the required join between the specified tables; For joins other than NATURAL JOIN or CROSS JOIN, give one point for each independent ON clause condition; If the specified join type is not INNER, award one additional point for using that join type."
+  },
+  {
+    "description": "The SQL query must include the join: roles JOIN movies ON roles.movie_id = movies.id.",
+    "weighting_rule": "Give one point for the required join between the specified tables; For joins other than NATURAL JOIN or CROSS JOIN, give one point for each independent ON clause condition; If the specified join type is not INNER, award one additional point for using that join type."
+  },
+  {
+    "description": "The SQL query must reference the column: actors.name.",
     "weighting_rule": "Assign one point for each required column."
+  },
+  {
+    "description": "The SQL query must apply the aggregate function: COUNT(*) in the SELECT clause.",
+    "weighting_rule": "Give one point for every aggregate function present; if an expression contains several aggregates, credit as many points as the number of aggregate functions."
+  },
+  {
+    "description": "The SQL query must satisfy the row-level requirement: WHERE movies.director = 'Christopher Nolan'.",
+    "weighting_rule": "Award one point for each predicate in the WHERE clause; Credit one point for each sort key in ORDER BY; Add one point when ORDER BY specifies a direction other than ASC; Give one point for each row-limit directive such as LIMIT or OFFSET."
+  },
+  {
+    "description": "The SQL query must satisfy the row-level requirement: ORDER BY movie_count DESC.",
+    "weighting_rule": "Award one point for each predicate in the WHERE clause; Credit one point for each sort key in ORDER BY; Add one point when ORDER BY specifies a direction other than ASC; Give one point for each row-limit directive such as LIMIT or OFFSET."
+  },
+  {
+    "description": "The SQL query must satisfy the row-level requirement: LIMIT 1.",
+    "weighting_rule": "Award one point for each predicate in the WHERE clause; Credit one point for each sort key in ORDER BY; Add one point when ORDER BY specifies a direction other than ASC; Give one point for each row-limit directive such as LIMIT or OFFSET."
+  },
+  {
+    "description": "The SQL query must group results by: GROUP BY actors.id.",
+    "weighting_rule": "Award one point for each field listed in GROUP BY."
   }
 ]
+```
 
 ### DESIGNED RUBRIC:
 ```json
 [
   {
-    "question": "Does the generated SQL query use the customers table?",
-    "explanation": "Each table used in the query receives one point.",
+    "question": "Does the query read from the `actors` table?",
+    "explanation": "Presence of this table yields one point.",
     "weight": 1
   },
   {
-    "question": "Does the generated SQL query use the orders table?",
-    "explanation": "Each table used in the query receives one point.",
+    "question": "Is the `movies` table included in the query?",
+    "explanation": "Presence of this table yields one point.",
     "weight": 1
   },
   {
-    "question": "Does the generated SQL query select the column `name` in table `customers`?",
-    "explanation": "Each required column selected in the query receives one point.",
+    "question": "Does the query reference the `roles` table?",
+    "explanation": "Presence of this table yields one point.",
+    "weight": 1
+  },
+  {
+    "question": "Is there a join between `roles` and `actors` on matching actor IDs?",
+    "explanation": "One point for the join plus one for the correct ON condition.",
+    "weight": 2
+  },
+  {
+    "question": "Does the query join `roles` to `movies` using movie IDs?",
+    "explanation": "One point for the join plus one for the correct ON condition.",
+    "weight": 2
+  },
+  {
+    "question": "Is the actor's name (`actors.name`) selected in the output?",
+    "explanation": "Referencing this required column earns one point.",
+    "weight": 1
+  },
+  {
+    "question": "Does the query count the number of Nolan-directed movies per actor with `COUNT(*)`?",
+    "explanation": "Each required aggregate function used is worth one point.",
+    "weight": 1
+  },
+  {
+    "question": "Does the query filter for movies directed by Christopher Nolan?",
+    "explanation": "Each predicate in the WHERE clause is worth one point.",
+    "weight": 1
+  },
+  {
+    "question": "Are results ordered by movie count in descending order?",
+    "explanation": "One point for the correct sort key and one point for specifying descending direction.",
+    "weight": 2
+  },
+  {
+    "question": "Is the result limited to only the top actor?",
+    "explanation": "Limiting the output to one row earns one point.",
+    "weight": 1
+  },
+  {
+    "question": "Are results grouped by `actors.id` in the GROUP BY clause?",
+    "explanation": "Each grouping key required is worth one point.",
     "weight": 1
   }
 ]
 ```
 
 ###### For you to design:
-### ORIGINAL QUESTION:
+### QUESTION
 {question}
 
-### SCHEMA:
+### SCHEMA
 {schema}
 
-### BACKGROUND:
+### BACKGROUND
 {background}
 
-### CONSTRAINT DESCRIPTIONS:
+### GOLD SQL
+{gold_sql}
+
+### CONSTRAINT DESCRIPTIONS
+```json
 {constraint_descriptions}
+```
 
 ### DESIGNED RUBRIC:
 """
@@ -132,7 +218,7 @@ rubric_templates = {
     
     # 4. required aggregate functions
     "4": {
-        "description": "The SQL query must apply the aggregate function: {answer}.",
+        "description": "The SQL query must apply the aggregate function: {answer} in the SELECT clause.",
         "weighting_rule": "Give one point for every aggregate function present; if an expression contains several aggregates, credit as many points as the number of aggregate functions."
     },
     
