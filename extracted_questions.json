@@ -1,0 +1,82 @@
+[
+  {
+    "question_id": 1322,
+    "db_id": "student_club",
+    "question": "Among the events attended by more than 10 members of the Student_Club, how many of them are meetings?",
+    "evidence": "meetings events refers to type = 'Meeting'; attended by more than 10 members refers to COUNT(event_id) > 10",
+    "SQL": "SELECT T1.event_name FROM event AS T1  INNER JOIN attendance AS T2 ON T1.event_id = T2.link_to_event GROUP BY T1.event_id  HAVING COUNT(T2.link_to_event) > 10 EXCEPT SELECT T1.event_name  FROM event AS T1  WHERE T1.type = 'Meeting'",
+    "difficulty": "moderate"
+  },
+  {
+    "question_id": 1323,
+    "db_id": "student_club",
+    "question": "List all the names of events that had an attendance of over 20 students but were not fundraisers.",
+    "evidence": "name of events refers to event_name; attendance of over 20 students COUNT(event_id) > 20.",
+    "SQL": "SELECT T1.event_name FROM event AS T1 INNER JOIN attendance AS T2 ON T1.event_id = T2.link_to_event GROUP BY T1.event_id HAVING COUNT(T2.link_to_event) > 20 EXCEPT SELECT T1.event_name FROM event AS T1  WHERE T1.type = 'Fundraiser'",
+    "difficulty": "moderate"
+  },
+  {
+    "question_id": 1058,
+    "db_id": "european_football_2",
+    "question": "Who has the highest average finishing rate between the highest and shortest football player?",
+    "evidence": "finishing rate refers to finishing; highest average finishing rate = MAX(AVG(finishing)); highest football player refers to MAX(height); shortest football player refers to MIN(height);",
+    "SQL": "SELECT A FROM ( SELECT AVG(finishing) result, 'Max' A FROM Player AS T1 INNER JOIN Player_Attributes AS T2 ON T1.player_api_id = T2.player_api_id WHERE T1.height = ( SELECT MAX(height) FROM Player ) UNION SELECT AVG(finishing) result, 'Min' A FROM Player AS T1 INNER JOIN Player_Attributes AS T2 ON T1.player_api_id = T2.player_api_id WHERE T1.height = ( SELECT MIN(height) FROM Player ) ) ORDER BY result DESC LIMIT 1",
+    "difficulty": "challenging"
+  },
+  {
+    "question_id": 930,
+    "db_id": "formula_1",
+    "question": "In which Formula_1 race did Lewis Hamilton rank the highest?",
+    "evidence": "rank the highest refers to min(rank); Lewis Hamilton refers to the full name of the driver; Full name of the driver refers to drivers.forename and drivers.surname;",
+    "SQL": "SELECT name FROM races WHERE raceId IN ( SELECT raceId FROM results WHERE rank = 1 AND driverId = ( SELECT driverId FROM drivers WHERE forename = 'Lewis' AND surname = 'Hamilton' ) )",
+    "difficulty": "simple"
+  },
+  {
+    "question_id": 726,
+    "db_id": "superhero",
+    "question": "Rank heroes published by Marvel Comics by their height in descending order.",
+    "evidence": "name refers to superhero_name; the tallest hero refers to MAX(height_cm); published by Marvel Comics refers to publisher_name = 'Marvel Comics'",
+    "SQL": "SELECT superhero_name, height_cm, RANK() OVER (ORDER BY height_cm DESC) AS HeightRank FROM superhero INNER JOIN publisher ON superhero.publisher_id = publisher.id WHERE publisher.publisher_name = 'Marvel Comics'",
+    "difficulty": "moderate"
+  },
+  {
+    "question_id": 728,
+    "db_id": "superhero",
+    "question": "Rank superheroes from Marvel Comics by their eye color popularity, starting with the most common color.",
+    "evidence": "the superheroes from Marvel Comics refers to publisher_name = 'Marvel Comics'; most common color refers to COUNT(superhero.id) DESC;",
+    "SQL": "SELECT colour.colour AS EyeColor, COUNT(superhero.id) AS Count, RANK() OVER (ORDER BY COUNT(superhero.id) DESC) AS PopularityRank FROM superhero INNER JOIN colour ON superhero.eye_colour_id = colour.id INNER JOIN publisher ON superhero.publisher_id = publisher.id WHERE publisher.publisher_name = 'Marvel Comics' GROUP BY colour.colour",
+    "difficulty": "moderate"
+  },
+  {
+    "question_id": 730,
+    "db_id": "superhero",
+    "question": "List the superheroes from Marvel Comics who have the super power of 'Super Strength'.",
+    "evidence": "the superheroes from Marvel Comics refers to publisher_name = 'Marvel Comics'; super power of \"Super Strength\" refers to power_name = 'Super Strength';",
+    "SQL": "SELECT superhero_name FROM superhero AS T1 WHERE EXISTS (SELECT 1 FROM hero_power AS T2 INNER JOIN superpower AS T3 ON T2.power_id = T3.id WHERE T3.power_name = 'Super Strength' AND T1.id = T2.hero_id)AND EXISTS (SELECT 1 FROM publisher AS T4 WHERE T4.publisher_name = 'Marvel Comics' AND T1.publisher_id = T4.id)",
+    "difficulty": "challenging"
+  },
+  {
+    "question_id": 738,
+    "db_id": "superhero",
+    "question": "Which superheroes have a durability attribute value of less than 50?",
+    "evidence": "durability of less than 50 refers to attribute_name = 'Durability' AND attribute_value < 50",
+    "SQL": "SELECT superhero_name FROM superhero AS T1 WHERE EXISTS (SELECT 1 FROM hero_attribute AS T2 INNER JOIN attribute AS T3 ON T2.attribute_id = T3.id WHERE T3.attribute_name = 'Durability' AND T2.attribute_value < 50 AND T1.id = T2.hero_id)",
+    "difficulty": "simple"
+  },
+  {
+    "question_id": 17,
+    "db_id": "california_schools",
+    "question": "Rank schools by their average score in Writing where the score is greater than 499, showing their charter numbers.",
+    "evidence": "Valid charter number means the number is not null",
+    "SQL": "SELECT CharterNum, AvgScrWrite, RANK() OVER (ORDER BY AvgScrWrite DESC) AS WritingScoreRank FROM schools AS T1  INNER JOIN satscores AS T2 ON T1.CDSCode = T2.cds WHERE T2.AvgScrWrite > 499 AND CharterNum is not null",
+    "difficulty": "simple"
+  },
+  {
+    "question_id": 41,
+    "db_id": "california_schools",
+    "question": "List the names of virtual schools that are among the top 5 in their respective counties based on average reading scores.",
+    "evidence": "Exclusively virtual refers to Virtual = 'F'; respective counties means PARTITION BY County",
+    "SQL": "SELECT School FROM (SELECT T2.School,T1.AvgScrRead, RANK() OVER (PARTITION BY T2.County ORDER BY T1.AvgScrRead DESC) AS rnk FROM satscores AS T1 INNER JOIN schools AS T2 ON T1.cds = T2.CDSCode WHERE T2.Virtual = 'F' ) ranked_schools WHERE rnk <= 5",
+    "difficulty": "simple"
+  }
+]

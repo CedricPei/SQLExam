@@ -1,42 +1,37 @@
 [
   {
     "question_id": "1",
-    "answer": [
-      "customers",
-      "yearmonth"
-    ]
+    "answer": "NA"
   },
   {
     "question_id": "2",
     "answer": [
-      "customers INNER JOIN yearmonth ON customers.CustomerID = yearmonth.CustomerID"
+      "schools",
+      "satscores"
     ]
   },
   {
     "question_id": "3",
-    "answer": [
-      "customers.Currency",
-      "yearmonth.Date",
-      "yearmonth.Consumption"
-    ]
+    "answer": "NA"
   },
   {
     "question_id": "4",
     "answer": [
-      "WHERE customers.Currency = 'CZK'"
+      "schools.CharterNum",
+      "satscores.AvgScrWrite"
     ]
   },
   {
     "question_id": "5",
     "answer": [
-      "GROUP BY SUBSTR(yearmonth.Date, 1, 4)",
-      "ORDER BY SUM(yearmonth.Consumption) DESC",
-      "LIMIT 1"
+      "RANK() OVER (ORDER BY AvgScrWrite DESC)"
     ]
   },
   {
     "question_id": "6",
-    "answer": "NA"
+    "answer": [
+      "WHERE satscores.AvgScrWrite > 499 AND schools.CharterNum IS NOT NULL"
+    ]
   },
   {
     "question_id": "7",
@@ -48,6 +43,10 @@
   },
   {
     "question_id": "9",
+    "answer": "NA"
+  },
+  {
+    "question_id": "10",
     "answer": "NA"
   }
 ]

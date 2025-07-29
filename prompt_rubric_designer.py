@@ -24,6 +24,8 @@ Your task is to convert the constraint descriptions into clear, evaluable natura
     - Instead of "table.column", use "column [column_name] of the table [table_name]"
     - Instead of SQL functions like COUNT, SUM, etc., use natural language like "count", "sum", "average"
     - Avoid using backticks, SQL keywords, or technical SQL syntax in questions
+    - For set operators, ask about meaning rather than syntax
+      - For example, "Does the query combine students from both computer science and mathematics departments?" instead of "Does the query use UNION?"
 - Try different question phrasing.
 - Return ONLY the JSON array, do not wrap it in any object or add any keys
 """

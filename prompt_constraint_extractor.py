@@ -21,7 +21,6 @@ You are an **Constraint Extractor** in an LLM-based SQL-evaluation pipeline.
 - One object per atomic requirement; no missing question_ids.  
 - Keep answers concise; use arrays when multiple values apply.  
 - Never add extra keys or change key names.
-- **CRITICAL**: For complex SQL queries with multiple independent SELECT structures (subqueries, CTEs, UNION clauses), analyze EACH independent SELECT structure separately and combine the requirements. Do not focus only on the main SELECT structure.
 """.strip()
 
 
@@ -51,17 +50,15 @@ After completing all items, aggregate the objects into a **single JSON array** a
 
 2. List NECESSARY tables the answer MUST reference and that MUST appear in the provided schema.
 
-3. List each NECESSARY join that is STRICTLY REQUIRED to answer the question.
-    - Consider `JOIN`, `LEFT JOIN`, `RIGHT JOIN`, `FULL JOIN`, `CROSS JOIN`, `INNER JOIN`, `OUTER JOIN`, `NATURAL JOIN`, `SELF JOIN`.
-    - Record both the join type and the join keys.
-    - Example: ["orders INNER JOIN customers ON orders.customer_id = customers.id"]
+3. List each NECESSARY and special join that is STRICTLY REQUIRED to answer the question.
+    - Only include joins other than INNER JOIN / JOIN (e.g., LEFT, RIGHT, FULL, CROSS, NATURAL, SELF, OUTER).
+    - Provide the pair and join type in the form "A LEFT JOIN B".
+    - Do NOT include ON-clause details.
 
-4. List all NECESSARY columns that appear in the provided schema.  
+4. List all NECESSARY columns that appear in the provided schema.
     - **IMPORTANT** DO NOT output derived columns like `COUNT(order_id)` or bare column names.
     - Express each column in fully-qualified `table.column` form.
-    - Include all columns in `WHERE`, `SELECT`, `ORDER BY`, `HAVING`, and `GROUP BY` clauses, except for those in ON clause.
-    - For ambiguous questions, include only the minimal column(s) needed.
-        - for "Which/What <Entity>?" query, return either id or name (not both).
+    - Exclude columns for table connections; include only columns meaningful to answer the question.
     - If all columns of one table are required, use `table.*`.
 
 5. List NECESSARY functions that the query MUST call in the SELECT clause.
@@ -71,13 +68,18 @@ After completing all items, aggregate the objects into a **single JSON array** a
     - If a function is embedded in an arithmetic or concatenation expression, record the entire expression.
     - Example: ["COUNT(customer_id)", "SUM(amount)/COUNT(order_id)", "RANK() OVER (ORDER BY sales DESC)"]
 
-6. List NECESSARY row-level filters or limits STRICTLY REQUIRED to answer the question.  
-    - Consider `WHERE`, `ORDER BY`, `LIMIT/FETCH FIRST`, `OFFSET`, `NULLS FIRST`, `NULLS LAST`.
+6. List NECESSARY row-level filters or limits STRICTLY REQUIRED to answer the question.
+    - Consider `ON`, `WHERE`, `ORDER BY`, `LIMIT/FETCH FIRST`, `OFFSET`, `NULLS FIRST`, `NULLS LAST`.
+    - **IMPORTANT** EXCLUDE conditions for table connections; record only predicates meaningful to the answer.
+    - Treat a compound predicate such as `WHERE A AND B` as one item if both A and B are meaningful conditions; do not split it.  
     - For sub-query predicates such as `EXISTS`, `NOT EXISTS` or `IN`, include the entire predicate.
-    - Example: ["ORDER BY orders.order_date DESC", "LIMIT 1", "WHERE orders.total_amount > 100"]
+    - Predicates like `ORDER BY` inside window functions like `RANK()` should NOT be considered.
+    - HAVING predicates should NOT be listed here!
+    - Example: ["WHERE orders.total_amount > 100 AND orders.status = 'paid'", "ORDER BY orders.order_date DESC", "LIMIT 1"]
 
 7. List each NECESSARY `GROUP BY` clause STRICTLY REQUIRED to answer the question.
-    - Example: ["GROUP BY customer_id"]
+    - If GROUP BY contains multiple fields, list them all.
+    - Example: ["GROUP BY customer_id, order_year"]
 
 8. List NECESSARY group-level filters in `HAVING` clause STRICTLY REQUIRED to answer the question.
     - Example: ["HAVING SUM(assignments.hours_worked) > 500"]
@@ -85,7 +87,7 @@ After completing all items, aggregate the objects into a **single JSON array** a
 9. List columns the user REQUIRES to have unique values.
     - **IMPORTANT** ONLY focus on keywords like "unique" or "distinct" in the question.
     - Answer in natural language.
-    - Example: ["user requires orders.email to be unique"]
+    - Example: ["user requires email to be unique"]
     
 10. List EXPLICITLY or IMPLICITLY REQUIRED output format details.
     - **IMPORTANT** ONLY focus on the clause between `SELECT` and `FROM`.
@@ -120,9 +122,12 @@ CREATE TABLE orders (
 ""
 
 ### GOLD_SQL
-SELECT customers.first_name, customers.last_name 
+SELECT
+    customers.first_name,
+    customers.last_name
 FROM customers
-INNER JOIN orders ON customers.customer_id = orders.customer_id
+INNER JOIN orders
+    ON customers.customer_id = orders.customer_id
 WHERE orders.total_amount > 1000;
 
 ### ANSWER (single JSON array):
@@ -138,7 +143,7 @@ WHERE orders.total_amount > 1000;
   }},
   {{
     "question_id": "3",
-    "answer": ["customers INNER JOIN orders ON customers.customer_id = orders.customer_id"]
+    "answer": "NA"
   }},
   {{
     "question_id": "4",
@@ -212,7 +217,22 @@ CREATE TABLE performance_reviews (
 "Total hours worked is SUM(assignments.hours_worked). Distinct review months are counted using strftime('%Y-%m', performance_reviews.review_date)"
 
 ### GOLD_SQL
-SELECT COUNT(DISTINCT employees.employee_id) FROM employees INNER JOIN departments ON employees.department_id = departments.department_id INNER JOIN assignments ON employees.employee_id = assignments.employee_id INNER JOIN projects ON assignments.project_id = projects.project_id INNER JOIN performance_reviews ON employees.employee_id = performance_reviews.employee_id WHERE departments.department_name = 'Engineering' GROUP BY employees.employee_id HAVING SUM(assignments.hours_worked) > 500 AND COUNT(DISTINCT strftime('%Y-%m', performance_reviews.review_date)) >= 3 AND SUM(employees.salary) > 100000;
+SELECT
+    COUNT(DISTINCT employees.employee_id)
+FROM employees
+INNER JOIN departments
+    ON employees.department_id = departments.department_id
+INNER JOIN assignments
+    ON employees.employee_id = assignments.employee_id
+INNER JOIN projects
+    ON assignments.project_id = projects.project_id
+INNER JOIN performance_reviews
+    ON employees.employee_id = performance_reviews.employee_id
+WHERE departments.department_name = 'Engineering'
+GROUP BY employees.employee_id
+HAVING SUM(assignments.hours_worked) > 500
+   AND COUNT(DISTINCT strftime('%Y-%m', performance_reviews.review_date)) >= 3
+   AND SUM(employees.salary) > 100000;
 
 ### ANSWER:
 ```json
@@ -227,12 +247,7 @@ SELECT COUNT(DISTINCT employees.employee_id) FROM employees INNER JOIN departmen
   }},
   {{
     "question_id": "3",
-    "answer": [
-      "employees INNER JOIN departments ON employees.department_id = departments.department_id",
-      "employees INNER JOIN assignments ON employees.employee_id = assignments.employee_id",
-      "assignments INNER JOIN projects ON assignments.project_id = projects.project_id",
-      "employees INNER JOIN performance_reviews ON employees.employee_id = performance_reviews.employee_id"
-    ]
+    "answer":  "NA"
   }},
   {{
     "question_id": "4",
@@ -252,7 +267,7 @@ SELECT COUNT(DISTINCT employees.employee_id) FROM employees INNER JOIN departmen
   }},
   {{
     "question_id": "8",
-    "answer": ["HAVING SUM(assignments.hours_worked) > 500", "HAVING COUNT(DISTINCT strftime('%Y-%m', performance_reviews.review_date)) >= 3", "HAVING SUM(employees.salary) > 100000"]
+    "answer": ["HAVING SUM(assignments.hours_worked) > 500 AND COUNT(DISTINCT strftime('%Y-%m', performance_reviews.review_date)) >= 3 AND SUM(employees.salary) > 100000"]
   }},
   {{
     "question_id": "9",

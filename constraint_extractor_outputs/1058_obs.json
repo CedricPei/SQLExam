@@ -2,39 +2,41 @@
   {
     "question_id": "1",
     "answer": [
-      "customers",
-      "yearmonth"
+      "UNION"
     ]
   },
   {
     "question_id": "2",
     "answer": [
-      "customers INNER JOIN yearmonth ON customers.CustomerID = yearmonth.CustomerID"
+      "Player",
+      "Player_Attributes"
     ]
   },
   {
     "question_id": "3",
-    "answer": [
-      "customers.Currency",
-      "yearmonth.Consumption",
-      "yearmonth.Date"
-    ]
+    "answer": "NA"
   },
   {
     "question_id": "4",
     "answer": [
-      "SUM(IIF(customers.Currency = 'CZK', yearmonth.Consumption, 0)) - SUM(IIF(customers.Currency = 'EUR', yearmonth.Consumption, 0))"
+      "Player.height",
+      "Player_Attributes.finishing"
     ]
   },
   {
     "question_id": "5",
     "answer": [
-      "WHERE SUBSTR(yearmonth.Date, 1, 4) = '2012'"
+      "AVG(Player_Attributes.finishing)"
     ]
   },
   {
     "question_id": "6",
-    "answer": "NA"
+    "answer": [
+      "WHERE Player.height = (SELECT MAX(height) FROM Player)",
+      "WHERE Player.height = (SELECT MIN(height) FROM Player)",
+      "ORDER BY RESULT DESC",
+      "LIMIT 1"
+    ]
   },
   {
     "question_id": "7",
@@ -46,6 +48,10 @@
   },
   {
     "question_id": "9",
+    "answer": "NA"
+  },
+  {
+    "question_id": "10",
     "answer": "NA"
   }
 ]
