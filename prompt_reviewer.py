@@ -100,32 +100,35 @@ CREATE TABLE orders (
 """.strip()
 
 constraint_templates = {
-  # 1. tables
-  "1": "The user believes that referencing table **{answer}** is essential in the SQL query.",
+  # 1. set operators
+  "1": "The user believes that the set operator **{answer}** is essential in the SQL query.",
   
-  # 2. joins
-  "2": "According to the user, the join **{answer}** must be included for the query to answer the question correctly.",
+  # 2. tables
+  "2": "The user believes that referencing table **{answer}** is essential in the SQL query.",
   
-  # 3. columns
-  "3": "The user considers the column **{answer}** indispensable for solving the problem via SQL.",
+  # 3. joins
+  "3": "According to the user, the join **{answer}** must be included for the query to answer the question correctly.",
   
-  # 4. aggregate functions
-  "4": "The user deems the aggregate expression **{answer}** necessary in the SELECT clause of the query.",
+  # 4. columns
+  "4": "The user considers the column **{answer}** indispensable for solving the problem via SQL.",
   
-  # 5. row-level filters / limits
-  "5": "The user requires applying the row-level filter **{answer}** to obtain the desired result set.",
+  # 5. aggregate functions
+  "5": "The user deems the aggregate expression **{answer}** necessary in the SELECT clause of the query.",
   
-  # 6. GROUP BY clauses
-  "6": "The user judges that the grouping **{answer}** is mandatory in the SQL query.",
+  # 6. row-level filters / limits
+  "6": "The user requires applying the row-level filter **{answer}** to obtain the desired result set.",
   
-  # 7. HAVING clauses
-  "7": "The user regards the HAVING condition **{answer}** as essential for filtering aggregated results.",
+  # 7. GROUP BY clauses
+  "7": "The user judges that the grouping **{answer}** is mandatory in the SQL query.",
   
-  # 8. unique columns
-  "8": "The user insists that the uniqueness on the **{answer}** column is necessary.",
+  # 8. HAVING clauses
+  "8": "The user regards the HAVING condition **{answer}** as essential for filtering aggregated results.",
   
-  # 9. output format details
-  "9": "The explicit or implicit output format detail **{answer}** must be satisfied to answer the question."
+  # 9. unique columns
+  "9": "The user insists that the uniqueness on the **{answer}** column is necessary.",
+  
+  # 10. output format details
+  "10": "The explicit or implicit output format detail **{answer}** must be satisfied to answer the question."
 }
 
 

@@ -19,13 +19,12 @@ Your task is to convert the constraint descriptions into clear, evaluable natura
    - weight: number — the point value for this question
 
 ### Rules
-- Keep questions clear and specific using natural language
-- Use consistent weighting based on constraint type
-- Make questions evaluable (yes/no or specific answer format)
+- Make questions clear, evaluable and specific to the actual context in the original question.
 - **IMPORTANT**: Use natural language throughout, avoid SQL syntax and symbols
     - Instead of "table.column", use "column [column_name] of the table [table_name]"
     - Instead of SQL functions like COUNT, SUM, etc., use natural language like "count", "sum", "average"
     - Avoid using backticks, SQL keywords, or technical SQL syntax in questions
+- Try different question phrasing.
 - Return ONLY the JSON array, do not wrap it in any object or add any keys
 """
 
@@ -188,56 +187,62 @@ SELECT a.name, COUNT(*) AS movie_count FROM actors AS a JOIN roles AS r ON r.act
 """
 
 rubric_templates = {
-    # 1. required tables
+    # 1. set operators
     "1": {
+        "description": "The SQL query must use the set operator: {answer}.",
+        "weighting_rule": "Give one point for each required set operator."
+    },
+    
+    # 2. required tables
+    "2": {
         "description": "The SQL query must reference the table: {answer}.",
         "weighting_rule": "Give one point for each required table."
     },
     
-    # 2. required joins
-    "2": {
+    # 3. required joins
+    "3": {
         "description": "The SQL query must include the join: {answer}.",
         "weighting_rule": "Give one point for the required join between the specified tables; For joins other than NATURAL JOIN or CROSS JOIN, give one point for each independent ON clause condition; If the specified join type is not INNER, award one additional point for using that join type."
     },
     
-    # 3. required columns
-    "3": {
+    # 4. required columns
+    "4": {
         "description": "The SQL query must reference the column: {answer}.",
         "weighting_rule": "Assign one point for each required column."
     },
     
-    # 4. required aggregate functions
-    "4": {
+    # 5. required aggregate functions
+    "5": {
         "description": "The SQL query must apply the aggregate function: {answer} in the SELECT clause.",
         "weighting_rule": "Give one point for every aggregate function present; if an expression contains several aggregates, credit as many points as the number of aggregate functions."
     },
     
-    # 5. required row‑level filters and limits
-    "5": {
+    # 6. required row‑level filters and limits
+    "6": {
         "description": "The SQL query must satisfy the row-level requirement: {answer}.",
         "weighting_rule": "Award one point for each predicate in the WHERE clause; Credit one point for each sort key in ORDER BY; Add one point when ORDER BY specifies a direction other than ASC; Give one point for each row-limit directive such as LIMIT or OFFSET."
     },
     
-    # 6. required GROUP BY clauses
-    "6": {
+    # 7. required GROUP BY clauses
+    "7": {
         "description": "The SQL query must group results by: {answer}.",
         "weighting_rule": "Award one point for each field listed in GROUP BY."
     },
     
-    # 7. required HAVING clauses
-    "7": {
+    # 8. required HAVING clauses
+    "8": {
         "description": "The SQL query must include a HAVING condition: {answer}.",
         "weighting_rule": "Assign one point for each condition in the HAVING clause."
     },
     
-    # 8. uniqueness requirements
-    "8": {
+    # 9. uniqueness requirements
+    "9": {
         "description": "The SQL query must ensure uniqueness for {answer}.",
         "weighting_rule": "Give one point for each column that must be unique."
     },
     
-    # 9. output‑format requirements
-    "9": {
+    # 10. output‑format requirements
+    "10": {
         "description": "The result set must meet the output-format requirement: {answer}.",
         "weighting_rule": "Award one point for each formatting directive."
     }
