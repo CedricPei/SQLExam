@@ -61,18 +61,20 @@ class RubricDesigner:
 
     def build_constraint_description(self, constraints: list) -> list:
         constraint_descriptions = []
-        
+
         for constraint in constraints:
             qid = constraint.get("question_id")
-            answer = constraint.get("answer")
-            if answer == "NA":
+            answers = constraint.get("answer")
+            if answers == "NA":
                 continue
             template_info = rubric_templates.get(qid)
-            for ans in answer:
-                constraint_description = {
-                    "description": template_info["description"].format(answer=ans),
-                    "weighting_rule": template_info["weighting_rule"]
-                }
-                constraint_descriptions.append(constraint_description)
-        constraint_descriptions = json.dumps(constraint_descriptions, ensure_ascii=False, indent=2)
+            if qid in ["2", "4"]:
+                if isinstance(answers, list) and len(answers) > 0:
+                    description = template_info["description"].format(answer=", ".join(answers))
+                    constraint_description = {"description": description, "weighting_rule": template_info["weighting_rule"]}
+            else:
+                for answer in answers:
+                    description = template_info["description"].format(answer=answer)
+                    constraint_description = {"description": description, "weighting_rule": template_info["weighting_rule"]}
+            constraint_descriptions.append(constraint_description)
         return constraint_descriptions 

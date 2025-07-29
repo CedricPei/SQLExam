@@ -189,63 +189,63 @@ SELECT a.name, COUNT(*) AS movie_count FROM actors AS a JOIN roles AS r ON r.act
 """
 
 rubric_templates = {
-    # 1. set operators
-    "1": {
-        "description": "The SQL query must use the set operator: {answer}.",
-        "weighting_rule": "Give one point for each required set operator."
-    },
-    
-    # 2. required tables
-    "2": {
-        "description": "The SQL query must reference the table: {answer}.",
-        "weighting_rule": "Give one point for each required table."
-    },
-    
-    # 3. required joins
-    "3": {
-        "description": "The SQL query must include the join: {answer}.",
-        "weighting_rule": "Give one point for the required join between the specified tables; For joins other than NATURAL JOIN or CROSS JOIN, give one point for each independent ON clause condition; If the specified join type is not INNER, award one additional point for using that join type."
-    },
-    
-    # 4. required columns
-    "4": {
-        "description": "The SQL query must reference the column: {answer}.",
-        "weighting_rule": "Assign one point for each required column."
-    },
-    
-    # 5. required aggregate functions
-    "5": {
-        "description": "The SQL query must apply the aggregate function: {answer} in the SELECT clause.",
-        "weighting_rule": "Give one point for every aggregate function present; if an expression contains several aggregates, credit as many points as the number of aggregate functions."
-    },
-    
-    # 6. required row‑level filters and limits
-    "6": {
-        "description": "The SQL query must satisfy the row-level requirement: {answer}.",
-        "weighting_rule": "Award one point for each predicate in the WHERE clause; Credit one point for each sort key in ORDER BY; Add one point when ORDER BY specifies a direction other than ASC; Give one point for each row-limit directive such as LIMIT or OFFSET."
-    },
-    
-    # 7. required GROUP BY clauses
-    "7": {
-        "description": "The SQL query must group results by: {answer}.",
-        "weighting_rule": "Award one point for each field listed in GROUP BY."
-    },
-    
-    # 8. required HAVING clauses
-    "8": {
-        "description": "The SQL query must include a HAVING condition: {answer}.",
-        "weighting_rule": "Assign one point for each condition in the HAVING clause."
-    },
-    
-    # 9. uniqueness requirements
-    "9": {
-        "description": "The SQL query must ensure uniqueness for {answer}.",
-        "weighting_rule": "Give one point for each column that must be unique."
-    },
-    
-    # 10. output‑format requirements
-    "10": {
-        "description": "The result set must meet the output-format requirement: {answer}.",
-        "weighting_rule": "Award one point for each formatting directive."
-    }
+  # 1. set operators
+  "1": {
+      "description": "The SQL query must use the set operator: {answer}.",
+      "weighting_rule": "Each required set operator is worth two points."
+  },
+
+  # 2. required tables
+  "2": {
+      "description": "The SQL query must reference the table: {answer}.",
+      "weighting_rule": "All required tables together contribute a maximum of one point."
+  },
+
+  # 3. required joins
+  "3": {
+      "description": "The SQL query must include the join: {answer}.",
+      "weighting_rule": "Award one point for each required join that employs a special join type other than a basic INNER JOIN."
+  },
+
+  # 4. required columns
+  "4": {
+      "description": "The SQL query must reference the column: {answer}.",
+      "weighting_rule": "Each required column is worth 0.5 point; the combined score for this category is capped at two points."
+  },
+
+  # 5. required aggregate (and window) functions
+  "5": {
+      "description": "The SQL query must apply the function: {answer} in the SELECT clause.",
+      "weighting_rule": "Give one point for every function present; if an expression contains several functions, credit all of them; for window functions, add one point when a PARTITION BY clause is present and two points whenever an ORDER BY clause appears."
+  },
+
+  # 6. required row‑level filters and limits
+  "6": {
+      "description": "The SQL query must satisfy the row-level requirement: {answer}.",
+      "weighting_rule": "Assign two points for each independent predicate; add one additional point for correctly expressing the logical relationship among predicates (e.g., AND, OR)."
+  },
+
+  # 7. required GROUP BY clauses
+  "7": {
+      "description": "The SQL query must group results by: {answer}.",
+      "weighting_rule": "The first required grouping key is worth one point; each additional grouping key earns 0.5 point; the total for this category is capped at two points."
+  },
+
+  # 8. required HAVING clauses
+  "8": {
+      "description": "The SQL query must include a HAVING condition: {answer}.",
+      "weighting_rule": "Each independent HAVING condition is worth two points; add one extra point for expressing the correct logical relationship among multiple conditions."
+  },
+
+  # 9. uniqueness requirements
+  "9": {
+      "description": "The SQL query must ensure uniqueness for {answer}.",
+      "weighting_rule": "Each uniqueness requirement earns one point."
+  },
+
+  # 10. output‑format requirements
+  "10": {
+      "description": "The result set must meet the output-format requirement: {answer}.",
+      "weighting_rule": "Each formatting requirement earns one point."
+  }
 }
