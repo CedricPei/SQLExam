@@ -45,29 +45,33 @@ Return ONLY the JSON array directly, do not wrap it in any object or add any key
 
 ###### Weighting Rules:
 1. Required tables
-   - All required tables together contribute a maximum of one point.
+   - The first required table gets one point; each additional table gets 0.5 points; the total is capped at two points.
 2. Required joins
    - Award one point for each required join that employs a special join type other than a basic INNER JOIN.
 3. Required columns
-   - Each required column is worth 0.5 point; the combined score for this category is capped at two points.
+   - Each required column is worth 0.5 point; the combined score for this category is capped at three points.
 4. Required functions
    - Give one point for every function present; if an expression contains several functions, credit all of them;
-   - For window functions, add one point when a PARTITION BY clause is present and two points whenever an ORDER BY clause appears.
+   - For window functions, add one point when a PARTITION BY clause is present and two points whenever an ORDER BY clause appears (in addition to the base one point).
 5. GROUP BY
-   - The first required grouping key is worth one point; each additional grouping key earns 0.5 point; the total for this category is capped at two points.
+   - The first required grouping key is worth two points
+   - Each additional grouping key earns 0.5 point; the total for this category is capped at three points.
 6. HAVING
-   - Assign two points for each semantically independent predicate. 
-   - For compound conditions like 'HAVING A AND B', treat A and B as separate semantically independent predicates and assign 4 points total (2 points each).
+   - Assign two points for each independent FIELD/COLUMN requirement. 
+   - Each condition connected by AND is a separate field requirement.
+   - Focus on operators (>, <, =, !=, etc.) to determine the number of independent FIELD requirements.
 7. Row-level filters/limits
-   - Assign two points for each semantically independent predicate;
+   - Assign two points for each independent FIELD/COLUMN requirement.
+   - Each condition connected by AND is a separate field requirement.
+   - For ORDER BY: first field gets 2 points, each additional field gets 0.5 points.
+   - Focus on operators (>, <, =, !=, etc.) to determine the number of independent FIELD requirements;
    - Ignore conditions only for table connections;
-   - For compound conditions like 'WHERE A AND B', treat A and B as separate semantically independent predicates and assign 4 points total (2 points each).
 8. Uniqueness requirements
-   - Each uniqueness requirement earns one point.
+   - Each uniqueness requirement earns two points.
 9. Output-format requirements
-   - Each formatting requirement earns one point.
+   - Each formatting requirement earns two points.
 
-###### EXAMPLE
+###### EXAMPLE 1
 ### QUESTION
 Which actor has appeared in the greatest number of movies directed by Christopher Nolan?
 
@@ -120,8 +124,8 @@ LIMIT 1;
 [
   {{
     "question": "Does the query use the information from all three tables: actors, movies, and roles?",
-    "explanation": "One point is awarded only if all three tables are used, as each provides essential context for the answer.",
-    "weight": 1
+    "explanation": "Three tables are used: actors (1 point), movies (0.5 points), and roles (0.5 points), totaling 2 points as capped.",
+    "weight": 2
   }},
   {{
     "question": "Does the query use the name and ID columns from the actors table, and the director column from the movies table?",
@@ -134,24 +138,119 @@ LIMIT 1;
     "weight": 1
   }},
   {{
+    "question": "Does the query group the results by actor ID to count appearances correctly?",
+    "explanation": "Two points are awarded for grouping by actor ID as the sole grouping key.",
+    "weight": 2
+  }},
+  {{
     "question": "Does the query only include movies directed by Christopher Nolan?",
-    "explanation": "This filter is necessary to match the question intent, so it receives two points.",
+    "explanation": "This is a single, independent field-level predicate on the director column; each such predicate is worth two points.",
     "weight": 2
   }},
   {{
     "question": "Does the query sort the results so that the actor with the highest movie count comes first?",
-    "explanation": "Two points are awarded for correctly sorting in descending order of movie count.",
+    "explanation": "Ordering by a single output field earns two points.",
     "weight": 2
   }},
   {{
     "question": "Does the query select only the actor who has appeared in the most movies directed by Christopher Nolan?",
-    "explanation": "Two points are given for restricting the result to a single top-ranking actor.",
+    "explanation": "Applying a limit predicate awards two points.",
+    "weight": 2
+  }}
+]
+
+###### EXAMPLE 2
+### QUESTION
+Which Finance employees located in New York City earned more than $20,000 in bonuses during 2024?
+Show each employee's first name and last name, and their total bonus, sorted from highest total bonus to lowest, and return only the top five employees.
+
+### SCHEMA
+CREATE TABLE employees (
+    id              INTEGER PRIMARY KEY,
+    first_name      TEXT,
+    last_name       TEXT,
+    department      TEXT,
+    city            TEXT,
+    employment_type TEXT
+);
+
+CREATE TABLE bonuses (
+    id          INTEGER PRIMARY KEY,
+    employee_id INTEGER,
+    year        INTEGER,
+    amount      DECIMAL
+);
+
+### BACKGROUND
+Only bonuses from the 2024 calendar year count, and only employees with employment type "Full-Time" should be considered.
+
+### GOLD SQL
+SELECT
+    e.first_name,
+    e.last_name,
+    SUM(b.amount) AS total_bonus
+FROM employees AS e
+JOIN bonuses   AS b ON b.employee_id = e.id
+WHERE e.department      = 'Finance'
+  AND e.city            = 'New York'
+  AND e.employment_type = 'Full-Time'
+  AND b.year            = 2024
+GROUP BY e.id
+HAVING SUM(b.amount) > 20000
+ORDER BY total_bonus DESC
+LIMIT 5;
+
+### CONSTRAINT DESCRIPTIONS
+1. The SQL query must reference the tables: [employees, bonuses].
+2. The SQL query must reference the columns: [employees.first_name, employees.last_name, employees.department, employees.city, employees.employment_type, employees.id, bonuses.year, bonuses.amount].
+3. The SQL query must apply the function: SUM(bonuses.amount) in the SELECT clause.
+4. The SQL query must group results by: GROUP BY employees.id
+5. The SQL query must satisfy the requirement: WHERE employees.department = 'Finance' AND employees.city = 'New York' AND employees.employment_type = 'Full-Time' AND bonuses.year = 2024.
+6. The SQL query must satisfy the requirement: HAVING SUM(bonuses.amount) > 20000
+7. The SQL query must satisfy the requirement: ORDER BY total_bonus DESC
+8. The SQL query must satisfy the requirement: LIMIT 5
+
+### OUTPUT (return ONLY this JSON array):
+[
+  {{
+    "question": "Does the query retrieve data from both the employees table and the bonuses table?",
+    "explanation": "Two tables are used: employees (1 point) and bonuses (0.5 points), totaling 1.5 points.",
+    "weight": 1.5
+  }},
+  {{
+    "question": "Does the query use the columns first name, last name, department, city, employment type and identifier from the employees table, as well as the year and amount columns from the bonuses table?",
+    "explanation": "Eight required columns are referenced; at 0.5 point each this totals 4 points, but the column category is capped at three points.",
+    "weight": 3
+  }},
+  {{
+    "question": "Does the query show each employee's total bonus by summing the bonus amounts?",
+    "explanation": "Applying a summation function earns one point in the functions category.",
+    "weight": 1
+  }},
+  {{
+    "question": "Does the query group the results by the employee identifier so that bonuses are totalled per employee?",
+    "explanation": "The first required grouping key receives two points according to the GROUP BY rules.",
     "weight": 2
   }},
   {{
-    "question": "Does the query group the results by actor ID to count appearances correctly?",
-    "explanation": "One point is awarded for grouping by actor ID as the sole grouping key.",
-    "weight": 1
+    "question": "Does the query restrict results to full-time Finance employees located in New York City and bonuses earned in 2024?",
+    "explanation": "There are four independent field-level predicates joined by AND; each is worth two points, totalling eight points in the row-level filters category.",
+    "weight": 8
+  }},
+  {{
+    "question": "Does the query keep only employees whose total bonus exceeds twenty thousand dollars?",
+    "explanation": "This HAVING clause contains one comparison on the aggregated total; as an independent field requirement it is worth two points.",
+    "weight": 2
+  }},
+  {{
+    "question": "Does the query sort the output from the highest total bonus to the lowest?",
+    "explanation": "Ordering by a single field counts as one independent requirement under row-level limits, granting two points.",
+    "weight": 2
+  }},
+  {{
+    "question": "Does the query return only the first five employees after sorting?",
+    "explanation": "Applying a row limit is another independent requirement in the row-level limits category, earning two points.",
+    "weight": 2
   }}
 ]
 

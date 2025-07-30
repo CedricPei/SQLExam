@@ -10,7 +10,7 @@ if __name__ == "__main__":
     with open("extracted_questions.json", "r", encoding="utf-8") as f:
         questions = json.load(f)
 
-    # questions = [q for q in questions if q["question_id"] == 1058]
+    questions = [q for q in questions if q["question_id"] == 930]
 
     for q in tqdm(questions):
         schema = get_schema_by_db_id(q["db_id"])
