@@ -42,6 +42,7 @@ class ConstraintExtractor:
             answer = extract_json_from_response(response_content)
             constraints = json.loads(answer)
             if not isinstance(constraints, list):
+                print(response_content)
                 raise ValueError("Response JSON is not an array")
         except json.JSONDecodeError as e:
             print(response_content)

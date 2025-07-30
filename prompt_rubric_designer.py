@@ -69,102 +69,86 @@ CREATE TABLE roles (
 Christopher Nolan is identified by the condition movies.director = 'Christopher Nolan'; The greatest number of movies is obtained by taking the maximum count of movies per actor; Actor names are stored in the column actors.name.
 
 ### GOLD SQL
-SELECT a.name, COUNT(*) AS movie_count FROM actors AS a JOIN roles AS r ON r.actor_id = a.id JOIN movies AS m ON m.id = r.movie_id WHERE m.director = 'Christopher Nolan' GROUP BY a.id ORDER BY movie_count DESC LIMIT 1;
+SELECT
+    a.name,
+    COUNT(*) AS movie_count
+FROM actors AS a
+JOIN roles AS r
+    ON r.actor_id = a.id
+JOIN movies AS m
+    ON m.id = r.movie_id
+WHERE m.director = 'Christopher Nolan'
+GROUP BY a.id
+ORDER BY movie_count DESC
+LIMIT 1;
 
 ### CONSTRAINT DESCRIPTIONS
 [
   {{
-    "description": "The SQL query must reference the table: actors.",
-    "weighting_rule": "Give one point for each required table."
+    "description": "The SQL query must reference the tables: [actors, movies, roles].",
+    "weighting_rule": "All required tables together contribute a maximum of one point."
   }},
   {{
-    "description": "The SQL query must reference the table: movies.",
-    "weighting_rule": "Give one point for each required table."
+    "description": "The SQL query must reference the columns: [actors.name, actors.id, movies.director].",
+    "weighting_rule": "Each required column is worth 0.5 point; the combined score for this category is capped at two points."
   }},
   {{
-    "description": "The SQL query must reference the table: roles.",
-    "weighting_rule": "Give one point for each required table."
-  }},
-  {{
-    "description": "The SQL query must include the join: actors JOIN roles ON roles.actor_id = actors.id.",
-    "weighting_rule": "Give one point for the required join between the specified tables; For joins other than NATURAL JOIN or CROSS JOIN, give one point for each independent ON clause condition; If the specified join type is not INNER, award one additional point for using that join type."
-  }},
-  {{
-    "description": "The SQL query must include the join: roles JOIN movies ON movies.id = roles.movie_id.",
-    "weighting_rule": "Give one point for the required join between the specified tables; For joins other than NATURAL JOIN or CROSS JOIN, give one point for each independent ON clause condition; If the specified join type is not INNER, award one additional point for using that join type."
-  }},
-  {{
-    "description": "The SQL query must reference the column: actors.name.",
-    "weighting_rule": "Assign one point for each required column."
+    "description": "The SQL query must apply the function: COUNT(*) in the SELECT clause.",
+    "weighting_rule": "Give one point for every function present; if an expression contains several functions, credit all of them; for window functions, add one point when a PARTITION BY clause is present and two points whenever an ORDER BY clause appears."
   }},
   {{
     "description": "The SQL query must satisfy the row-level requirement: WHERE movies.director = 'Christopher Nolan'.",
-    "weighting_rule": "Award one point for each predicate in the WHERE clause; Credit one point for each sort key in ORDER BY; Add one point when ORDER BY specifies a direction other than ASC; Give one point for each row-limit directive such as LIMIT or OFFSET."
+    "weighting_rule": "Assign two points for each independent predicate; add one additional point for correctly expressing the logical relationship among predicates (e.g., AND, OR)."
   }},
   {{
     "description": "The SQL query must satisfy the row-level requirement: ORDER BY movie_count DESC.",
-    "weighting_rule": "Award one point for each predicate in the WHERE clause; Credit one point for each sort key in ORDER BY; Add one point when ORDER BY specifies a direction other than ASC; Give one point for each row-limit directive such as LIMIT or OFFSET."
+    "weighting_rule": "Assign two points for each independent predicate; add one additional point for correctly expressing the logical relationship among predicates (e.g., AND, OR)."
   }},
   {{
     "description": "The SQL query must satisfy the row-level requirement: LIMIT 1.",
-    "weighting_rule": "Award one point for each predicate in the WHERE clause; Credit one point for each sort key in ORDER BY; Add one point when ORDER BY specifies a direction other than ASC; Give one point for each row-limit directive such as LIMIT or OFFSET."
+    "weighting_rule": "Assign two points for each independent predicate; add one additional point for correctly expressing the logical relationship among predicates (e.g., AND, OR)."
   }},
   {{
     "description": "The SQL query must group results by: GROUP BY actors.id.",
-    "weighting_rule": "Award one point for each field listed in GROUP BY."
+    "weighting_rule": "The first required grouping key is worth one point; each additional grouping key earns 0.5 point; the total for this category is capped at two points."
   }}
 ]
 
 ### OUTPUT (return ONLY this JSON array):
 [
   {{
-    "question": "Does the query read from the actors table?",
-    "explanation": "Presence of this table yields one point.",
+    "question": "Does the query use the information from all three tables: actors, movies, and roles?",
+    "explanation": "One point is awarded only if all three tables are used, as each provides essential context for the answer.",
     "weight": 1
   }},
   {{
-    "question": "Is the movies table included in the query?",
-    "explanation": "Presence of this table yields one point.",
+    "question": "Does the query use the name and ID columns from the actors table, and the director column from the movies table?",
+    "explanation": "Three required columns are used; each counts for 0.5 point, totaling 1.5 points.",
+    "weight": 1.5
+  }},
+  {{
+    "question": "Does the query count how many movies each actor has appeared in?",
+    "explanation": "One point is given for correctly applying a counting operation to compute appearances.",
     "weight": 1
   }},
   {{
-    "question": "Does the query reference the roles table?",
-    "explanation": "Presence of this table yields one point.",
-    "weight": 1
-  }},
-  {{
-    "question": "Is there a join between roles and actors on matching actor IDs?",
-    "explanation": "One point for the join plus one for the correct ON condition.",
+    "question": "Does the query only include movies directed by Christopher Nolan?",
+    "explanation": "This filter is necessary to match the question intent, so it receives two points.",
     "weight": 2
   }},
   {{
-    "question": "Does the query join roles to movies using movie IDs?",
-    "explanation": "One point for the join plus one for the correct ON condition.",
+    "question": "Does the query sort the results so that the actor with the highest movie count comes first?",
+    "explanation": "Two points are awarded for correctly sorting in descending order of movie count.",
     "weight": 2
   }},
   {{
-    "question": "Is the actor's identifier selected in the output?",
-    "explanation": "Referencing this required column earns one point.",
-    "weight": 1
-  }},
-  {{
-    "question": "Does the query filter for movies directed by Christopher Nolan?",
-    "explanation": "Each predicate in the WHERE clause is worth one point.",
-    "weight": 1
-  }},
-  {{
-    "question": "Are results ordered by movie count in descending order?",
-    "explanation": "One point for the correct sort key and one point for specifying descending direction.",
+    "question": "Does the query select only the actor who has appeared in the most movies directed by Christopher Nolan?",
+    "explanation": "Two points are given for restricting the result to a single top-ranking actor.",
     "weight": 2
   }},
   {{
-    "question": "Is the result limited to only the top actor?",
-    "explanation": "Limiting the output to one row earns one point.",
-    "weight": 1
-  }},
-  {{
-    "question": "Does the query group the rows so that each actor's movies are aggregated together?",
-    "explanation": "Each grouping key required is worth one point.",
+    "question": "Does the query group the results by actor ID to count appearances correctly?",
+    "explanation": "One point is awarded for grouping by actor ID as the sole grouping key.",
     "weight": 1
   }}
 ]
@@ -197,7 +181,7 @@ rubric_templates = {
 
   # 2. required tables
   "2": {
-      "description": "The SQL query must reference the table: {answer}.",
+      "description": "The SQL query must reference the tables: {answer}.",
       "weighting_rule": "All required tables together contribute a maximum of one point."
   },
 
@@ -209,19 +193,19 @@ rubric_templates = {
 
   # 4. required columns
   "4": {
-      "description": "The SQL query must reference the column: {answer}.",
+      "description": "The SQL query must reference the columns: {answer}.",
       "weighting_rule": "Each required column is worth 0.5 point; the combined score for this category is capped at two points."
   },
 
-  # 5. required aggregate (and window) functions
+  # 5. required functions
   "5": {
       "description": "The SQL query must apply the function: {answer} in the SELECT clause.",
       "weighting_rule": "Give one point for every function present; if an expression contains several functions, credit all of them; for window functions, add one point when a PARTITION BY clause is present and two points whenever an ORDER BY clause appears."
   },
 
   # 6. required row‑level filters and limits
-  "6": {
-      "description": "The SQL query must satisfy the row-level requirement: {answer}.",
+  "6": { 
+      "description": "The SQL query must satisfy the row-level filter: {answer}.",
       "weighting_rule": "Assign two points for each independent predicate; add one additional point for correctly expressing the logical relationship among predicates (e.g., AND, OR)."
   },
 

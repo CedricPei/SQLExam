@@ -25,8 +25,8 @@ if __name__ == "__main__":
         constraint_extractor = ConstraintExtractor(question_obj)
         constraints = constraint_extractor.call()
 
-        # rubric_designer = RubricDesigner(question_obj, constraints)
-        # designed_rubric = rubric_designer.call()
+        rubric_designer = RubricDesigner(question_obj, constraints)
+        designed_rubric = rubric_designer.call()
 
         # reviewer = Reviewer(question_obj, constraints)
         # revised_constraints = reviewer.call()
