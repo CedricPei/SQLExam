@@ -1,6 +1,6 @@
 system_prompt_rubric_designer = """
 You are **SQL Rubric Designer**, a component that designs evaluation rubrics for SQL constraints.
-Your task is to convert the constraint descriptions into clear, evaluable natural language questions with assigned weights.
+Your task is to convert the constraint descriptions into clear, evaluable natural language questions with assigned weights, focusing on semantic meaning rather than syntactic form.
 
 ### Inputs
   - constraint_descriptions: JSON array with descriptions and weighting rules for each constraint
@@ -10,22 +10,22 @@ Your task is to convert the constraint descriptions into clear, evaluable natura
   - gold_sql: the ground truth SQL query (for reference only)
 
 ### Task
-1. For each constraint description, generate a natural language question that can be used to evaluate whether a SQL query meets the constraint
-2. Assign a weight based on the constraint type and importance
-3. Provide a brief explanation of how to assign points (1-2 sentences) before the weight
-4. Output a JSON array with objects containing:
+1. **IMPORTANT**: Create exactly one question for each constraint description - there should be a one-to-one correspondence between constraints and questions
+2. For each constraint description, generate a natural language question that can be used to evaluate whether a SQL query meets the constraint
+3. Assign a weight based on the constraint type and importance
+4. Provide a brief explanation of why to assign points (1-2 sentences)
+5. Output a JSON array with objects containing:
    - question: string — the natural language question
-   - explanation: string — brief explanation of how to assign points for this question
+   - explanation: string — brief explanation of why to assign points for this question
    - weight: number — the point value for this question
 
 ### Rules
 - Make questions clear, evaluable and specific to the actual context in the original question.
+- **IMPORTANT**: Focus on the semantic meaning of SQL constraints rather than their syntactic form
 - **IMPORTANT**: Use natural language throughout, avoid SQL syntax and symbols
     - Instead of "table.column", use "column [column_name] of the table [table_name]"
     - Instead of SQL functions like COUNT, SUM, etc., use natural language like "count", "sum", "average"
     - Avoid using backticks, SQL keywords, or technical SQL syntax in questions
-    - For set operators, ask about meaning rather than syntax
-      - For example, "Does the query combine students from both computer science and mathematics departments?" instead of "Does the query use UNION?"
 - Try different question phrasing.
 - Return ONLY the JSON array, do not wrap it in any object or add any keys
 """
@@ -36,11 +36,36 @@ Design evaluation rubrics by translating constraint descriptions into natural la
 
 For each constraint, create a JSON object with:
 - "question": natural language question
-- "explanation": brief explanation of how to assign points for this question
-- "weight": point value based on constraint type
+- "explanation": brief explanation of why to assign points for this question (based on the weighting rules)
+- "weight": point value based on the weighting rules
 
-After designing all questions from the constraints, aggregate all objects into a single JSON array. Return ONLY the JSON array directly, do not wrap it in any object or add any keys.
-**IMPORTANT**: Use natural language throughout. Avoid SQL syntax, symbols, and technical terms. 
+After designing all questions from the constraints, aggregate all objects into a single JSON array. The order of the output JSON array must strictly match the order of the constraint descriptions.
+Return ONLY the JSON array directly, do not wrap it in any object or add any keys.
+**IMPORTANT**: Focus on the semantic meaning of constraints rather than their syntactic form. Use natural language throughout. Avoid SQL syntax, symbols, and technical terms. 
+
+###### Weighting Rules:
+1. Required tables
+   - All required tables together contribute a maximum of one point.
+2. Required joins
+   - Award one point for each required join that employs a special join type other than a basic INNER JOIN.
+3. Required columns
+   - Each required column is worth 0.5 point; the combined score for this category is capped at two points.
+4. Required functions
+   - Give one point for every function present; if an expression contains several functions, credit all of them;
+   - For window functions, add one point when a PARTITION BY clause is present and two points whenever an ORDER BY clause appears.
+5. GROUP BY
+   - The first required grouping key is worth one point; each additional grouping key earns 0.5 point; the total for this category is capped at two points.
+6. HAVING
+   - Assign two points for each semantically independent predicate. 
+   - For compound conditions like 'HAVING A AND B', treat A and B as separate semantically independent predicates and assign 4 points total (2 points each).
+7. Row-level filters/limits
+   - Assign two points for each semantically independent predicate;
+   - Ignore conditions only for table connections;
+   - For compound conditions like 'WHERE A AND B', treat A and B as separate semantically independent predicates and assign 4 points total (2 points each).
+8. Uniqueness requirements
+   - Each uniqueness requirement earns one point.
+9. Output-format requirements
+   - Each formatting requirement earns one point.
 
 ###### EXAMPLE
 ### QUESTION
@@ -83,36 +108,13 @@ ORDER BY movie_count DESC
 LIMIT 1;
 
 ### CONSTRAINT DESCRIPTIONS
-[
-  {{
-    "description": "The SQL query must reference the tables: [actors, movies, roles].",
-    "weighting_rule": "All required tables together contribute a maximum of one point."
-  }},
-  {{
-    "description": "The SQL query must reference the columns: [actors.name, actors.id, movies.director].",
-    "weighting_rule": "Each required column is worth 0.5 point; the combined score for this category is capped at two points."
-  }},
-  {{
-    "description": "The SQL query must apply the function: COUNT(*) in the SELECT clause.",
-    "weighting_rule": "Give one point for every function present; if an expression contains several functions, credit all of them; for window functions, add one point when a PARTITION BY clause is present and two points whenever an ORDER BY clause appears."
-  }},
-  {{
-    "description": "The SQL query must satisfy the row-level requirement: WHERE movies.director = 'Christopher Nolan'.",
-    "weighting_rule": "Assign two points for each independent predicate; add one additional point for correctly expressing the logical relationship among predicates (e.g., AND, OR)."
-  }},
-  {{
-    "description": "The SQL query must satisfy the row-level requirement: ORDER BY movie_count DESC.",
-    "weighting_rule": "Assign two points for each independent predicate; add one additional point for correctly expressing the logical relationship among predicates (e.g., AND, OR)."
-  }},
-  {{
-    "description": "The SQL query must satisfy the row-level requirement: LIMIT 1.",
-    "weighting_rule": "Assign two points for each independent predicate; add one additional point for correctly expressing the logical relationship among predicates (e.g., AND, OR)."
-  }},
-  {{
-    "description": "The SQL query must group results by: GROUP BY actors.id.",
-    "weighting_rule": "The first required grouping key is worth one point; each additional grouping key earns 0.5 point; the total for this category is capped at two points."
-  }}
-]
+1. The SQL query must reference the tables: [actors, movies, roles].
+2. The SQL query must reference the columns: [actors.name, actors.id, movies.director].
+3. The SQL query must apply the function: COUNT(*) in the SELECT clause.
+4. The SQL query must group results by: GROUP BY actors.id.
+5. The SQL query must satisfy the requirement: WHERE movies.director = 'Christopher Nolan'.
+6. The SQL query must satisfy the requirement: ORDER BY movie_count DESC.
+7. The SQL query must satisfy the requirement: LIMIT 1.
 
 ### OUTPUT (return ONLY this JSON array):
 [
@@ -173,63 +175,48 @@ LIMIT 1;
 """
 
 rubric_templates = {
-  # 1. set operators
+  # 1. required tables
   "1": {
-      "description": "The SQL query must use the set operator: {answer}.",
-      "weighting_rule": "Each required set operator is worth two points."
+      "description": "The SQL query must reference the tables: {answer}."
   },
 
-  # 2. required tables
+  # 2. required joins
   "2": {
-      "description": "The SQL query must reference the tables: {answer}.",
-      "weighting_rule": "All required tables together contribute a maximum of one point."
+      "description": "The SQL query must include the join: {answer}."
   },
 
-  # 3. required joins
+  # 3. required columns
   "3": {
-      "description": "The SQL query must include the join: {answer}.",
-      "weighting_rule": "Award one point for each required join that employs a special join type other than a basic INNER JOIN."
+      "description": "The SQL query must reference the columns: {answer}."
   },
 
-  # 4. required columns
+  # 4. required functions
   "4": {
-      "description": "The SQL query must reference the columns: {answer}.",
-      "weighting_rule": "Each required column is worth 0.5 point; the combined score for this category is capped at two points."
+      "description": "The SQL query must apply the function: {answer} in the SELECT clause."
   },
 
-  # 5. required functions
+  # 5. required GROUP BY clauses
   "5": {
-      "description": "The SQL query must apply the function: {answer} in the SELECT clause.",
-      "weighting_rule": "Give one point for every function present; if an expression contains several functions, credit all of them; for window functions, add one point when a PARTITION BY clause is present and two points whenever an ORDER BY clause appears."
+      "description": "The SQL query must group results by: {answer}."
   },
 
-  # 6. required row‑level filters and limits
-  "6": { 
-      "description": "The SQL query must satisfy the row-level filter: {answer}.",
-      "weighting_rule": "Assign two points for each independent predicate; add one additional point for correctly expressing the logical relationship among predicates (e.g., AND, OR)."
+  # 6. required HAVING clauses
+  "6": {
+      "description": "The SQL query must include a HAVING condition: {answer}."
   },
 
-  # 7. required GROUP BY clauses
-  "7": {
-      "description": "The SQL query must group results by: {answer}.",
-      "weighting_rule": "The first required grouping key is worth one point; each additional grouping key earns 0.5 point; the total for this category is capped at two points."
+  # 7. required row‑level filters and limits
+  "7": { 
+      "description": "The SQL query must satisfy the requirement: {answer}."
   },
 
-  # 8. required HAVING clauses
+  # 8. uniqueness requirements
   "8": {
-      "description": "The SQL query must include a HAVING condition: {answer}.",
-      "weighting_rule": "Each independent HAVING condition is worth two points; add one extra point for expressing the correct logical relationship among multiple conditions."
+      "description": "The SQL query must ensure uniqueness for {answer}."
   },
 
-  # 9. uniqueness requirements
+  # 9. output‑format requirements
   "9": {
-      "description": "The SQL query must ensure uniqueness for {answer}.",
-      "weighting_rule": "Each uniqueness requirement earns one point."
-  },
-
-  # 10. output‑format requirements
-  "10": {
-      "description": "The result set must meet the output-format requirement: {answer}.",
-      "weighting_rule": "Each formatting requirement earns one point."
+      "description": "The result set must meet the output-format requirement: {answer}."
   }
 }

@@ -18,6 +18,7 @@ You are an **Constraint Extractor** in an LLM-based SQL-evaluation pipeline.
 ### Rules
 - Prioritize the question and schema; use GOLD_SQL only as a supplementary reference, ignoring any elements it includes but are not necessary.
 - **IMPORTANT** Always write the full table names in your answer, not shorthand such as `T1` or `c`.
+- When extracting predicates from GOLD_SQL, use the exact original text. Do not combine, modify or use your own words.
 - One object per atomic requirement; no missing question_ids.  
 - Keep answers concise; use arrays when multiple values apply.  
 - Never add extra keys or change key names.
@@ -35,61 +36,60 @@ For each checklist item below, output **one** JSON object with exactly:
 **IMPORTANT** Extract only information that the user has explicitly required or is mandatory for answering the question.
 **IMPORTANT: TREAT GOLD_SQL AS REFERENCE ONLY**, ignore any operation it contains that the user did not request (e.g., extra aliases or formatting).
 
-**CRITICAL FOR COMPLEX QUERIES**: If the SQL query contains multiple independent SELECT structures (subqueries, CTEs, UNION/INTERSECT/EXCEPT clauses), analyze EACH independent SELECT structure separately and combine all requirements. Do not focus only on the main SELECT structure. For example:
+**CRITICAL FOR COMPLEX QUERIES**: If the SQL query contains multiple independent SELECT structures, analyze EACH independent SELECT structure separately and combine all requirements. Do not focus only on the main SELECT structure. For example:
 - If there's a subquery in WHERE clause, analyze both the main query AND the subquery
 - If there are CTEs (WITH clauses), analyze each CTE separately
-- If there are UNION clauses, analyze each SELECT in the UNION separately
+- If there are UNION or EXCEPT clauses, analyze each SELECT in the UNION/EXCEPT separately
 - Combine all tables, joins, columns, etc. from ALL independent SELECT structures
 
 After completing all items, aggregate the objects into a **single JSON array** and enclose it in a markdown code block that begins with ```json.  
 
 ######  CHECKLIST BEGIN
+1. List NECESSARY tables the answer MUST reference and that MUST appear in the provided schema.
 
-1. List NECESSARY set operators that the query MUST use to combine multiple result sets.
-    - Example: ["UNION", "EXCEPT"]
-
-2. List NECESSARY tables the answer MUST reference and that MUST appear in the provided schema.
-
-3. List each NECESSARY and special join that is STRICTLY REQUIRED to answer the question.
+2. List each NECESSARY and special join that is STRICTLY REQUIRED to answer the question.
     - Only include joins other than INNER JOIN / JOIN (e.g., LEFT, RIGHT, FULL, CROSS, NATURAL, SELF, OUTER).
     - Provide the pair and join type in the form "A LEFT JOIN B".
     - Do NOT include ON-clause details.
 
-4. List all NECESSARY columns that appear in the provided schema.
+3. List all NECESSARY columns that appear in the provided schema.
     - **IMPORTANT** DO NOT output derived columns like `COUNT(order_id)` or bare column names.
     - Express each column in fully-qualified `table.column` form.
     - Exclude columns for table connections; include only columns meaningful to answer the question.
     - If all columns of one table are required, use `table.*`.
 
-5. List NECESSARY functions that the query MUST call in the SELECT clause.
+4. List NECESSARY functions that the query MUST call in the SELECT clause.
     - **IMPORTANT** IGNORE any functions that appear in WHERE, ORDER BY, GROUP BY, or HAVING clauses.
     - Include aggregate, window, and string functions.
     - COUNT, SUM, AVG, MAX, MIN, RANK(), DENSE_RANK(), SUBSTR
     - If a function is embedded in an arithmetic or concatenation expression, record the entire expression.
     - Example: ["COUNT(customer_id)", "SUM(amount)/COUNT(order_id)", "RANK() OVER (ORDER BY sales DESC)"]
 
-6. List NECESSARY row-level filters or limits STRICTLY REQUIRED to answer the question.
-    - Consider `ON`, `WHERE`, `ORDER BY`, `LIMIT/FETCH FIRST`, `OFFSET`, `NULLS FIRST`, `NULLS LAST`.
-    - **IMPORTANT** EXCLUDE conditions for table connections; record only predicates meaningful to the answer.
-    - Treat a compound predicate such as `WHERE A AND B` as one item if both A and B are meaningful conditions; do not split it.  
-    - For sub-query predicates such as `EXISTS`, `NOT EXISTS` or `IN`, include the entire predicate.
-    - Predicates like `ORDER BY` inside window functions like `RANK()` should NOT be considered.
-    - HAVING predicates should NOT be listed here!
-    - Example: ["WHERE orders.total_amount > 100 AND orders.status = 'paid'", "ORDER BY orders.order_date DESC", "LIMIT 1"]
-
-7. List each NECESSARY `GROUP BY` clause STRICTLY REQUIRED to answer the question.
+5. List each NECESSARY `GROUP BY` clause STRICTLY REQUIRED to answer the question.
+    - **ONLY** include GROUP BY clauses here, not in point 6 or 7.
     - If GROUP BY contains multiple fields, list them all.
     - Example: ["GROUP BY customer_id, order_year"]
 
-8. List NECESSARY group-level filters in `HAVING` clause STRICTLY REQUIRED to answer the question.
+6. List NECESSARY group-level filters in `HAVING` clause STRICTLY REQUIRED to answer the question.
+    - **ONLY** include HAVING clauses here, not in point 5 or 7.
+    - Use the exact HAVING clause text from GOLD_SQL. Do not combine or split predicates.
+    - **CRITICAL**: If you see `HAVING A AND B AND C`, output it as one item: `["HAVING A AND B AND C"]`, NOT as separate items.
     - Example: ["HAVING SUM(assignments.hours_worked) > 500"]
 
-9. List columns the user REQUIRES to have unique values.
+7. List NECESSARY row-level filters or limits STRICTLY REQUIRED to answer the question.
+    - **ONLY** Consider `ON`, `WHERE`, `ORDER BY`, `LIMIT/FETCH FIRST`, `OFFSET`, `NULLS FIRST`, `NULLS LAST` clauses.
+    - **CRITICAL** NEVER include `HAVING` or `GROUP BY` clauses here - they belong to points 5 and 6 respectively.
+    - **IMPORTANT** Ignore conditions for table connections and predicates like `ORDER BY` inside window functions like `RANK()`.
+    - **CRITICAL** Treat a compound predicate as one item, do not split it. Keep the entire predicate together.  
+    - For sub-query predicates such as `EXISTS`, `NOT EXISTS` or `IN`, include the entire predicate.
+    - Example: ["WHERE orders.total_amount > 100 AND orders.status = 'paid'", "ORDER BY orders.order_date DESC", "LIMIT 1"]
+
+8. List columns the user REQUIRES to have unique values.
     - **IMPORTANT** ONLY focus on keywords like "unique" or "distinct" in the question.
     - Answer in natural language.
     - Example: ["user requires email to be unique"]
     
-10. List EXPLICITLY or IMPLICITLY REQUIRED output format details.
+9. List EXPLICITLY or IMPLICITLY REQUIRED output format details.
     - **IMPORTANT** ONLY focus on the clause between `SELECT` and `FROM`.
     - Consider clear formatting instructions, such as rounding to a specific decimal place.
     - Identify implied formatting, like representing ratios or percentages as floats.
@@ -135,19 +135,19 @@ WHERE orders.total_amount > 1000;
 [
   {{
     "question_id": "1",
-    "answer": "NA"
-  }},
-  {{
-    "question_id": "2",
     "answer": ["customers", "orders"]
   }},
   {{
-    "question_id": "3",
+    "question_id": "2",
     "answer": "NA"
   }},
   {{
-    "question_id": "4",
+    "question_id": "3",
     "answer": ["customers.first_name", "customers.last_name", "orders.total_amount"]
+  }},
+  {{
+    "question_id": "4",
+    "answer": "NA"
   }},
   {{
     "question_id": "5",
@@ -155,11 +155,11 @@ WHERE orders.total_amount > 1000;
   }},
   {{
     "question_id": "6",
-    "answer": ["WHERE orders.total_amount > 1000"]
+    "answer": "NA"
   }},
   {{
     "question_id": "7",
-    "answer": "NA"
+    "answer": ["WHERE orders.total_amount > 1000"]
   }},
   {{
     "question_id": "8",
@@ -167,10 +167,6 @@ WHERE orders.total_amount > 1000;
   }},
   {{
     "question_id": "9",
-    "answer": "NA"
-  }},
-  {{
-    "question_id": "10",
     "answer": "NA"
   }}
 ]
@@ -178,103 +174,83 @@ WHERE orders.total_amount > 1000;
 
 ###### EXAMPLE2:
 ### SCHEMA
-CREATE TABLE employees (
-    employee_id INTEGER PRIMARY KEY,
-    name TEXT,
-    department_id INTEGER,
-    salary DECIMAL
+CREATE TABLE actors (
+    id INTEGER PRIMARY KEY,
+    name TEXT
 );
 
-CREATE TABLE departments (
-    department_id INTEGER PRIMARY KEY,
-    department_name TEXT
+CREATE TABLE movies (
+    id INTEGER PRIMARY KEY,
+    title TEXT,
+    director TEXT,
+    release_year INTEGER
 );
 
-CREATE TABLE projects (
-    project_id INTEGER PRIMARY KEY,
-    project_name TEXT,
-    department_id INTEGER
-);
-
-CREATE TABLE assignments (
-    assignment_id INTEGER PRIMARY KEY,
-    employee_id INTEGER,
-    project_id INTEGER,
-    hours_worked INTEGER
-);
-
-CREATE TABLE performance_reviews (
-    review_id INTEGER PRIMARY KEY,
-    employee_id INTEGER,
-    review_date DATE,
-    performance_score DECIMAL
+CREATE TABLE roles (
+    id INTEGER PRIMARY KEY,
+    actor_id INTEGER,
+    movie_id INTEGER
 );
 
 ### QUESTION
-"How many employees in the 'Engineering' department have worked on projects with a total of over 500 hours, have received performance reviews in at least 3 different months, and whose total salary exceeds $100,000?"
+List the top 3 actors who have appeared in the most movies directed by 'Christopher Nolan' and have acted in at least 4 of those movies. Show each actor's name and the number of such movies.
 
 ### BACKGROUND
-"Total hours worked is SUM(assignments.hours_worked). Distinct review months are counted using strftime('%Y-%m', performance_reviews.review_date)"
+Count appearances across roles where movies.director = 'Christopher Nolan'.
 
 ### GOLD_SQL
-SELECT
-    COUNT(DISTINCT employees.employee_id)
-FROM employees
-INNER JOIN departments
-    ON employees.department_id = departments.department_id
-INNER JOIN assignments
-    ON employees.employee_id = assignments.employee_id
-INNER JOIN projects
-    ON assignments.project_id = projects.project_id
-INNER JOIN performance_reviews
-    ON employees.employee_id = performance_reviews.employee_id
-WHERE departments.department_name = 'Engineering'
-GROUP BY employees.employee_id
-HAVING SUM(assignments.hours_worked) > 500
-   AND COUNT(DISTINCT strftime('%Y-%m', performance_reviews.review_date)) >= 3
-   AND SUM(employees.salary) > 100000;
+SELECT a.name,
+       COUNT(*) AS movie_count
+FROM actors AS a
+JOIN roles AS r ON r.actor_id = a.id
+JOIN movies AS m ON m.id = r.movie_id
+WHERE m.director = 'Christopher Nolan'
+GROUP BY a.id
+HAVING COUNT(*) >= 4
+ORDER BY movie_count DESC
+LIMIT 3;
 
 ### ANSWER:
 ```json
 [
   {{
     "question_id": "1",
-    "answer": "NA"
+    "answer": ["actors", "roles", "movies"]
   }},
   {{
     "question_id": "2",
-    "answer": ["employees", "departments", "projects", "assignments", "performance_reviews"]
-  }},
-  {{
-    "question_id": "3",
-    "answer":  "NA"
-  }},
-  {{
-    "question_id": "4",
-    "answer": ["employees.employee_id", "departments.department_name", "assignments.hours_worked", "performance_reviews.review_date", "employees.salary"]
-  }},
-  {{
-    "question_id": "5",
-    "answer": ["COUNT(DISTINCT employees.employee_id)"]
-  }},
-  {{
-    "question_id": "6",
-    "answer": ["WHERE departments.department_name = 'Engineering'"]
-  }},
-  {{
-    "question_id": "7",
-    "answer": ["GROUP BY employees.employee_id"]
-  }},
-  {{
-    "question_id": "8",
-    "answer": ["HAVING SUM(assignments.hours_worked) > 500 AND COUNT(DISTINCT strftime('%Y-%m', performance_reviews.review_date)) >= 3 AND SUM(employees.salary) > 100000"]
-  }},
-  {{
-    "question_id": "9",
     "answer": "NA"
   }},
   {{
-    "question_id": "10",
+    "question_id": "3",
+    "answer": ["actors.name", "movies.director"]
+  }},
+  {{
+    "question_id": "4",
+    "answer": ["COUNT(*)"]
+  }},
+  {{
+    "question_id": "5",
+    "answer": ["GROUP BY actors.id"]
+  }},
+  {{
+    "question_id": "6",
+    "answer": ["HAVING COUNT(*) >= 4"]
+  }},
+  {{
+    "question_id": "7",
+    "answer": [
+      "WHERE movies.director = 'Christopher Nolan'",
+      "ORDER BY movie_count DESC",
+      "LIMIT 3"
+    ]
+  }},
+  {{
+    "question_id": "8",
+    "answer": "NA"
+  }},
+  {{
+    "question_id": "9",
     "answer": "NA"
   }}
 ]
