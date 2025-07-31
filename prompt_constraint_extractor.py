@@ -67,26 +67,25 @@ After completing all items, aggregate the objects into a **single JSON array** a
     - Example: ["COUNT(customer_id)", "SUM(amount)/COUNT(order_id)", "RANK() OVER (ORDER BY sales DESC)"]
 
 5. List each NECESSARY `GROUP BY` clause STRICTLY REQUIRED to answer the question.
-    - **ONLY** include GROUP BY clauses here, not in point 6 or 7.
     - If GROUP BY contains multiple fields, list them all.
     - Example: ["GROUP BY customer_id, order_year"]
 
 6. List NECESSARY group-level filters in `HAVING` clause STRICTLY REQUIRED to answer the question.
-    - **ONLY** include HAVING clauses here, not in point 5 or 7.
     - Use the exact HAVING clause text from GOLD_SQL. Do not combine or split predicates.
-    - **CRITICAL**: If you see `HAVING A AND B AND C`, output it as one item: `["HAVING A AND B AND C"]`, NOT as separate items.
-    - Example: ["HAVING SUM(assignments.hours_worked) > 500"]
+    - **CRITICAL**: If multiple predicates are joined by `AND` or `OR`, output each predicate as a separate element while preserving the connector and order.
+    - Example: ["HAVING SUM(bonuses.amount) > 20000", "AND COUNT(*) >= 3"]
 
 7. List NECESSARY row-level filters or limits STRICTLY REQUIRED to answer the question.
     - **ONLY** Consider `ON`, `WHERE`, `ORDER BY`, `LIMIT/FETCH FIRST`, `OFFSET`, `NULLS FIRST`, `NULLS LAST` clauses.
-    - **CRITICAL** NEVER include `HAVING` or `GROUP BY` clauses here - they belong to points 5 and 6 respectively.
-    - **IMPORTANT** Ignore conditions for table connections and predicates like `ORDER BY` inside window functions like `RANK()`.
-    - **IMPORTANT** For sub-query predicates such as `EXISTS`, `NOT EXISTS` or `IN`, only include conditions inside.
-    - Example: ["WHERE orders.total_amount > 100 AND orders.status = 'paid'", "ORDER BY orders.order_date DESC", "LIMIT 1"]
+    - NEVER include `HAVING` or `GROUP BY` clauses here - they belong to points 5 and 6 respectively.
+    - **CRITICAL** Break composite predicates into individual field-level conditions; each element should reference exactly one column/field.
+    - Ignore conditions for table connections and predicates like `ORDER BY` inside window functions like `RANK()`.
+    - For sub-query predicates such as `EXISTS`, `NOT EXISTS` or `IN`, only include conditions inside.
+    - Example: ["WHERE orders.total_amount > 100", "AND orders.status = 'paid'", "ORDER BY orders.order_date DESC", "LIMIT 1"]
 
 8. List columns the user REQUIRES to have unique values.
     - **IMPORTANT** ONLY focus on keywords like "unique" or "distinct" in the question.
-    - Answer in natural language.
+    - Answer in concise natural language.
     - Example: ["user requires email to be unique"]
     
 9. List EXPLICITLY or IMPLICITLY REQUIRED output format details.
@@ -177,12 +176,16 @@ ORDER BY hours_per_project DESC;
   }},
   {{
     "question_id": "6",
-    "answer": ["HAVING SUM(assignments.hours_worked) > 500 AND COUNT(DISTINCT assignments.project_id) >= 3"]
+    "answer": [
+      "HAVING SUM(assignments.hours_worked) > 500",
+      "AND COUNT(DISTINCT assignments.project_id) >= 3",
+    ]
   }},
   {{
     "question_id": "7",
     "answer": [
-      "WHERE employees.department = 'Engineering' AND employees.employment_type = 'Full-Time'",
+      "WHERE employees.department = 'Engineering'",
+      "AND employees.employment_type = 'Full-Time'",
       "WHERE projects.status = 'Active'",
       "ORDER BY hours_per_project DESC"
     ]
