@@ -3,11 +3,11 @@ You are **SQL Rubric Designer**, a component that designs evaluation rubrics for
 Your task is to convert the constraint descriptions into clear, evaluable natural language questions with assigned weights, focusing on semantic meaning rather than syntactic form.
 
 ### Inputs
-  - constraint_descriptions: JSON array with descriptions and weighting rules for each constraint
-  - schema: the database schema as CREATE TABLE statements
-  - question: the original natural language question
-  - background: helpful hints for the question
-  - gold_sql: the ground truth SQL query (for reference only)
+- constraint_descriptions: JSON array with descriptions and weighting rules for each constraint
+- schema: the database schema as CREATE TABLE statements
+- question: the original natural language question
+- background: helpful hints for the question
+- gold_sql: the ground truth SQL query (for reference only)
 
 ### Task
 1. **IMPORTANT**: Create exactly one question for each constraint description - there should be a one-to-one correspondence between constraints and questions
@@ -45,33 +45,30 @@ Return ONLY the JSON array directly, do not wrap it in any object or add any key
 
 ###### Weighting Rules:
 1. Required tables
-   - The first required table gets 1 point; each additional table gets 0.5 points; the total is capped at 2 points.
+  - The first required table gets 1 point; each additional table gets 0.5 points; the total is capped at 2 points.
 2. Required joins
-   - Award 1 point for each required join that employs a special join type other than a basic INNER JOIN.
+  - Award 1 point for each required join that employs a special join type other than a basic INNER JOIN.
 3. Required columns
-   - Each required column is worth 0.5 point; the combined score for this category is capped at 3 points.
+  - Each required column is worth 0.5 point; the combined score for this category is capped at 3 points.
 4. Required functions
-   - Give 1 point for every function present; if an expression contains several functions, credit all of them.
-   - In addition to base 1 point for every function:
-      - Add 1 point when PARTITION BY clause is present.
-      - Add 2 points when ORDER BY clause appears.
+  - Award 2 points for each function used. If multiple functions appear within a single expression, treat the entire expression as one item and assign 2 points in total.
 5. GROUP BY
-   - The first required grouping key is worth 2 points
-   - Each additional grouping key earns 0.5 point; the total for this category is capped at 3 points.
+  - The first required grouping key is worth 2 points
+  - Each additional grouping key earns 0.5 point; the total for this category is capped at 3 points.
 6. HAVING
-   - Assign 2 points for each independent FIELD/COLUMN requirement. 
-   - Each condition connected by AND is a separate field requirement.
-   - Focus on operators (>, <, =, !=, etc.) to determine the number of independent FIELD requirements.
+  - Assign 2 points for each independent FIELD/COLUMN requirement. 
+  - Each condition connected by AND is a separate field requirement.
+  - Focus on operators (>, <, =, !=, etc.) to determine the number of independent FIELD requirements.
 7. Row-level filters/limits
-   - Assign 2 points for each independent FIELD/COLUMN requirement.
-   - Each condition connected by AND is a separate field requirement.
-   - For ORDER BY: first field gets 2 points, each additional field gets 0.5 points.
-   - Focus on operators (>, <, =, !=, etc.) to determine the number of independent FIELD requirements.
-   - Ignore conditions only for table connections.
+  - Assign 2 points for each independent FIELD/COLUMN requirement.
+  - Each condition connected by AND is a separate field requirement.
+  - For ORDER BY: first field gets 2 points, each additional field gets 0.5 points.
+  - Focus on operators (>, <, =, !=, etc.) to determine the number of independent FIELD requirements.
+  - Ignore conditions only for table connections.
 8. Uniqueness requirements
-   - Each uniqueness requirement earns 2 points.
+  - Each uniqueness requirement earns 2 points.
 9. Output-format requirements
-   - Each formatting requirement earns 2 points.
+  - Each formatting requirement earns 2 points.
 
 ###### EXAMPLE 1
 ### QUESTION
@@ -136,8 +133,8 @@ LIMIT 1;
   }},
   {{
     "question": "Does the query count how many movies each actor has appeared in?",
-    "explanation": "1 point is given for correctly computing appearances.",
-    "weight": 1
+    "explanation": "2 points is given for correctly computing appearances.",
+    "weight": 2
   }},
   {{
     "question": "Does the query group the results by actor ID to count appearances correctly?",
@@ -226,8 +223,8 @@ LIMIT 5;
   }},
   {{
     "question": "Does the query show each employee's total bonus by summing the bonus amounts?",
-    "explanation": "Applying a summation function earns 1 point in the functions category.",
-    "weight": 1
+    "explanation": "Applying a summation function earns 2 points in the functions category.",
+    "weight": 2
   }},
   {{
     "question": "Does the query group the results by the employee identifier so that bonuses are totalled per employee?",
@@ -236,7 +233,7 @@ LIMIT 5;
   }},
   {{
     "question": "Does the query consider only full-time employees in the Finance department who work in New York City and whose bonuses were earned in 2024?",
-    "explanation": "There are four independent field-level predicates; each is worth 2 points, totalling eight points in the row-level filters category.",
+    "explanation": "There are four independent field-level predicates; each is worth 2 points, totalling 8 points in the row-level filters category.",
     "weight": 8
   }},
   {{

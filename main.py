@@ -1,6 +1,7 @@
 import json
 from constraint_extractor import ConstraintExtractor
 from rubric_designer import RubricDesigner
+from rubric_grader import RubricGrader
 from reviewer import Reviewer
 from utils import get_schema_by_db_id
 from tqdm import tqdm
@@ -10,7 +11,7 @@ if __name__ == "__main__":
     with open("extracted_questions.json", "r", encoding="utf-8") as f:
         questions = json.load(f)
 
-    questions = [q for q in questions if q["question_id"] == 726]
+    # questions = [q for q in questions if q["question_id"] == 726]
 
     for q in tqdm(questions):
         schema = get_schema_by_db_id(q["db_id"])
@@ -29,6 +30,9 @@ if __name__ == "__main__":
 
         rubric_designer = RubricDesigner(question_obj, constraints)
         designed_rubric = rubric_designer.call()
+
+        rubric_grader = RubricGrader(question_obj, designed_rubric)
+        graded_rubric = rubric_grader.call(q["SQL"])
 
         # reviewer = Reviewer(question_obj, constraints)
         # revised_constraints = reviewer.call()

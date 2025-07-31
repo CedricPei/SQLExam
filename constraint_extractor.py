@@ -48,7 +48,7 @@ class ConstraintExtractor:
             print(response_content)
             raise ValueError(f"Response is not valid JSON: {e}")
 
-        filename = os.path.join(self.output_dir, f"{self.question_id}_obs.json")
+        filename = os.path.join(self.output_dir, f"{self.question_id}_constraints.json")
         with open(filename, "w", encoding="utf-8") as f:
             json.dump(constraints, f, ensure_ascii=False, indent=2)
 
