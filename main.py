@@ -40,16 +40,16 @@ if __name__ == "__main__":
             "schema": schema
         }
 
-        constraint_extractor = ConstraintExtractor(question_obj)
+        constraint_extractor = ConstraintExtractor(question_obj, model="gpt-4")
         constraints = constraint_extractor.call()
 
-        rubric_designer = RubricDesigner(question_obj, constraints)
+        rubric_designer = RubricDesigner(question_obj, constraints, model="gpt-4o")
         designed_rubric = rubric_designer.call()
 
         # reviewer = Reviewer(question_obj, constraints)
         # revised_constraints = reviewer.call()
 
-        rubric_grader = RubricGrader(question_obj, designed_rubric)
+        rubric_grader = RubricGrader(question_obj, designed_rubric, model="gpt-4o")
         grading_results = rubric_grader.call(q["SQL"])
         
         usefulness_score = calculate_usefulness_score(grading_results, designed_rubric)

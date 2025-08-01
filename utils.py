@@ -23,5 +23,12 @@ def get_schema_by_db_id(db_id: str):
 def extract_json_from_response(response: str) -> str:
     match = re.search(r"```(?:json|js|javascript|txt|text)?\s*([\s\S]*?)```", response, re.IGNORECASE)
     if match:
-        return match.group(1).strip()
-    return response.strip()
+        extracted = match.group(1).strip()
+    else:
+        extracted = response.strip()    
+    
+    if extracted and not extracted.startswith('['):
+        extracted = '[' + extracted
+    if extracted and not extracted.endswith(']'):
+        extracted = extracted + ']'
+    return extracted

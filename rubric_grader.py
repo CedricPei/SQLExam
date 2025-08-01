@@ -8,8 +8,9 @@ from utils import extract_json_from_response
 load_dotenv()
 
 class RubricGrader:
-    def __init__(self, question_obj: dict, rubric_questions: list, output_dir: str = "grader_outputs"):
-        self.client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"), base_url="https://api.deepseek.com/v1")
+    def __init__(self, question_obj: dict, rubric_questions: list, output_dir: str = "grader_outputs", model: str = "deepseek-chat"):
+        self.client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"), base_url="https://api.deepseek.com/v1" if model == "deepseek-chat" else None)
+        self.model = model
         self.schema = question_obj["schema"]
         self.question_id = question_obj["question_id"]
         self.question = question_obj["question"]
@@ -28,7 +29,7 @@ class RubricGrader:
         )
         
         response = self.client.chat.completions.create(
-            model="deepseek-chat",
+            model=self.model,
             messages=[
                 {"role": "system", "content": system_prompt_grader},
                 {"role": "user", "content": user_prompt}

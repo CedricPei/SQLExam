@@ -8,7 +8,8 @@ from utils import extract_json_from_response
 load_dotenv()
 
 class ConstraintExtractor:
-    def __init__(self, question_obj: dict, output_dir: str = "constraint_extractor_outputs"):
+    def __init__(self, question_obj: dict, output_dir: str = "constraint_extractor_outputs", model: str = "deepseek-chat"):
+        self.model = model
         self.schema = question_obj["schema"]
         self.question_id = question_obj["question_id"]
         self.question = question_obj["question"]
@@ -25,9 +26,9 @@ class ConstraintExtractor:
             gold_sql=self.gold_sql
         )
         # print(user_content)
-        client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"), base_url="https://api.deepseek.com/v1")
+        client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"), base_url="https://api.deepseek.com/v1" if self.model == "deepseek-chat" else None)
         response = client.chat.completions.create(
-            model="deepseek-chat",
+            model=self.model,
             messages=[
                 {"role": "system", "content": system_prompt_constraint_extractor},
                 {"role": "user", "content": user_content}

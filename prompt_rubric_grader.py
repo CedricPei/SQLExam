@@ -11,16 +11,17 @@ Your task is to grade a predicted SQL query against a rubric of semantic constra
 
 ### Task
 For every rubric question:
-1. Decide whether `predicted_sql` fulfils the requirement SEMANTICALLY (i.e. produces the same effect as the requirement).  
-2. Think step-by-step; write that chain-of-thought in cot.  
-3. Assign a numeric score no more than the weight following grading guidelines.  
-4. Create one JSON object: {{ "id", "cot", "score" }}.
+1. For data source questions, only check if the required table/column appears in the predicted SQL.
+2. Except data source questions, decide whether `predicted_sql` fulfils the requirement SEMANTICALLY (i.e. produces the same effect as the requirement).  
+3. Think step-by-step; write that chain-of-thought in cot.  
+4. Assign a numeric score no more than the weight following grading guidelines.  
+5. Create one JSON object: {{ "id", "cot", "score" }}.
     - id: string — the id of the rubric question
     - cot: string — your step-by-step reasoning (chain of thought) in natural language
     - score: string — the points awarded (≤ weight)
 
 ### Rules
-- Use clear, concise natural language in *cot*; focus on meaning rather than SQL syntax details.  
+- Use clear, concise natural language in *cot*; focus on meaning rather than SQL syntax details. 
 - Return only the JSON array.
 """
 
@@ -37,13 +38,14 @@ After grading all questions, aggregate all objects into a single JSON array. Ret
 **CRITICAL** Any formulation that produces the same effect of the requirement is acceptable. 
 
 ###### Grading Guidelines
-1. Data Source Questions
+1. Data Source Questions 
   - Deduct all points if none of the required tables appear.
   - Deduct 0.5 points for each missing table.
+  - Score all points if all required columns EXPLICITLY or IMPLICITLY, CORRECTLY or INCORRECTLY appear in the predicted SQL (regardless of positions).
+    - As long as the required table/column appears, any position is acceptable (SELECT, FROM, WHERE, EXCEPT, UNION, INTERSECT, CTE, subqueries, etc.).
+    - DO NOT FOCUS ONLY ON SELECT, WHERE clauses or main query.
   - Deduct 0.5 points for each missing column.
   - Using a column from an alternative but equivalent table is acceptable.
-  - **CRITICAL RULE** If a column/table appears ANYWHERE in the SQL statement, it counts as present.
-  - **EXAMPLE**: If required columns are [A, B, C] and query uses A in SELECT, B in WHERE, C in EXCEPT clause → all present (1.5 points total)
   
 2. Grouping Questions
   - Deduct 2 points if grouping is needed but entirely absent.
@@ -58,9 +60,10 @@ After grading all questions, aggregate all objects into a single JSON array. Ret
   Each required filter predicate is worth 2 points; apply the deductions below to each predicate independently
   (e.g., a 6-point weight implies three separate predicates to evaluate).
   - Deduct 2 points if the required condition is completely missing.
+  - Deduct 2 points if the logic of the condition is incorrect.
   - Deduct 1 point if the condition is present but only partially satisfied. Some partially correct examples:
-    - Required "no less than", but predicted `>`.
-    - Required "no more than", but predicted `<`.
+    - Required "no less than" or "at least", but predicted `>`.
+    - Required "no more than" or "at most", but predicted `<`.
     - Required "between 18 and 30", but predicted `>= 18`.
     - Required "equal to 'New York'", but predicted `LIKE '%New York%'`.
     - Required "in 'East' or 'West'", but predicted `= 'East'`.
@@ -149,7 +152,7 @@ WHERE d2.name = 'Engineering'
   }},
   {{
     "id": "2",
-    "cot": "employees.full_name and departments.name appear in the SELECT lists of both parts; employees.hire_date is referenced in the EXCEPT sub-query's filter. All three required columns occur somewhere in the overall statement, so the requirement is fully satisfied.",
+    "cot": "All three required columns appear somewhere in the predicted SQL regardless of where they appear.",
     "score": "1.5"
   }},
   {{
@@ -165,7 +168,6 @@ WHERE d2.name = 'Engineering'
 ]
 
 ###### For you to grade:
-
 ### Question
 {question}
 
@@ -181,9 +183,6 @@ WHERE d2.name = 'Engineering'
 ### Rubric
 {rubric_questions}
 
-**FINAL ALERT FOR GRADING DATA SOURCE QUESTIONS**:
-- !!!!!! ONLY CHECK if the column/table APPEARS ANYWHERE (SELECT, FROM, WHERE, EXCEPT, UNION, INTERSECT, CTE, etc.) in the SQL statement !!!!!!
-- Both explicit and implicit inclusion are acceptable.
 ### Grading
 """
 

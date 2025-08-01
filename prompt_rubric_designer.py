@@ -112,7 +112,7 @@ LIMIT 1;
 
 ### CONSTRAINT DESCRIPTIONS
 1. The SQL query must reference the tables: [actors, movies, roles].
-2. The SQL query must include the columns: [actors.name, actors.id, movies.director].
+2. The SQL query must include columns: [actors.name, actors.id, movies.director].
 3. The SQL query must apply the function: COUNT(*) in the SELECT clause.
 4. The SQL query must group results by: GROUP BY actors.id.
 5. The SQL query must satisfy the requirement: WHERE movies.director = 'Christopher Nolan'.
@@ -122,12 +122,12 @@ LIMIT 1;
 ### OUTPUT (return ONLY this JSON array):
 [
   {{
-    "question": "Does the query use the information from all three tables: actors, movies, and roles?",
+    "question": "Does the query use the information from all three tables: actors, movies, and roles",
     "explanation": "Three tables are used: actors (1 point), movies (0.5 points), and roles (0.5 points), totaling 2 points as capped.",
     "weight": 2
   }},
   {{
-    "question": "Does the query use the name and ID columns from the actors table, and the director column from the movies table?",
+    "question": "Does the query include the name and ID columns from the actors table, and the director column from the movies table",
     "explanation": "Three required columns are used; each counts for 0.5 point, totaling 1.5 points.",
     "weight": 1.5
   }},
@@ -212,12 +212,12 @@ LIMIT 5;
 ### OUTPUT (return ONLY this JSON array):
 [
   {{
-    "question": "Does the query retrieve data from both the employees table and the bonuses table?",
+    "question": "Does the query retrieve data from both the employees table and the bonuses table",
     "explanation": "Two tables are used: employees (1 point) and bonuses (0.5 points), totaling 1.5 points.",
     "weight": 1.5
   }},
   {{
-    "question": "Does the query use the columns first name, last name, department, city, employment type and identifier from the employees table, as well as the year and amount columns from the bonuses table?",
+    "question": "Does the query include the columns first name, last name, department, city, employment type and identifier from the employees table, as well as the year and amount columns from the bonuses table",
     "explanation": "Eight required columns are referenced; at 0.5 point each this totals 4 points, but the column category is capped at 3 points.",
     "weight": 3
   }},
@@ -285,7 +285,7 @@ rubric_templates = {
 
   # 3. required columns
   "3": {
-      "description": "The SQL query must include the columns: {answer}."
+      "description": "The SQL query must include columns: {answer}."
   },
 
   # 4. required functions

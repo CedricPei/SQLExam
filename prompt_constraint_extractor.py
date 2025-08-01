@@ -21,7 +21,7 @@ You are an **Constraint Extractor** in an LLM-based SQL-evaluation pipeline.
 - When extracting predicates from GOLD_SQL, use the exact original text. Do not combine or use your own words.
 - One object per atomic requirement; no missing question_ids.  
 - Keep answers concise; use arrays when multiple values apply.  
-- Never add extra keys or change key names.
+- All questions should be answered (even if the answer is "NA").
 """.strip()
 
 
