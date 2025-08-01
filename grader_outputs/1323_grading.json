@@ -1,0 +1,27 @@
+[
+  {
+    "id": "1",
+    "cot": "The query retrieves data from both the event table and the attendance table, as evidenced by the JOIN between event AS T1 and attendance AS T2.",
+    "score": "1.5"
+  },
+  {
+    "id": "2",
+    "cot": "The query includes the event_name column from the event table and implicitly uses the type column in the WHERE clause to exclude fundraisers.",
+    "score": "1"
+  },
+  {
+    "id": "3",
+    "cot": "The query correctly groups the results by the event identifier (event_id) to count attendances, as seen in the GROUP BY T1.event_id clause.",
+    "score": "2"
+  },
+  {
+    "id": "4",
+    "cot": "The query ensures that only events with more than 20 attendees are included through the HAVING COUNT(T2.link_to_event) > 20 clause.",
+    "score": "2"
+  },
+  {
+    "id": "5",
+    "cot": "The query excludes events that are fundraisers by using the EXCEPT clause with a subquery that selects events where type = 'Fundraiser'.",
+    "score": "2"
+  }
+]
