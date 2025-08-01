@@ -112,7 +112,7 @@ LIMIT 1;
 
 ### CONSTRAINT DESCRIPTIONS
 1. The SQL query must reference the tables: [actors, movies, roles].
-2. The SQL query must reference the columns: [actors.name, actors.id, movies.director].
+2. The SQL query must include the columns: [actors.name, actors.id, movies.director].
 3. The SQL query must apply the function: COUNT(*) in the SELECT clause.
 4. The SQL query must group results by: GROUP BY actors.id.
 5. The SQL query must satisfy the requirement: WHERE movies.director = 'Christopher Nolan'.
@@ -201,7 +201,7 @@ LIMIT 5;
 
 ### CONSTRAINT DESCRIPTIONS
 1. The SQL query must reference the tables: [employees, bonuses].
-2. The SQL query must reference the columns: [employees.first_name, employees.last_name, employees.department, employees.city, employees.employment_type, employees.id, bonuses.year, bonuses.amount].
+2. The SQL query must include the columns: [employees.first_name, employees.last_name, employees.department, employees.city, employees.employment_type, employees.id, bonuses.year, bonuses.amount].
 3. The SQL query must apply the function: SUM(bonuses.amount) in the SELECT clause.
 4. The SQL query must group results by: GROUP BY employees.id
 5. The SQL query must satisfy the requirement: WHERE employees.department = 'Finance' AND employees.city = 'New York' AND employees.employment_type = 'Full-Time' AND bonuses.year = 2024.
@@ -285,7 +285,7 @@ rubric_templates = {
 
   # 3. required columns
   "3": {
-      "description": "The SQL query must reference the columns: {answer}."
+      "description": "The SQL query must include the columns: {answer}."
   },
 
   # 4. required functions
