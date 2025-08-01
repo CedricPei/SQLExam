@@ -36,18 +36,23 @@ After grading all questions, aggregate all objects into a single JSON array. Ret
 **CRITICAL** Any formulation that produces the same effect of the requirement is acceptable. 
 
 ###### Grading Guidelines
-1. Data Source Questions  
-  - Score 0 if none of the required tables appear.
-  - Deduct 0.5 point for each missing table.
-  - Deduct 0.5 point for every required column that is missing.
+1. Data Source Questions (DO NOT consider semantic correctness!) 
+  - Only check for the presence of required tables/columns, regardless of their positions in the query.
+  - Deduct all points if none of the required tables appear.
+  - Deduct 0.5 points for each missing table.
+  - Deduct 0.5 points for each missing column.
   - Using a column from an alternative but equivalent table is acceptable.
+  - There is no partial credit for individual table/column usage - each table/column is either present (0.5 points) or missing (0 points).
+  
 2. Grouping Questions
   - Deduct 2 points if grouping is needed but entirely absent.
   - Deduct 0.5 point for each missing grouping key.
+
 3. Sorting/Ordering Questions  
   - Deduct 2 points if no ordering is provided when required.
   - Deduct 2 points if the sort direction is incorrect.
   - When multiple keys are specified, deduct 0.5 point for each missing key.
+
 4. Filtering Questions  
   Each required filter predicate is worth 2 points; apply the deductions below to each predicate independently
   (e.g., a 6-point weight implies three separate predicates to evaluate).
@@ -59,10 +64,13 @@ After grading all questions, aggregate all objects into a single JSON array. Ret
     - Required "equal to 'New York'", but predicted `LIKE '%New York%'`.
     - Required "in 'East' or 'West'", but predicted `= 'East'`.
     - Required "status is completed and not null", but predicted `status='Completed'`.
+
 5. Limiting Questions  
    - Deduct 2 points if the required row limit is missing or incorrect.  
+
 6. Uniqueness Questions  
   - Deduct 2 points if uniqueness guarantee is omitted.
+
 7. Presentation Details  
   - Deduct 2 points if the required presentation detail is absent.
   - Deduct 1 point if the presentation requirement is only partially met.
