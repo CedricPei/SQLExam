@@ -39,17 +39,17 @@ if __name__ == "__main__":
             "gold_sql": gold_sql,
             "schema": schema
         }
-
-        constraint_extractor = ConstraintExtractor(question_obj)
+        model = "deepseek-reasoner"
+        constraint_extractor = ConstraintExtractor(question_obj, model=model)
         constraints = constraint_extractor.call()
 
-        rubric_designer = RubricDesigner(question_obj, constraints)
+        rubric_designer = RubricDesigner(question_obj, constraints, model=model)
         designed_rubric = rubric_designer.call()
 
         # reviewer = Reviewer(question_obj, constraints)
         # revised_constraints = reviewer.call()
 
-        rubric_grader = RubricGrader(question_obj, designed_rubric)
+        rubric_grader = RubricGrader(question_obj, designed_rubric, model=model)
         grading_results = rubric_grader.call(q["SQL"])
         
         usefulness_score = calculate_usefulness_score(grading_results, designed_rubric)

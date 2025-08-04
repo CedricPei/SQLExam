@@ -28,9 +28,9 @@ class Reviewer:
             gold_sql=self.gold_sql,
             constraints_desc=constraints_desc
         )
-        client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"), base_url="https://api.deepseek.com/v1")
+        client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"), base_url=os.getenv("OPENAI_BASE_URL"))
         response = client.chat.completions.create(
-            model="deepseek-chat",
+            model=self.model,
             messages=[
                 {"role": "system", "content": system_prompt_reviewer},
                 {"role": "user", "content": user_content}

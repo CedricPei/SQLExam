@@ -26,16 +26,17 @@ class ConstraintExtractor:
             gold_sql=self.gold_sql
         )
         # print(user_content)
-        client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"), base_url="https://api.deepseek.com/v1" if self.model == "deepseek-chat" else None)
+        client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"), base_url=os.getenv("OPENAI_BASE_URL"))
         response = client.chat.completions.create(
             model=self.model,
             messages=[
                 {"role": "system", "content": system_prompt_constraint_extractor},
                 {"role": "user", "content": user_content}
             ],
-            response_format={
-                'type': 'json_object'
-            }
+            # response_format={
+            #     'type': 'json_object'
+            # }
+            temperature=0
         )
         response_content = response.choices[0].message.content
 

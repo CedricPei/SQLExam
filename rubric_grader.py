@@ -9,7 +9,7 @@ load_dotenv()
 
 class RubricGrader:
     def __init__(self, question_obj: dict, rubric_questions: list, output_dir: str = "grader_outputs", model: str = "deepseek-chat"):
-        self.client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"), base_url="https://api.deepseek.com/v1" if model == "deepseek-chat" else None)
+        self.client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"), base_url=os.getenv("OPENAI_BASE_URL"))
         self.model = model
         self.schema = question_obj["schema"]
         self.question_id = question_obj["question_id"]
@@ -34,9 +34,9 @@ class RubricGrader:
                 {"role": "system", "content": system_prompt_grader},
                 {"role": "user", "content": user_prompt}
             ],
-            response_format={
-                'type': 'json_object'
-            },
+            # response_format={
+            #     'type': 'json_object'
+            # },
             temperature=0
         )
         response_content = response.choices[0].message.content

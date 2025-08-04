@@ -59,7 +59,7 @@ After completing all items, aggregate the objects into a **single JSON array** a
     - Exclude columns for table connections; include only columns meaningful to answer the question.
     - If all columns of one table are required, use `table.*`.
 
-4. List NECESSARY functions that the query MUST call in the SELECT clause.
+4. List NECESSARY functions that the query MUST call ONLY in the SELECT clause.
     - **IMPORTANT** IGNORE any functions that appear in WHERE, ORDER BY, GROUP BY, or HAVING clauses.
     - Include aggregate, window, and string functions.
     - COUNT, SUM, AVG, MAX, MIN, RANK(), DENSE_RANK(), SUBSTR
