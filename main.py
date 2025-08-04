@@ -39,7 +39,7 @@ if __name__ == "__main__":
             "gold_sql": gold_sql,
             "schema": schema
         }
-        model = "deepseek-reasoner"
+        model = "deepseek-chat"
         constraint_extractor = ConstraintExtractor(question_obj, model=model)
         constraints = constraint_extractor.call()
 
