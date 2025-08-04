@@ -5,9 +5,11 @@ import re
 import pandas as pd
 import numpy as np
 from pandas.util import hash_pandas_object
-from sqlglot import parse_one
+from typing import Any, List, Tuple
+from __future__ import annotations
+from sqlglot import parse_one, diff, exp
 from sqlglot.optimizer import optimize, OPTIMIZER_RULES
-
+from sqlglot.optimizer.qualify import qualify
 
 def get_schema_by_db_id(db_id: str):
     db_path = os.path.join('dev_databases', db_id, f'{db_id}.sqlite')
@@ -53,16 +55,42 @@ def compare_result_dfs(df1: pd.DataFrame, df2: pd.DataFrame) -> bool:
 
     return hash_dataframe(df1) == hash_dataframe(df2)
 
-def sqlglot_equivalent(gt_sql: str, pred_sql: str, schema: dict[str, list[str]]) -> bool:
-    SAFE_RULES = {"qualify", "expand_stars", "normalize", "unqualify_star"}
 
-    def _canonical(sql: str) -> str:
-        ast = parse_one(sql, read="sqlite")
-        ast = optimize(ast, schema=schema, rules=[r for r in OPTIMIZER_RULES if r in SAFE_RULES])
-        return ast.sql(dialect="sqlite")
+
+def sqlglot_equivalent(gt_sql: str, pred_sql: str, schema: dict[str, list[str]]) -> bool:
+    SAFE_RULES = {"qualify", "expand_stars", "normalize", "unqualify_star", "normalize_identifiers"}
+
+    def _canonical(sql: str) -> Tuple[exp.Expression, List[str]]:
+        tree = parse_one(sql, read="sqlite")
+        tree = qualify(tree, schema=schema, expand_alias_refs=True)
+        tree = optimize(tree, schema=schema, rules=[r for r in OPTIMIZER_RULES if r.__name__ in SAFE_RULES])
+
+        order_keys: List[str] = []
+        for order in list(tree.find_all(exp.Order)):
+            order_keys.extend([e.sql(dialect="sqlite") for e in order.expressions])
+            order.parent.set("order", None)
+
+        def _strip_aliases(node: exp.Expression) -> exp.Expression:
+            if isinstance(node, exp.Alias):
+                return node.this
+            if "alias" in node.arg_types:
+                node.set("alias", None)
+            return node
+
+        tree = tree.transform(_strip_aliases)
+        return tree, order_keys
 
     try:
-        return _canonical(gt_sql) == _canonical(pred_sql)
-    except Exception as e:
-        print(f"SQLGlot error: {e}")
+        ast_gt, order_gt = _canonical(gt_sql)
+        ast_pred, order_pred = _canonical(pred_sql)
+
+        if order_gt != order_pred:
+            return False
+
+        for edit in diff.diff(ast_gt, ast_pred):
+            if not isinstance(edit, (diff.Move, diff.Keep)):
+                return False
+        return True
+    except Exception as exc:
+        print(f"sqlglot_equivalent error: {exc}")
         return False
