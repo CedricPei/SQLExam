@@ -1,6 +1,6 @@
 import pandas as pd
 import numpy as np
-from utils import compare_result_dfs
+from utils import compare_results
 
 # ---------- 生成大型随机 DataFrame 的工具 ----------
 def make_large_df(rows=1_000, cols=10, seed=0) -> pd.DataFrame:
@@ -92,6 +92,6 @@ if __name__ == "__main__":
 
     # === 执行测试 ===
     for name, left, right, expected in tests:
-        got = compare_result_dfs(left, right)
+        got = compare_results(left, right)
         status = "✅" if got == expected else "❌"
         print(f"{status} {name:<25} -> 结果: {got}  (期望: {expected})")
