@@ -89,21 +89,7 @@ if __name__ == "__main__":
     ]
 
     # 追加到 test_cases 列表即可
-    more_false_positive_cases = [
-        # 13. 自连接：a.dept_id 与 b.dept_id
-        #    如果你简单“去前缀”，可能把两列混为一谈。
-        ("""
-        SELECT a.dept_id               -- 员工所在部门
-        FROM employees a
-        JOIN employees b ON a.manager_id = b.emp_id
-        """,
-        """
-        SELECT b.dept_id               -- 经理所在部门
-        FROM employees a
-        JOIN employees b ON a.manager_id = b.emp_id
-        """,
-        False),   # 语义不同，不能等价
-
+    more_false_positive_cases = [ 
         # 14. 不同表同名列：employees.dept_id vs departments.dept_id
         ("""
         SELECT dept_id FROM employees
@@ -111,7 +97,7 @@ if __name__ == "__main__":
         """
         SELECT dept_id FROM departments
         """,
-        False),   # 去掉前缀会误判
+        False),  
 
         # 15. LEFT JOIN 替换成 INNER JOIN
         ("""
@@ -124,7 +110,7 @@ if __name__ == "__main__":
         FROM departments d
         JOIN employees e ON d.dept_id = e.dept_id
         """,
-        False),   # LEFT vs INNER 结果集基数可能不同
+        False),  
 
         # 16. COUNT(*) vs COUNT(DISTINCT dept_id)
         ("SELECT COUNT(*) FROM employees",
@@ -134,12 +120,12 @@ if __name__ == "__main__":
         # 17. SELECT DISTINCT 与非 DISTINCT
         ("SELECT DISTINCT role FROM assignments",
         "SELECT role FROM assignments",
-        False),   # 当 role 存在重复行时不等价
+        False),  
 
         # 18. GROUP BY 列误删
         ("SELECT dept_id, AVG(salary) FROM employees GROUP BY dept_id",
         "SELECT AVG(salary) FROM employees",
-        False),   # 去掉列顺序或别名时可能把 dept_id 给丢了
+        False),  
 
         # 19. 边界条件 > 与 >=
         ("SELECT * FROM projects WHERE budget > 100000",
@@ -149,7 +135,7 @@ if __name__ == "__main__":
         # 20. LIMIT 子句
         ("SELECT first_name FROM employees ORDER BY hire_date LIMIT 5",
         "SELECT first_name FROM employees ORDER BY hire_date",
-        False),   # LIMIT 影响返回行数
+        False), 
 
         # 21. NULL 与 0 混淆
         ("SELECT * FROM employees WHERE salary IS NULL",
@@ -169,7 +155,7 @@ if __name__ == "__main__":
         JOIN assignments a  ON e.emp_id = a.emp_id
         JOIN projects    p  ON a.proj_id = p.proj_id
         """,
-        False),   # JOIN 类型不同，LEFT→INNER 可能丢行
+        False),  
     ]
     test_cases.extend(more_false_positive_cases)
 

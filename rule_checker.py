@@ -1,3 +1,4 @@
+import re
 from typing import Tuple, List
 from sqlglot import parse_one, exp, diff
 from sqlglot.optimizer.optimizer import optimize, RULES
@@ -15,7 +16,6 @@ _SAFE_RULES = {
 
 class RuleChecker:
     def __init__(self, schema: dict[str, list[str]]):
-        self.schema = schema
         self.schema_obj = ensure_schema({t: {c: None for c in cols} for t, cols in schema.items()})
         self.rules = [r for r in RULES if r.__name__ in _SAFE_RULES]
 
@@ -28,24 +28,24 @@ class RuleChecker:
                 return False
             edits = list(diff(gt_tree, pr_tree))
             return all(isinstance(e, (Move, Keep, Update)) for e in edits)
-        except Exception:
+        except Exception as e:
+            print(f"Error in sqlglot_equivalent: {e}")
             return False
 
     def _canonical(self, sql: str) -> Tuple[exp.Expression, List[str]]:
         tree = parse_one(sql, read="sqlite")
-        tree = qualify(tree, schema=self.schema_obj, expand_alias_refs=True)
+        try:
+            qualify(tree, schema=self.schema_obj, expand_alias_refs=True)
+        except:
+            tree = parse_one(re.sub(r'`([^`]+)`', r'\1', sql), read="sqlite")
+            tree = qualify(tree, schema=self.schema_obj, expand_alias_refs=True)
         tree = optimize(tree, schema=self.schema_obj, rules=self.rules)
 
         tree = self._normalize_count_functions(tree)
-        # print(tree.sql(dialect="sqlite"))
         tree = self._normalize_group_by_distinct(tree)
-        # print(tree.sql(dialect="sqlite"))
         order_keys = self._extract_and_remove_order_by(tree)
-        # print(tree.sql(dialect="sqlite"))
         tree = self._normalize_join_order(tree)
-        # print(tree.sql(dialect="sqlite"))
         tree = self._remove_aliases_and_qualifiers(tree)
-        # print(tree.sql(dialect="sqlite"))
 
         return tree, order_keys
 

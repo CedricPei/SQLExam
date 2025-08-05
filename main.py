@@ -2,8 +2,8 @@ import json
 from constraint_extractor import ConstraintExtractor
 from rubric_designer import RubricDesigner
 from rubric_grader import RubricGrader
-from reviewer import Reviewer
-from utils import get_schema_by_db_id
+from rule_checker import RuleChecker
+from utils import execute_and_compare, get_ddl, get_schema
 from tqdm import tqdm
 import sqlparse
 import os
@@ -16,44 +16,49 @@ def calculate_usefulness_score(grading_results, rubric_questions):
 def write_result_to_file(question_obj, predicted_sql, usefulness_score, output_file="usefulness_results.json"):
     result = {"question_id": question_obj["question_id"], "question": question_obj["question"], "predicted_sql": predicted_sql, "usefulness": usefulness_score}
     
-    existing_results = json.load(open(output_file)) if os.path.exists(output_file) else []
+    existing_results = json.load(open(output_file, encoding="utf-8")) if os.path.exists(output_file) else []
     existing_results.append(result)
     
     with open(output_file, "w", encoding="utf-8") as f:
         json.dump(existing_results, f, ensure_ascii=False, indent=2)
 
+model = "deepseek-chat"
 if __name__ == "__main__":
     with open("extracted_questions.json", "r", encoding="utf-8") as f:
         questions = json.load(f)
-
-    # questions = [q for q in questions if q["question_id"] == 1322]
+    # questions = [q for q in questions if q["question_id"] == 671]
 
     for q in tqdm(questions):
-        schema = get_schema_by_db_id(q["db_id"])
-        gold_sql = sqlparse.format(q["SQL"], reindent=True, keyword_case='upper')
+        pred_sql = q["SQL"]
         question_obj = {
             "question_id": str(q["question_id"]),
-            "db_id": q["db_id"],
             "question": q["question"],
             "evidence": q["evidence"],
-            "gold_sql": gold_sql,
-            "schema": schema
         }
-        model = "deepseek-chat"
-        constraint_extractor = ConstraintExtractor(question_obj, model=model)
-        constraints = constraint_extractor.call()
 
-        rubric_designer = RubricDesigner(question_obj, constraints, model=model)
-        designed_rubric = rubric_designer.call()
+        if execute_and_compare(q["db_id"], q["SQL"], pred_sql):
+            schema_dict = get_schema(q["db_id"])
+            if RuleChecker(schema_dict).sqlglot_equivalent(q["SQL"], pred_sql):
+                usefulness_score = 1.0
+            else:
+                usefulness_score = 0.0
+        else:
+            question_obj["gold_sql"] = sqlparse.format(q["SQL"], reindent=True, keyword_case='upper')
+            question_obj["schema"] = get_ddl(q["db_id"])
 
-        # reviewer = Reviewer(question_obj, constraints)
-        # revised_constraints = reviewer.call()
+            # Constraint Extractor
+            constraint_extractor = ConstraintExtractor(question_obj, model=model)
+            constraints = constraint_extractor.call()
 
-        rubric_grader = RubricGrader(question_obj, designed_rubric, model=model)
-        grading_results = rubric_grader.call(q["SQL"])
+            # Rubric Designer
+            rubric_designer = RubricDesigner(question_obj, constraints, model=model)
+            designed_rubric = rubric_designer.call()
+
+            # Rubric Grader
+            rubric_grader = RubricGrader(question_obj, designed_rubric, model=model)
+            grading_results = rubric_grader.call(pred_sql)
+
+            usefulness_score = calculate_usefulness_score(grading_results, designed_rubric)
         
-        usefulness_score = calculate_usefulness_score(grading_results, designed_rubric)
-        write_result_to_file(question_obj, q["SQL"], usefulness_score)
-
-
-
+        # Write score to file
+        write_result_to_file(question_obj, pred_sql, usefulness_score)
