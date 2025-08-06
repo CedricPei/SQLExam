@@ -1,3 +1,4 @@
+import json
 import os
 import sqlite3
 import re
@@ -47,20 +48,6 @@ def extract_json_from_response(response: str) -> str:
         extracted = extracted + ']'
     return extracted
 
-def compare_results(df1: pd.DataFrame, df2: pd.DataFrame) -> bool:
-    if df1.shape != df2.shape:
-        return False
-
-    def hash_dataframe(df: pd.DataFrame) -> int:
-        df_str = df.map(str)
-        row_hash = None
-        for col in df_str.columns:
-            h_col = hash_pandas_object(df_str[col], index=False).to_numpy()
-            row_hash = h_col if row_hash is None else np.bitwise_xor(row_hash, h_col)
-        return int(np.bitwise_xor.reduce(row_hash))
-
-    return hash_dataframe(df1) == hash_dataframe(df2)
-
 def execute_sql(db_id: str, sql: str) -> pd.DataFrame:
     db_path = os.path.join('dev_databases', db_id, f'{db_id}.sqlite')    
     with sqlite3.connect(db_path) as conn:
@@ -71,4 +58,21 @@ def execute_sql(db_id: str, sql: str) -> pd.DataFrame:
 def execute_and_compare(db_id: str, gold_sql: str, pred_sql: str) -> bool:
     df1 = execute_sql(db_id, gold_sql)
     df2 = execute_sql(db_id, pred_sql)
-    return compare_results(df1, df2)
+    if df1.shape != df2.shape:
+        return False
+
+    def hash_dataframe(df: pd.DataFrame) -> int:
+        df_str = df.map(str)
+        row_hash = None
+        for col in df_str.columns:
+            h_col = hash_pandas_object(df_str[col], index=False).to_numpy()
+            row_hash = h_col if row_hash is None else np.bitwise_xor(row_hash, h_col)
+        return int(np.bitwise_xor.reduce(row_hash))
+    return hash_dataframe(df1) == hash_dataframe(df2)
+
+def write_result_to_file(question, pred_sql, usefulness_score, output_file="usefulness_results.json"):
+    result = {"question_id": question["question_id"], "question": question["question"], "predicted_sql": pred_sql, "usefulness": usefulness_score}
+    existing_results = json.load(open(output_file, encoding="utf-8")) if os.path.exists(output_file) else []
+    existing_results.append(result)
+    with open(output_file, "w", encoding="utf-8") as f:
+        json.dump(existing_results, f, ensure_ascii=False, indent=2)

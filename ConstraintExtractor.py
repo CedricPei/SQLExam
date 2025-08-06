@@ -3,7 +3,7 @@ import json
 import openai
 from dotenv import load_dotenv
 from prompt_constraint_extractor import system_prompt_constraint_extractor, user_prompt_constraint_extractor
-from utils import extract_json_from_response
+from helper import extract_json_from_response
 
 load_dotenv()
 
