@@ -3,7 +3,7 @@
 import sys
 import os
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from rule_checker import RuleChecker
+from SQLGlotEval import SQLGlotEval
 from rich import print
 
 if __name__ == "__main__":
@@ -162,7 +162,7 @@ if __name__ == "__main__":
 
     passed = 0
     for i, (gt_sql, pred_sql, expected) in enumerate(test_cases, 1):
-        result = RuleChecker(schema).sqlglot_equivalent(gt_sql, pred_sql)
+        result = SQLGlotEval(schema, gt_sql, pred_sql)
         status = "[green]PASS[/green]" if result == expected else "[red]FAIL[/red]"
         print(f"[{status}] Test case {i}: expected={expected}, got={result}")
         if result == expected:

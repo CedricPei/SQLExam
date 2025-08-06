@@ -1,6 +1,6 @@
 import pandas as pd
 import numpy as np
-from utils import compare_results
+from helper import compare_results
 
 # ---------- 生成大型随机 DataFrame 的工具 ----------
 def make_large_df(rows=1_000, cols=10, seed=0) -> pd.DataFrame:
