@@ -1,7 +1,7 @@
 import sqlparse
 from typing import Dict, Any
 from helper import get_ddl
-from constraint_extractor import ConstraintExtractor
+from ConstraintExtractor import ConstraintExtractor
 from RubricDesigner import RubricDesigner
 from RubricGrader import RubricGrader
 
