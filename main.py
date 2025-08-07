@@ -15,16 +15,17 @@ if __name__ == "__main__":
         pred_sql = question["SQL"]
 
         if not VeriEQL(question["SQL"], pred_sql, question["db_id"]):
-            try:
-                if execute_and_compare(question["db_id"], question["SQL"], pred_sql):
-                    if SQLGlotEval(question["db_id"], question["SQL"], pred_sql):
-                        usefulness_score = 1.0
-                    else:
-                        usefulness_score = 0.0
-                else:
-                    usefulness_score = SQLEvaluationPipeline(model=model).eval(question, pred_sql)
-            except Exception as e:
-                usefulness_score = 0.0        
+            usefulness_score = 0.0
+            # try:
+            #     if execute_and_compare(question["db_id"], question["SQL"], pred_sql):
+            #         if SQLGlotEval(question["db_id"], question["SQL"], pred_sql):
+            #             usefulness_score = 1.0
+            #         else:
+            #             usefulness_score = 0.0
+            #     else:
+            #         usefulness_score = SQLEvaluationPipeline(model=model).eval(question, pred_sql)
+            # except Exception as e:
+            #     usefulness_score = 0.0        
         else:
             usefulness_score = 1.0
         

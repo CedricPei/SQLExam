@@ -1,12 +1,18 @@
-import sys
-import os
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'VeriEQL_Origin'))
-from VeriEQL_Origin.constants import DIALECT
-from VeriEQL_Origin.environment import Environment
+import os, sys, zipfile, shutil, atexit
 import sqlite3
 import re
 from typing import Tuple, Dict, List, Any
 import sqlglot
+BASE_DIR = os.path.dirname(__file__)
+tmp = os.path.join(BASE_DIR, ".verieql_temp")
+os.makedirs(tmp, exist_ok=True)
+zipfile.ZipFile(os.path.join(BASE_DIR, "verieql.zip")).extractall(tmp)
+sys.path.insert(0, os.path.join(tmp, "verieql"))
+sys.path.insert(0, tmp)
+atexit.register(lambda: shutil.rmtree(tmp, ignore_errors=True))
+
+from verieql.constants import DIALECT
+from verieql.environment import Environment
 
 def VeriEQL(sql1, sql2, db_id, **kwargs) -> bool:
     schema, constraints = transpile_schema_to_mysql(db_id)
