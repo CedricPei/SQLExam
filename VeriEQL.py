@@ -14,7 +14,7 @@ atexit.register(lambda: shutil.rmtree(tmp, ignore_errors=True))
 from verieql.constants import DIALECT
 from verieql.environment import Environment
 
-def VeriEQL(sql1, sql2, db_id, **kwargs) -> bool:
+def VeriEQL(db_id, sql1, sql2, **kwargs) -> bool:
     schema, constraints = transpile_schema_to_mysql(db_id)
     sql1 = transpile_query_to_mysql(sql1)
     sql2 = transpile_query_to_mysql(sql2)
