@@ -15,15 +15,15 @@ if __name__ == "__main__":
     for question in tqdm(questions):
         pred_sql = question["SQL"]
 
-        # if not (VeriEQL(question["db_id"], question["SQL"], pred_sql) or SQLGlotEval(question["db_id"], question["SQL"], pred_sql)):
-        #     try:
-        #         if execute_and_compare(question["db_id"], question["SQL"], pred_sql):
-        usefulness_score = RandomDBEval(question["db_id"], question["SQL"], pred_sql)
-        #         else:
-        #             usefulness_score = SQLEvaluationPipeline(model=model).eval(question, pred_sql)
-        #     except Exception as e:
-        #         usefulness_score = 0.0        
-        # else:
-        #     usefulness_score = 1.0
+        if not (VeriEQL(question["db_id"], question["SQL"], pred_sql) or SQLGlotEval(question["db_id"], question["SQL"], pred_sql)):
+            try:
+                if execute_and_compare(question["db_id"], question["SQL"], pred_sql):
+                    usefulness_score = RandomDBEval(question["db_id"], question["SQL"], pred_sql)
+                else:
+                    usefulness_score = SQLEvaluationPipeline(model=model).eval(question, pred_sql)
+            except Exception as e:
+                usefulness_score = 0.0        
+        else:
+            usefulness_score = 1.0
         
         write_result_to_file(question, pred_sql, usefulness_score)
