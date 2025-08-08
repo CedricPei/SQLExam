@@ -4,11 +4,12 @@ import sqlite3
 import re
 import pandas as pd
 import numpy as np
+from pathlib import Path
 from pandas.util import hash_pandas_object
 from typing import Dict, List
 
-def get_ddl(db_id: str):
-    db_path = os.path.join('dev_databases', db_id, f'{db_id}.sqlite')
+def get_ddl(db: str):
+    db_path = Path("dev_databases") / db / f"{db}.sqlite"
     with sqlite3.connect(db_path) as conn:
         cur = conn.cursor()
         rows = cur.execute(
@@ -18,8 +19,8 @@ def get_ddl(db_id: str):
         ).fetchall()
         return "\n\n".join(ddl + ";" for (ddl,) in rows)
 
-def get_schema(db_id: str) -> Dict[str, List[str]]:
-    db_path = os.path.join('dev_databases', db_id, f'{db_id}.sqlite')
+def get_schema(db: str) -> Dict[str, List[str]]:
+    db_path = Path("dev_databases") / db / f"{db}.sqlite"
     schema = {}
     with sqlite3.connect(db_path) as conn:
         cur = conn.cursor()
@@ -37,10 +38,7 @@ def get_schema(db_id: str) -> Dict[str, List[str]]:
 
 def extract_json_from_response(response: str) -> str:
     match = re.search(r"```(?:json|js|javascript|txt|text)?\s*([\s\S]*?)```", response, re.IGNORECASE)
-    if match:
-        extracted = match.group(1).strip()
-    else:
-        extracted = response.strip()    
+    extracted = match.group(1).strip() if match else response.strip()
     
     if extracted and not extracted.startswith('['):
         extracted = '[' + extracted
@@ -48,16 +46,16 @@ def extract_json_from_response(response: str) -> str:
         extracted = extracted + ']'
     return extracted
 
-def execute_sql(db_id: str, sql: str) -> pd.DataFrame:
-    db_path = os.path.join('dev_databases', db_id, f'{db_id}.sqlite')    
+def execute_sql(db: str | Path, sql: str) -> pd.DataFrame:
+    db_path = Path(db) if isinstance(db, Path) else Path("dev_databases") / db / f"{db}.sqlite"
     with sqlite3.connect(db_path) as conn:
         df = pd.read_sql_query(sql, conn)  
         df.columns = range(len(df.columns))
         return df
 
-def execute_and_compare(db_id: str, gold_sql: str, pred_sql: str) -> bool:
-    df1 = execute_sql(db_id, gold_sql)
-    df2 = execute_sql(db_id, pred_sql)
+def execute_and_compare(db: str | Path, gold_sql: str, pred_sql: str) -> bool:
+    df1 = execute_sql(db, gold_sql)
+    df2 = execute_sql(db, pred_sql)
     if df1.shape != df2.shape:
         return False
 
