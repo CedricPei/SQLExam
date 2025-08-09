@@ -68,8 +68,15 @@ def execute_and_compare(db: str | Path, gold_sql: str, pred_sql: str) -> bool:
         return int(np.bitwise_xor.reduce(row_hash))
     return hash_dataframe(df1) == hash_dataframe(df2)
 
-def write_result_to_file(question, pred_sql, usefulness_score, output_file="usefulness_results.json"):
-    result = {"question_id": question["question_id"], "question": question["question"], "predicted_sql": pred_sql, "usefulness": usefulness_score}
+def write_result_to_file(question, pred_sql, usefulness_score, eval_path, output_file="usefulness_results.json"):
+    result = {
+        "question_id": question["question_id"], 
+        "question": question["question"], 
+        "predicted_sql": pred_sql, 
+        "ex": question["ex"],
+        "usefulness": usefulness_score,
+        "eval_path": eval_path
+    }
     existing_results = json.load(open(output_file, encoding="utf-8")) if os.path.exists(output_file) else []
     existing_results.append(result)
     with open(output_file, "w", encoding="utf-8") as f:

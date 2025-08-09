@@ -17,7 +17,7 @@ class SQLEvaluationPipeline:
                 "db_id": question["db_id"],
                 "question": question["question"],
                 "evidence": question.get("evidence", ""),
-                "gold_sql": sqlparse.format(question["SQL"], reindent=True, keyword_case='upper'),
+                "gold_sql": sqlparse.format(question["gold_sql"], reindent=True, keyword_case='upper'),
                 "schema": get_ddl(question["db_id"])
             }
             
