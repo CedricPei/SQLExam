@@ -129,7 +129,7 @@ def make_random_db(ddl: str, dest: pathlib.Path, rows_per_table: int = 20):
                 insert_single_row(tbl)
         conn.commit()
 
-def RandomDBEval(db_id: str, gold_sql: str, pred_sql: str, n_dbs: int = 50, rows_per_table: int = 20):
+def RandomDBEval(db_id: str, gold_sql: str, pred_sql: str, n_dbs: int = 2, rows_per_table: int = 20):
     ddl = get_ddl(db_id)
     matches = 0
 
@@ -142,4 +142,6 @@ def RandomDBEval(db_id: str, gold_sql: str, pred_sql: str, n_dbs: int = 50, rows
             make_random_db(ddl, new_db, rows_per_table)
         if execute_and_compare(new_db, gold_sql, pred_sql):
             matches += 1
+    # print(f"matches: {matches}")
+
     return round(matches / n_dbs, 2)

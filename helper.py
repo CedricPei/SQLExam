@@ -56,6 +56,8 @@ def execute_sql(db: str | Path, sql: str) -> pd.DataFrame:
 def execute_and_compare(db: str | Path, gold_sql: str, pred_sql: str) -> bool:
     df1 = execute_sql(db, gold_sql)
     df2 = execute_sql(db, pred_sql)
+    # print(f"df1: {df1}")
+    # print(f"df2: {df2}")
     if df1.shape != df2.shape:
         return False
 
