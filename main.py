@@ -30,4 +30,4 @@ if __name__ == "__main__":
             eval_path = "VeriEQL_or_SQLGlotEval"
             usefulness_score = 1.0
         
-        write_result_to_file(question, pred_sql, usefulness_score, eval_path)
+        write_result_to_file(question, pred_sql, usefulness_score, eval_path)    
