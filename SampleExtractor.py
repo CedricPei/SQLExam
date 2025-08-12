@@ -48,7 +48,7 @@ def combine_data(samples, predicted_data):
             'db_id': sample['db_id'],
             'question': sample['question'],
             'evidence': sample['evidence'],
-            'gold_sql': sample['SQL'],
+            'gold_sql': sample['gold_sql'],
             'predicted_sql': predicted_data[question_id]['predicted_sql'],
             'ex': predicted_data[question_id]['ex']
         }
@@ -59,7 +59,7 @@ if __name__ == "__main__":
     random.seed(42)
 
     mini_dev_file = "mini_dev_sqlite.json"
-    num_samples = 20
+    num_samples = 500
     samples = extract_random_samples(mini_dev_file, num_samples)
 
     predicted_folder = "../bird_dev_deepseek_v3"

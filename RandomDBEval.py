@@ -129,7 +129,9 @@ def make_random_db(ddl: str, dest: pathlib.Path, rows_per_table: int = 20):
                 insert_single_row(tbl)
         conn.commit()
 
-def RandomDBEval(db_id: str, gold_sql: str, pred_sql: str, n_dbs: int = 2, rows_per_table: int = 20):
+def RandomDBEval(question, pred_sql, n_dbs: int = 2, rows_per_table: int = 20):
+    db_id = question["db_id"]
+    gold_sql = question["gold_sql"]
     ddl = get_ddl(db_id)
     matches = 0
 

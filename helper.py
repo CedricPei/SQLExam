@@ -7,6 +7,7 @@ import numpy as np
 from pathlib import Path
 from pandas.util import hash_pandas_object
 from typing import Dict, List
+from concurrent.futures import ThreadPoolExecutor, TimeoutError
 
 def get_ddl(db: str):
     db_path = Path("dev_databases") / db / f"{db}.sqlite"
@@ -70,12 +71,23 @@ def execute_and_compare(db: str | Path, gold_sql: str, pred_sql: str) -> bool:
         return int(np.bitwise_xor.reduce(row_hash))
     return hash_dataframe(df1) == hash_dataframe(df2)
 
-def write_result_to_file(question, pred_sql, usefulness_score, eval_path, output_file="usefulness_results.json"):
+def run_with_timeout(func, *args, timeout=5):
+    with ThreadPoolExecutor(max_workers=1) as executor:
+        future = executor.submit(func, *args)
+        try:
+            return future.result(timeout=timeout)
+        except TimeoutError:
+            future.cancel()
+            return False
+        except Exception as e:
+            return False
+
+def write_result_to_file(question, pred_sql, usefulness_score, eval_path, output_file="eval_results.json"):
     result = {
         "question_id": question["question_id"], 
         "question": question["question"], 
-        "evidence": question["evidence"],
-        "gold_sql": question["gold_sql"],
+        # "evidence": question["evidence"],
+        # "gold_sql": question["gold_sql"],
         "predicted_sql": pred_sql, 
         "ex": question["ex"],
         "usefulness": usefulness_score,
