@@ -59,7 +59,7 @@ if __name__ == "__main__":
     random.seed(42)
 
     mini_dev_file = "mini_dev_sqlite.json"
-    num_samples = 500
+    num_samples = 20
     samples = extract_random_samples(mini_dev_file, num_samples)
 
     predicted_folder = "../bird_dev_deepseek_v3"

@@ -7,17 +7,17 @@ from ETM import ETM
 
 model = "deepseek-chat"
 if __name__ == "__main__":
-    with open("samples_500.json", "r", encoding="utf-8") as f:
+    with open("samples_20.json", "r", encoding="utf-8") as f:
         questions = json.load(f)
     # questions = [q for q in questions if q["question_id"] == 1481]
 
     for question in tqdm(questions):
         pred_sql = question["predicted_sql"]
-        etm = run_with_timeout(ETM, question, pred_sql, timeout=5)
+        etm = run_with_timeout(ETM, question, pred_sql, timeout=20)
         
         if not etm:
             try:
-                if run_with_timeout(execute_and_compare, question["db_id"], question["gold_sql"], pred_sql, timeout=5):
+                if run_with_timeout(execute_and_compare, question["db_id"], question["gold_sql"], pred_sql, timeout=20):
                     eval_path = "RandomDBEval"
                     usefulness_score = RandomDBEval(question, pred_sql)
                 else:

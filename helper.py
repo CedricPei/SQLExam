@@ -100,7 +100,7 @@ def write_result_to_file(question, pred_sql, usefulness_score, eval_path, output
         "question_id": question["question_id"], 
         "question": question["question"], 
         # "evidence": question["evidence"],
-        # "gold_sql": question["gold_sql"],
+        "gold_sql": question["gold_sql"],
         "predicted_sql": pred_sql, 
         "ex": question["ex"],
         "usefulness": usefulness_score,

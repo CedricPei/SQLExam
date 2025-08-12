@@ -1,0 +1,32 @@
+[
+  {
+    "id": "1",
+    "question": "Does the query use data from both the frpm and schools tables?",
+    "explanation": "Two tables are used: frpm (1 point) and schools (0.5 points), totaling 1.5 points.",
+    "weight": 1.5
+  },
+  {
+    "id": "2",
+    "question": "Does the query include the enrollment column from the frpm table, and the school and DOC columns from the schools table?",
+    "explanation": "Three required columns are referenced; at 0.5 point each this totals 1.5 points.",
+    "weight": 1.5
+  },
+  {
+    "id": "3",
+    "question": "Does the query only include state special schools (DOC = 31)?",
+    "explanation": "This is a single, independent field-level predicate on the DOC column; each such predicate is worth 2 points.",
+    "weight": 2
+  },
+  {
+    "id": "4",
+    "question": "Does the query sort the results so that schools with the highest K-12 enrollment appear first?",
+    "explanation": "Ordering by a single field counts as one independent requirement under row-level limits, granting 2 points.",
+    "weight": 2
+  },
+  {
+    "id": "5",
+    "question": "Does the query return only the state special school with the highest K-12 enrollment?",
+    "explanation": "Applying a row limit is another independent requirement in the row-level limits category, earning 2 points.",
+    "weight": 2
+  }
+]
