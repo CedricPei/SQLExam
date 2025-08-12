@@ -7,7 +7,8 @@ import numpy as np
 from pathlib import Path
 from pandas.util import hash_pandas_object
 from typing import Dict, List
-from concurrent.futures import ThreadPoolExecutor, TimeoutError
+import multiprocessing as mp
+from typing import Callable, Any
 
 def get_ddl(db: str):
     db_path = Path("dev_databases") / db / f"{db}.sqlite"
@@ -71,16 +72,28 @@ def execute_and_compare(db: str | Path, gold_sql: str, pred_sql: str) -> bool:
         return int(np.bitwise_xor.reduce(row_hash))
     return hash_dataframe(df1) == hash_dataframe(df2)
 
-def run_with_timeout(func, *args, timeout=5):
-    with ThreadPoolExecutor(max_workers=1) as executor:
-        future = executor.submit(func, *args)
-        try:
-            return future.result(timeout=timeout)
-        except TimeoutError:
-            future.cancel()
-            return False
-        except Exception as e:
-            return False
+
+def _worker(q: mp.Queue, func: Callable[..., Any], args: tuple, kwargs: dict):
+    try:
+        res = func(*args, **kwargs)
+        q.put(res)
+    except Exception:
+        q.put(False)
+
+def run_with_timeout(func: Callable[..., Any], *args, timeout: float = 2.0, **kwargs) -> bool:
+    ctx = mp.get_context("spawn")
+    q: mp.Queue = ctx.Queue(maxsize=1)
+    p = ctx.Process(target=_worker, args=(q, func, args, kwargs), daemon=True)
+    p.start()
+    p.join(timeout)
+    if p.is_alive():
+        p.terminate()
+        p.join()
+        return False
+    try:
+        return q.get_nowait()
+    except Exception:
+        return False
 
 def write_result_to_file(question, pred_sql, usefulness_score, eval_path, output_file="eval_results.json"):
     result = {
