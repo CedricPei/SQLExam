@@ -62,7 +62,7 @@ Return ONLY the JSON array directly, do not wrap it in any object or add any key
 7. Row-level filters/limits
   - Assign 2 points for each independent FIELD/COLUMN requirement.
   - Each condition connected by AND is a separate field requirement.
-  - For ORDER BY: first field gets 2 points, each additional field gets 0.5 points.
+  - For ORDER BY: first field gets 2 points, each additional field gets 0.5 points; if LIMIT is present with ORDER BY, add 1 point.
   - Focus on operators (>, <, =, !=, etc.) to determine the number of independent FIELD requirements.
   - Ignore conditions only for table connections.
 8. Uniqueness requirements
@@ -116,8 +116,7 @@ LIMIT 1;
 3. The SQL query must apply the function: COUNT(*) in the SELECT clause.
 4. The SQL query must group results by: GROUP BY actors.id.
 5. The SQL query must satisfy the requirement: WHERE movies.director = 'Christopher Nolan'.
-6. The SQL query must satisfy the requirement: ORDER BY movie_count DESC.
-7. The SQL query must satisfy the requirement: LIMIT 1.
+6. The SQL query must satisfy the requirement: ORDER BY movie_count DESC LIMIT 1.
 
 ### OUTPUT (return ONLY this JSON array):
 [
@@ -147,14 +146,9 @@ LIMIT 1;
     "weight": 2
   }},
   {{
-    "question": "Does the query sort the results so that the actor with the highest movie count comes first?",
-    "explanation": "Ordering by a single output field earns 2 points.",
-    "weight": 2
-  }},
-  {{
-    "question": "Does the query select only the actor who has appeared in the most movies directed by Christopher Nolan?",
-    "explanation": "Applying a limit predicate awards 2 points.",
-    "weight": 2
+    "question": "Does the query return only the actor with the highest movie count?",
+    "explanation": "Ordering by the movie_count column in descending order earns 2 points; having a LIMIT clause to return only one row adds 1 point, totaling 3 points.",
+    "weight": 3
   }}
 ]
 
@@ -206,8 +200,7 @@ LIMIT 5;
 4. The SQL query must group results by: GROUP BY employees.id
 5. The SQL query must satisfy the requirement: WHERE employees.department = 'Finance' AND employees.city = 'New York' AND employees.employment_type = 'Full-Time' AND bonuses.year = 2024.
 6. The SQL query must satisfy the requirement: HAVING SUM(bonuses.amount) > 20000
-7. The SQL query must satisfy the requirement: ORDER BY total_bonus DESC
-8. The SQL query must satisfy the requirement: LIMIT 5
+7. The SQL query must satisfy the requirement: ORDER BY total_bonus DESC LIMIT 5
 
 ### OUTPUT (return ONLY this JSON array):
 [
@@ -242,14 +235,9 @@ LIMIT 5;
     "weight": 2
   }},
   {{
-    "question": "Does the query sort the output from the highest total bonus to the lowest?",
-    "explanation": "Ordering by a single field counts as one independent requirement under row-level limits, granting 2 points.",
-    "weight": 2
-  }},
-  {{
-    "question": "Does the query return only the first five employees after sorting?",
-    "explanation": "Applying a row limit is another independent requirement in the row-level limits category, earning 2 points.",
-    "weight": 2
+    "question": "Does the query return only the top five employees with the highest total bonuses?",
+    "explanation": "Ordering by total_bonus in descending order earns 2 points; having a LIMIT clause to return only five rows adds 1 point, totaling 3 points.",
+    "weight": 3
   }}
 ]
 

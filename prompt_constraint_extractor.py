@@ -76,12 +76,13 @@ After completing all items, aggregate the objects into a **single JSON array** a
     - Example: ["HAVING SUM(bonuses.amount) > 20000", "AND COUNT(*) >= 3"]
 
 7. List NECESSARY row-level filters or limits STRICTLY REQUIRED to answer the question.
-    - **ONLY** Consider `ON`, `WHERE`, `ORDER BY`, `LIMIT/FETCH FIRST`, `OFFSET`, `NULLS FIRST`, `NULLS LAST` clauses.
+    - **ONLY** Consider `ON`, `WHERE`, `ORDER BY LIMIT`, `LIMIT`, `FETCH FIRST`, `OFFSET`, `NULLS FIRST`, `NULLS LAST` clauses.
     - NEVER include `HAVING` or `GROUP BY` clauses here - they belong to points 5 and 6 respectively.
+    - If ORDER BY and LIMIT appear together, record as `ORDER BY LIMIT`; if LIMIT appears alone, record only `LIMIT`.
     - **CRITICAL** Break composite predicates into individual field-level conditions; each element should reference exactly one column/field.
-    - Ignore conditions for table connections and predicates like `ORDER BY` inside window functions like `RANK()`.
+    - Ignore conditions for table connections and predicates inside window functions like `ORDER BY` in `RANK()`.
     - For sub-query predicates such as `EXISTS`, `NOT EXISTS` or `IN`, only include conditions inside.
-    - Example: ["WHERE orders.total_amount > 100", "AND orders.status = 'paid'", "ORDER BY orders.order_date DESC", "LIMIT 1"]
+    - Example: ["WHERE orders.total_amount > 100", "AND orders.status = 'paid'", "ORDER BY orders.order_date DESC LIMIT 1"]
 
 8. List columns the user REQUIRES to have unique values.
     - **IMPORTANT** ONLY focus on keywords like "unique" or "distinct" in the question.
@@ -271,8 +272,7 @@ LIMIT 3;
     "question_id": "7",
     "answer": [
       "WHERE movies.director = 'Christopher Nolan'",
-      "ORDER BY movie_count DESC",
-      "LIMIT 3"
+      "ORDER BY movie_count DESC LIMIT 3"
     ]
   }},
   {{

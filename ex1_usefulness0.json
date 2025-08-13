@@ -1,0 +1,11 @@
+[
+  {
+    "question_id": 459,
+    "question": "Which card costs more converted mana, \"Serra Angel\" or \"Shrine Keeper\"?",
+    "gold_sql": "SELECT name FROM cards WHERE name IN ('Serra Angel', 'Shrine Keeper') ORDER BY convertedManaCost DESC LIMIT 1",
+    "predicted_sql": "SELECT \n  CASE \n    WHEN (SELECT `convertedManaCost` FROM cards WHERE `name` = 'Serra Angel') > \n         (SELECT `convertedManaCost` FROM cards WHERE `name` = 'Shrine Keeper') \n    THEN 'Serra Angel' \n    ELSE 'Shrine Keeper' \n  END AS more_expensive_card",
+    "ex": 1,
+    "usefulness": 0.0,
+    "eval_path": "RandomDBEval"
+  }
+]

@@ -14,7 +14,7 @@
     "gold_sql": "SELECT T1.event_name FROM event AS T1 INNER JOIN budget AS T2 ON T1.event_id = T2.link_to_event INNER JOIN expense AS T3 ON T2.budget_id = T3.link_to_budget ORDER BY T3.cost LIMIT 1",
     "predicted_sql": "SELECT T1.`event_name`\n  FROM event AS T1\n  INNER JOIN budget AS T2\n  ON T1.`event_id` = T2.`link_to_event`\n  INNER JOIN expense AS T3\n  ON T2.`budget_id` = T3.`link_to_budget`\n  WHERE T3.`cost` = (\n    SELECT MIN(`cost`)\n    FROM expense\n  )",
     "ex": 1,
-    "usefulness": 0.75,
+    "usefulness": 1.0,
     "eval_path": "SQLEvaluationPipeline"
   },
   {
@@ -32,7 +32,7 @@
     "gold_sql": "SELECT IIF(SUM(CASE WHEN T2.language = 'Korean' AND T2.translation IS NOT NULL THEN 1 ELSE 0 END) > 0, 'YES', 'NO') FROM cards AS T1 INNER JOIN set_translations AS T2 ON T2.setCode = T1.setCode WHERE T1.name = 'Ancestor''s Chosen'",
     "predicted_sql": "SELECT CASE WHEN COUNT(*) > 0 THEN 'Yes' ELSE 'No' END AS has_korean_version\n  FROM foreign_data\n  WHERE `uuid` = (\n    SELECT `uuid`\n    FROM cards\n    WHERE `name` = 'Ancestor''s Chosen'\n  )\n  AND `language` = 'Korean'",
     "ex": 0,
-    "usefulness": 0.8,
+    "usefulness": 0.8571,
     "eval_path": "SQLEvaluationPipeline"
   },
   {
@@ -104,7 +104,7 @@
     "gold_sql": "SELECT T2.School FROM frpm AS T1 INNER JOIN schools AS T2 ON T1.CDSCode = T2.CDSCode WHERE T2.DOC = 31 ORDER BY T1.`Enrollment (K-12)` DESC LIMIT 1",
     "predicted_sql": "SELECT T1.`sname`, T1.`enroll12`\n  FROM satscores AS T1\n  INNER JOIN schools AS T2\n  ON T1.`cds` = T2.`CDSCode`\n  WHERE T2.`DOC` = '31'\n  AND T2.`GSoffered` = 'K-12'\n  ORDER BY T1.`enroll12` DESC\n  LIMIT 1",
     "ex": 0,
-    "usefulness": 0.7778,
+    "usefulness": 0.75,
     "eval_path": "SQLEvaluationPipeline"
   },
   {
