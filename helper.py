@@ -95,7 +95,7 @@ def run_with_timeout(func: Callable[..., Any], *args, timeout: float = 2.0, **kw
     except Exception:
         return False
 
-def write_result_to_file(question, pred_sql, usefulness_score, eval_path, output_file="eval_results.json"):
+def write_result_to_file(question, pred_sql, semantic_score, exec_score, score, output_file="eval_results.json"):
     result = {
         "question_id": question["question_id"], 
         "question": question["question"], 
@@ -103,8 +103,9 @@ def write_result_to_file(question, pred_sql, usefulness_score, eval_path, output
         "gold_sql": question["gold_sql"],
         "predicted_sql": pred_sql, 
         "ex": question["ex"],
-        "usefulness": usefulness_score,
-        "eval_path": eval_path
+        "semantic_score": semantic_score,
+        "exec_score": exec_score,
+        "score": score,
     }
     existing_results = json.load(open(output_file, encoding="utf-8")) if os.path.exists(output_file) else []
     existing_results.append(result)
