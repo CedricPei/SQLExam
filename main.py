@@ -24,15 +24,11 @@ if __name__ == "__main__":
         pred_res = run_with_timeout(execute_sql, db_id, pred_sql, timeout=20)
         gold_res = run_with_timeout(execute_sql, db_id, gold_sql, timeout=20)
 
-        if pred_res is None and gold_res is not None:
-            score = 0.0
-        elif compare_result(pred_res, gold_res):
-            score = 1.0 if not Refuter.call(question, pred_sql) else 0.0
-        else:
-            if Prover.call(question, pred_sql):
-                score = 1.0 if not Refuter.call(question, pred_sql) else 0.0
-            else:
-                score = 0.0
+        score = 0.0
+        if compare_result(pred_res, gold_res):
+            score = 1.0 if not Refuter.call(question, pred_sql, gold_sql) else score
+        elif Prover.call(question, pred_sql):
+            score = 1.0 if not Refuter.call(question, pred_sql, gold_sql) else score
 
         if score != 1.0 and partial:
             score = PartialEval.eval(question, pred_sql)
