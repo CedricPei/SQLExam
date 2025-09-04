@@ -55,24 +55,19 @@ def execute_sql(db: str | Path, sql: str) -> pd.DataFrame:
         df.columns = range(len(df.columns))
         return df
 
-def execute_and_compare(db: str | Path, gold_sql: str, pred_sql: str) -> bool:
-    df1 = execute_sql(db, gold_sql)
-    df2 = execute_sql(db, pred_sql)
-    # print(f"df1: {df1}")
-    # print(f"df2: {df2}")
+def compare_result(df1: pd.DataFrame, df2: pd.DataFrame) -> bool:
     if df1.shape != df2.shape:
         return False
-
-    def hash_dataframe(df: pd.DataFrame) -> int:
-        df_str = df.map(str)
-        row_hash = None
-        for col in df_str.columns:
-            h_col = hash_pandas_object(df_str[col], index=False).to_numpy()
-            row_hash = h_col if row_hash is None else np.bitwise_xor(row_hash, h_col)
-        return int(np.bitwise_xor.reduce(row_hash))
     return hash_dataframe(df1) == hash_dataframe(df2)
 
-
+def hash_dataframe(df: pd.DataFrame) -> int:
+    df_str = df.map(str)
+    row_hash = None
+    for col in df_str.columns:
+        h_col = hash_pandas_object(df_str[col], index=False).to_numpy()
+        row_hash = h_col if row_hash is None else np.bitwise_xor(row_hash, h_col)
+    return int(np.bitwise_xor.reduce(row_hash))
+    
 def _worker(q: mp.Queue, func: Callable[..., Any], args: tuple, kwargs: dict):
     try:
         res = func(*args, **kwargs)
@@ -103,8 +98,6 @@ def write_result_to_file(question, pred_sql, semantic_score, exec_score, score, 
         "gold_sql": question["gold_sql"],
         "predicted_sql": pred_sql, 
         "ex": question["ex"],
-        "semantic_score": semantic_score,
-        "exec_score": exec_score,
         "score": score,
     }
     existing_results = json.load(open(output_file, encoding="utf-8")) if os.path.exists(output_file) else []
