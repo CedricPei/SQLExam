@@ -3,8 +3,8 @@ import json
 import openai
 from dotenv import load_dotenv
 from typing import Dict, Any
-from helper import get_schema, extract_json_from_response
-from prompt_prover import system_prompt_prover, user_prompt_prover
+from helper import get_schema, extract_json_from_response, append_to_json_file
+from prompts.prompt_prover import system_prompt_prover, user_prompt_prover
 
 load_dotenv()
 
@@ -19,6 +19,7 @@ class Prover:
         """Validate whether predicted SQL adequately answers the question"""
         try:
             schema = get_schema(question["db_id"])
+            pred_result = pred_result.head(20)
             
             user_content = user_prompt_prover.format(
                 question=question["question"],
@@ -39,10 +40,12 @@ class Prover:
             )
 
             result = json.loads(extract_json_from_response(response.choices[0].message.content))
-            # Save output to JSON file
-            os.makedirs("prover_outputs", exist_ok=True)
-            with open(f"prover_outputs/prover_{question['question_id']}.json", "w", encoding="utf-8") as f:
-                json.dump(result, f, ensure_ascii=False, indent=2)
+            # Save output to a single JSON file (append mode)
+            output_data = {
+                "question_id": question["question_id"],
+                "result": result
+            }
+            append_to_json_file(output_data, "output/prover_output.json")
 
             return result.get("verdict", False)
 

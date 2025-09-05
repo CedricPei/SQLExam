@@ -41,18 +41,12 @@ def get_schema(db: str) -> Dict[str, List[str]]:
 def extract_json_from_response(response: str) -> str:
     match = re.search(r"```(?:json|js|javascript|txt|text)?\s*([\s\S]*?)```", response, re.IGNORECASE)
     extracted = match.group(1).strip() if match else response.strip()
-    
-    if extracted and not extracted.startswith('['):
-        extracted = '[' + extracted
-    if extracted and not extracted.endswith(']'):
-        extracted = extracted + ']'
     return extracted
 
 def execute_sql(db: str | Path, sql: str) -> pd.DataFrame:
     db_path = Path(db) if isinstance(db, Path) else Path("dev_databases") / db / f"{db}.sqlite"
     with sqlite3.connect(db_path) as conn:
         df = pd.read_sql_query(sql, conn)  
-        df.columns = range(len(df.columns))
         return df
 
 def compare_result(df1: pd.DataFrame, df2: pd.DataFrame) -> bool:
@@ -67,7 +61,7 @@ def hash_dataframe(df: pd.DataFrame) -> int:
         h_col = hash_pandas_object(df_str[col], index=False).to_numpy()
         row_hash = h_col if row_hash is None else np.bitwise_xor(row_hash, h_col)
     return int(np.bitwise_xor.reduce(row_hash))
-    
+
 def _worker(q: mp.Queue, func: Callable[..., Any], args: tuple, kwargs: dict):
     try:
         res = func(*args, **kwargs)
@@ -90,7 +84,13 @@ def run_with_timeout(func: Callable[..., Any], *args, timeout: float = 2.0, **kw
     except Exception:
         return False
 
-def write_result_to_file(question, pred_sql, score, prover_result, refuter_result, output_file="eval_results.json"):
+def append_to_json_file(data, output_file):
+    existing_data = json.load(open(output_file, encoding="utf-8")) if os.path.exists(output_file) else []
+    existing_data.append(data)
+    with open(output_file, "w", encoding="utf-8") as f:
+        json.dump(existing_data, f, ensure_ascii=False, indent=2)
+
+def write_result_to_file(question, pred_sql, score, prover_result, refuter_result, output_file="output/eval_results.json"):
     result = {
         "question_id": question["question_id"], 
         "question": question["question"], 
@@ -102,7 +102,4 @@ def write_result_to_file(question, pred_sql, score, prover_result, refuter_resul
         "prover_result": prover_result,
         "refuter_result": refuter_result
     }
-    existing_results = json.load(open(output_file, encoding="utf-8")) if os.path.exists(output_file) else []
-    existing_results.append(result)
-    with open(output_file, "w", encoding="utf-8") as f:
-        json.dump(existing_results, f, ensure_ascii=False, indent=2)
+    append_to_json_file(result, output_file)

@@ -1,0 +1,82 @@
+[
+  {
+    "question_id": 637,
+    "result": {
+      "expected_answer": "List of unique tags used by Mark Meckes in posts with zero comments.",
+      "sql_description": "Selects distinct tags from posts by Mark Meckes where CommentCount is zero.",
+      "reason": "SQL correctly identifies tags from posts by Mark Meckes with no comments.",
+      "verdict": true,
+      "evidence": "sql_result contains 'books' in TagName column."
+    }
+  },
+  {
+    "question_id": 1389,
+    "result": {
+      "expected_answer": "The event name(s) with the minimum cost value",
+      "sql_description": "The SQL query retrieves the event name(s) with the minimum cost by joining the event, budget, and expense tables and filtering for the minimum cost value.",
+      "reason": "The SQL query correctly identifies the event(s) with the lowest cost by using MIN(cost) and joins the necessary tables. The result includes the event names with the minimum cost.",
+      "verdict": true,
+      "evidence": "The result includes the column 'event_name' with values 'November Speaker', 'October Speaker', and 'September Speaker', indicating the events with the lowest cost."
+    }
+  },
+  {
+    "question_id": 465,
+    "result": {
+      "expected_answer": "A yes/no answer indicating whether there is a Korean version of the card named 'Ancestor's Chosen'",
+      "sql_description": "The SQL query checks if there are any entries in the foreign_data table for the card 'Ancestor's Chosen' with the language set to 'Korean'. It returns 'Yes' if such entries exist and 'No' otherwise.",
+      "reason": "The SQL query correctly identifies whether a Korean version of the card exists by checking the foreign_data table. The result 'No' indicates that no Korean version is present.",
+      "verdict": true,
+      "evidence": "The result column 'has_korean_version' shows 'No', indicating no Korean version exists."
+    }
+  },
+  {
+    "question_id": 1275,
+    "result": {
+      "expected_answer": "The number of distinct male patients with normal anti-centromere and normal anti-SSB levels.",
+      "sql_description": "Counts distinct male patients with normal levels of both anti-centromere and anti-SSB.",
+      "reason": "The SQL correctly implements the required conditions and counting of distinct patients.",
+      "verdict": true,
+      "evidence": "The result shows a count of 0 in the column 'COUNT(DISTINCT T1.`ID`)' at row 0."
+    }
+  },
+  {
+    "question_id": 1243,
+    "result": {
+      "expected_answer": "The percentage of female patients older than 55 years with abnormal PT (PT >= 14)",
+      "sql_description": "Joins Laboratory and Patient tables, filters for patients over 55 with PT >=14, calculates female percentage",
+      "reason": "SQL correctly implements all criteria and returns a valid percentage",
+      "verdict": true,
+      "evidence": "Result shows percentage=78.362573, calculated from PT>=14 patients"
+    }
+  },
+  {
+    "question_id": 46,
+    "result": {
+      "expected_answer": "The state special schools (DOC=31) offering grades K-12 with the highest number of enrollees (enroll12).",
+      "sql_description": "The SQL query retrieves the name and enrollment count of state special schools offering K-12 grades, sorted by enrollment in descending order, returning the top school.",
+      "reason": "The SQL correctly filters for state special schools (DOC=31) and K-12 grades, orders by enrollment, and returns the highest.",
+      "verdict": true,
+      "evidence": "The result shows 'California School for the Deaf-Riverside' with 71 enrollees in the 'enroll12' column."
+    }
+  },
+  {
+    "question_id": 937,
+    "result": {
+      "expected_answer": "The finish time of the driver who finished in second position in the 2008 Chinese Grand Prix race.",
+      "sql_description": "The SQL query retrieves the finish time from the results table for the driver who finished in position 2 in the 2008 Chinese Grand Prix race.",
+      "reason": "The SQL query correctly identifies the race using the year and name, filters for the second position, and retrieves the finish time. The result matches the expected answer.",
+      "verdict": true,
+      "evidence": "The result includes the 'time' column with the value '+14.925' in the first row."
+    }
+  },
+  {
+    "question_id": 1505,
+    "result": {
+      "expected_answer": "The number of unique customers who use euros and have a monthly consumption exceeding 1000.",
+      "sql_description": "Counts distinct customers with EUR currency and Consumption over 1000.",
+      "reason": "SQL correctly implements required filters and aggregation.",
+      "verdict": true,
+      "evidence": "COUNT(DISTINCT T1.CustomerID) is 391."
+    }
+  }
+]

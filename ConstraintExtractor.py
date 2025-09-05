@@ -2,7 +2,7 @@ import os
 import json
 import openai
 from dotenv import load_dotenv
-from prompt_constraint_extractor import system_prompt_constraint_extractor, user_prompt_constraint_extractor
+from prompts.prompt_constraint_extractor import system_prompt_constraint_extractor, user_prompt_constraint_extractor
 from helper import extract_json_from_response
 
 load_dotenv()

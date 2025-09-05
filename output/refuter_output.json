@@ -1,0 +1,192 @@
+[
+  {
+    "question_id": 637,
+    "result": {
+      "sql_diff": "Predicted SQL joins posts and tags, using a LIKE condition to match tags. Gold SQL joins users, postHistory, and posts without proper tag extraction.",
+      "logic_diff": "Predicted SQL correctly extracts unique tags from posts. Gold SQL includes duplicates and an invalid 'None' tag.",
+      "reason": "Predicted SQL accurately answers the question, while gold SQL has structural issues.",
+      "verdict": false,
+      "tag": "NA"
+    }
+  },
+  {
+    "question_id": 1389,
+    "result": {
+      "sql_diff": "Predicted SQL returns multiple events with the minimum cost, while gold SQL returns only one event by ordering and limiting the result.",
+      "logic_diff": "Predicted SQL identifies all events with the lowest cost, whereas gold SQL returns the first event encountered when ordered by cost, potentially missing ties.",
+      "reason": "The prediction correctly identifies all events with the minimum cost, which is a valid interpretation of the question.",
+      "verdict": false,
+      "tag": "NA"
+    }
+  },
+  {
+    "question_id": 1493,
+    "result": {
+      "sql_diff": "The prediction uses a CASE statement with COUNT(DISTINCT) and a LIKE clause for date filtering, while the gold uses IIF with SUM and an exact date match.",
+      "logic_diff": "The prediction calculates the percentage of distinct customers with Consumption > 528.3 using a LIKE clause for February 2012, whereas the gold calculates the same using an exact date match.",
+      "reason": "The prediction's date filtering method may include incorrect dates, violating the core requirement.",
+      "verdict": true,
+      "tag": "CORE_CONFLICT"
+    }
+  },
+  {
+    "question_id": 465,
+    "result": {
+      "sql_diff": "Predicted SQL joins cards to foreign_data via uuid, while gold SQL joins cards to set_translations via setCode. Predicted SQL returns 'No', gold SQL returns 'YES'.",
+      "logic_diff": "Predicted SQL checks for foreign_data entries, while gold SQL checks for translations in set_translations. Gold correctly identifies a Korean translation.",
+      "reason": "Predicted SQL uses incorrect schema elements (foreign_data and uuid) instead of set_translations and setCode.",
+      "verdict": true,
+      "tag": "AMBIGUOUS_SCHEMA"
+    }
+  },
+  {
+    "question_id": 1044,
+    "result": {
+      "sql_diff": "Predicted SQL uses strftime to extract year and month, while gold SQL uses SUBSTR to extract the first 7 characters.",
+      "logic_diff": "Both queries aim to filter players born in October 1970 but use different methods to extract the year and month from the birthday field.",
+      "reason": "The predicted SQL correctly answers the question using an alternative but valid method.",
+      "verdict": false,
+      "tag": "REPRESENTATION_DIFF"
+    }
+  },
+  {
+    "question_id": 1275,
+    "result": {
+      "sql_diff": "The predicted SQL uses 'CENTROMEA IN ('-', '+-')' and 'SSB IN ('-', '+-')', while the gold SQL uses 'CENTROMEA IN ('negative', '0')' and 'SSB IN ('negative', '0')'.",
+      "logic_diff": "The predicted SQL correctly implements the normal level conditions as per the evidence, whereas the gold SQL uses different values which may not align with the evidence.",
+      "reason": "The predicted SQL accurately reflects the question's requirements based on the evidence, while the gold SQL may be incorrect.",
+      "verdict": false,
+      "tag": "GOLD_FAULT"
+    }
+  },
+  {
+    "question_id": 1243,
+    "result": {
+      "sql_diff": "Predicted SQL correctly joins Patient and Laboratory tables and uses proper column references. Gold SQL incorrectly references T1.SEX instead of T2.SEX.",
+      "logic_diff": "Predicted SQL accurately calculates the percentage of female patients with abnormal PT. Gold SQL incorrectly references the SEX column, leading to an incorrect calculation.",
+      "reason": "Gold SQL contains a critical error in column referencing, while the prediction correctly answers the question.",
+      "verdict": false,
+      "tag": "GOLD_FAULT"
+    }
+  },
+  {
+    "question_id": 1426,
+    "result": {
+      "sql_diff": "Gold includes a WHERE clause filtering by position='Member', while prediction does not.",
+      "logic_diff": "Gold restricts results to members with position 'Member', while prediction includes all members with the specified major.",
+      "reason": "Gold introduces an unnecessary filter not required by the question.",
+      "verdict": false,
+      "tag": "GOLD_FAULT"
+    }
+  },
+  {
+    "question_id": 459,
+    "result": {
+      "sql_diff": "Predicted SQL uses a CASE statement with subqueries to compare convertedManaCost, while gold SQL selects from cards with IN clause and orders by convertedManaCost DESC, limiting to 1.",
+      "logic_diff": "Both queries aim to determine which card has a higher converted mana cost but use different SQL structures to achieve the same result.",
+      "reason": "The predicted SQL correctly answers the question and does not violate any core requirements or schema.",
+      "verdict": false,
+      "tag": "NA"
+    }
+  },
+  {
+    "question_id": 1376,
+    "result": {
+      "sql_diff": "Predicted SQL uses different table aliases (T1 for event, T2 for budget) compared to gold SQL (T1 for budget, T2 for event). Both correctly join on event_id and link_to_event.",
+      "logic_diff": "Both queries correctly identify the closed event with the highest spend-to-budget ratio by joining event and budget tables, filtering for status='Closed', and ordering by the ratio.",
+      "reason": "The SQL differences are cosmetic and do not affect the correctness of the result.",
+      "verdict": false,
+      "tag": "NA"
+    }
+  },
+  {
+    "question_id": 46,
+    "result": {
+      "sql_diff": "Predicted SQL uses 'satscores' table and 'enroll12' column, while gold SQL uses 'frpm' table and 'Enrollment (K-12)' column. Predicted SQL joins on 'cds' and 'CDSCode', while gold SQL joins on 'CDSCode'. Predicted SQL filters on 'GSoffered' = 'K-12', while gold SQL does not include this filter.",
+      "logic_diff": "Predicted SQL retrieves data from 'satscores' which may not accurately reflect the total enrollment for K-12 grades, while gold SQL correctly uses 'frpm' which contains the appropriate enrollment data. The predicted result returns a different school than the gold result.",
+      "reason": "The predicted SQL uses incorrect tables and columns, leading to a different result that does not accurately answer the question.",
+      "verdict": true,
+      "tag": "CORE_CONFLICT"
+    }
+  },
+  {
+    "question_id": 785,
+    "result": {
+      "sql_diff": "Predicted SQL uses backticks and table aliases, while gold SQL does not.",
+      "logic_diff": "Both queries retrieve the same superhero names with neutral alignment.",
+      "reason": "The SQL differences are syntactic and do not affect the result.",
+      "verdict": false,
+      "tag": "NA"
+    }
+  },
+  {
+    "question_id": 1356,
+    "result": {
+      "sql_diff": "Predicted SQL uses backticks around column names, while gold SQL does not.",
+      "logic_diff": "Both queries join member and major tables to retrieve the department of the President, with identical logic.",
+      "reason": "The SQL differences are cosmetic and do not affect query functionality.",
+      "verdict": false,
+      "tag": "NA"
+    }
+  },
+  {
+    "question_id": 544,
+    "result": {
+      "sql_diff": "Predicted SQL joins posts with users to get DisplayName, while gold SQL directly selects DisplayName from users via join.",
+      "logic_diff": "Both queries correctly retrieve the display name of the last editor for the specified post.",
+      "reason": "Both SQLs correctly answer the question, differing only in approach.",
+      "verdict": false,
+      "tag": "NA"
+    }
+  },
+  {
+    "question_id": 937,
+    "result": {
+      "sql_diff": "Predicted SQL uses `position` = 2, while gold SQL uses `rank` = 2. Results differ (+14.925 vs +16.445).",
+      "logic_diff": "Predicted SQL retrieves time for position 2, while gold SQL retrieves time for rank 2, which are different concepts.",
+      "reason": "Using `position` instead of `rank` leads to incorrect results, violating the core requirement of the question.",
+      "verdict": true,
+      "tag": "CORE_CONFLICT"
+    }
+  },
+  {
+    "question_id": 1505,
+    "result": {
+      "sql_diff": "Predicted SQL uses COUNT(DISTINCT T1.CustomerID) while gold uses COUNT(*). Predicted result is 391, gold result is 2730.",
+      "logic_diff": "Predicted SQL counts unique customers, while gold counts all qualifying records, leading to a higher number.",
+      "reason": "The prediction correctly counts unique customers, whereas the gold overcounts by including multiple records per customer.",
+      "verdict": false,
+      "tag": "NA"
+    }
+  },
+  {
+    "question_id": 1501,
+    "result": {
+      "sql_diff": "Predicted SQL uses SUBSTR to extract year and month from Date, while gold SQL uses direct equality on '201306'.",
+      "logic_diff": "Both queries correctly identify transactions in June 2013, but use different date filtering methods.",
+      "reason": "Both SQL queries correctly answer the question, using different but valid date filtering approaches.",
+      "verdict": false,
+      "tag": "NA"
+    }
+  },
+  {
+    "question_id": 1361,
+    "result": {
+      "sql_diff": "Predicted SQL uses backticks and an alias, while gold SQL does not.",
+      "logic_diff": "Both queries compute the sum of pizza costs correctly.",
+      "reason": "The SQL differences are cosmetic and do not affect the result.",
+      "verdict": false,
+      "tag": "REPRESENTATION_DIFF"
+    }
+  },
+  {
+    "question_id": 1239,
+    "result": {
+      "sql_diff": "Predicted SQL uses a subquery with COUNT(*) and HAVING COUNT(*) >= 2, while gold SQL uses a subquery with COUNT(ID) >= 2. Gold uses STRFTIME instead of strftime and includes DISTINCT.",
+      "logic_diff": "Both queries correctly identify patients with two or more lab exams where HCT >=52 and calculate age. Differences are in formatting and redundant DISTINCT.",
+      "reason": "Differences are cosmetic and do not affect the correctness of the result.",
+      "verdict": false,
+      "tag": "REPRESENTATION_DIFF"
+    }
+  }
+]

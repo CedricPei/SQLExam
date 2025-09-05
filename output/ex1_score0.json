@@ -1,0 +1,13 @@
+[
+  {
+    "question_id": 1493,
+    "question": "In February 2012, what percentage of customers consumed more than 528.3?",
+    "evidence": "February 2012 refers to '201202' in yearmonth.date; The first 4 strings of the Date values in the yearmonth table can represent year; The 5th and 6th string of the date can refer to month.",
+    "gold_sql": "SELECT CAST(SUM(IIF(Consumption > 528.3, 1, 0)) AS FLOAT) * 100 / COUNT(CustomerID) FROM yearmonth WHERE Date = '201202'",
+    "predicted_sql": "SELECT \n    (COUNT(DISTINCT CASE WHEN `Consumption` > 528.3 THEN `CustomerID` END) * 100.0 / \n    COUNT(DISTINCT `CustomerID`)) AS Percentage\nFROM yearmonth\nWHERE `Date` LIKE '201202%'",
+    "ex": 1,
+    "score": 0.0,
+    "prover_result": null,
+    "refuter_result": true
+  }
+]

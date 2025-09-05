@@ -2,7 +2,7 @@ import os
 import json
 import openai
 from dotenv import load_dotenv
-from prompt_rubric_designer import system_prompt_rubric_designer, user_prompt_rubric_designer, rubric_templates
+from prompts.prompt_rubric_designer import system_prompt_rubric_designer, user_prompt_rubric_designer, rubric_templates
 from helper import extract_json_from_response
 
 load_dotenv()

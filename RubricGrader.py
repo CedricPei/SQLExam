@@ -2,7 +2,7 @@ import json
 import os
 import openai
 from dotenv import load_dotenv
-from prompt_rubric_grader import system_prompt_grader, user_prompt_grader
+from prompts.prompt_rubric_grader import system_prompt_grader, user_prompt_grader
 from helper import extract_json_from_response
 
 load_dotenv()
