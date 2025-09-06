@@ -8,7 +8,7 @@ from Refuter import Refuter
 
 # "deepseek-r1-distill-qwen-32b"
 
-reasoning_model = "deepseek-r1-distill-qwen-32b"
+reasoning_model = "o3"
 instruct_model = "deepseek-chat"
 partial = False
 

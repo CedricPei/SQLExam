@@ -1,0 +1,347 @@
+[
+  {
+    "question_id": 46,
+    "question": "Which state special schools have the highest number of enrollees from grades 1 through 12?",
+    "evidence": "State Special Schools refers to DOC = 31; Grades 1 through 12 means K-12",
+    "gold_sql": "SELECT T2.School FROM frpm AS T1 INNER JOIN schools AS T2 ON T1.CDSCode = T2.CDSCode WHERE T2.DOC = 31 ORDER BY T1.`Enrollment (K-12)` DESC LIMIT 1",
+    "predicted_sql": "SELECT T1.`sname`, T1.`enroll12`\n  FROM satscores AS T1\n  INNER JOIN schools AS T2\n  ON T1.`cds` = T2.`CDSCode`\n  WHERE T2.`DOC` = '31'\n  AND T2.`GSoffered` = 'K-12'\n  ORDER BY T1.`enroll12` DESC\n  LIMIT 1",
+    "ex": 0,
+    "score": 0.0,
+    "prover_details": {
+      "expected_answer": "Name(s) of the state special school(s) (DOC = 31) that have the maximum enrollment in grades 1-12, returning every school that shares that highest enrollment value.",
+      "sql_description": "Joins satscores and schools, keeps rows where DOC = 31 and GSoffered = 'K-12', orders by enroll12 descending, and returns the single top row (sname, enroll12).",
+      "reason": "Adds an unnecessary GSoffered='K-12' filter that can exclude state special schools whose grade span is coded differently (e.g., P-12), so the true maximum may be omitted. It also limits the result to one row, omitting other schools that could share the highest enrollment. Therefore it does not reliably answer the question.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 340,
+    "question": "Which are the cards that have incredibly powerful foils.",
+    "evidence": "incredibly poweful foils refers to cardKingdomFoilId is not null AND cardKingdomId is not null",
+    "gold_sql": "SELECT id FROM cards WHERE cardKingdomFoilId IS NOT NULL AND cardKingdomId IS NOT NULL",
+    "predicted_sql": "SELECT `name`\n  FROM cards\n  WHERE `cardKingdomFoilId` IS NOT NULL\n  AND `cardKingdomId` IS NOT NULL",
+    "ex": 0,
+    "score": 0.0
+  },
+  {
+    "question_id": 459,
+    "question": "Which card costs more converted mana, \"Serra Angel\" or \"Shrine Keeper\"?",
+    "evidence": "\"Serra Angel\" refers to name = 'Serra Angel'; \"Shrine Keeper\" refers to name = 'Shrine Keeper'; card costs more converted mana when the value of convertedManaCost is greater",
+    "gold_sql": "SELECT name FROM cards WHERE name IN ('Serra Angel', 'Shrine Keeper') ORDER BY convertedManaCost DESC LIMIT 1",
+    "predicted_sql": "SELECT \n  CASE \n    WHEN (SELECT `convertedManaCost` FROM cards WHERE `name` = 'Serra Angel') > \n         (SELECT `convertedManaCost` FROM cards WHERE `name` = 'Shrine Keeper') \n    THEN 'Serra Angel' \n    ELSE 'Shrine Keeper' \n  END AS more_expensive_card",
+    "ex": 1,
+    "score": 1.0,
+    "refuter_details": {
+      "sql_diff": "Pred uses two scalar subqueries in a CASE to output either 'Serra Angel' or 'Shrine Keeper'; gold filters both names, orders by convertedManaCost DESC, LIMIT 1.",
+      "logic_diff": "Both queries output the card whose convertedManaCost is larger, differing only in tie handling not specified by the question.",
+      "reason": "Prediction satisfies the question’s requirement with no clear violation or schema misuse.",
+      "verdict": false,
+      "tag": "NA"
+    }
+  },
+  {
+    "question_id": 465,
+    "question": "For the set of cards with \"Ancestor's Chosen\" in it, is there a Korean version of it?",
+    "evidence": "set of cards with \"Ancestor''s Chosen\" in it refers to name = 'Ancestor''s Chosen'; Korean version refers to language = 'Korean'",
+    "gold_sql": "SELECT IIF(SUM(CASE WHEN T2.language = 'Korean' AND T2.translation IS NOT NULL THEN 1 ELSE 0 END) > 0, 'YES', 'NO') FROM cards AS T1 INNER JOIN set_translations AS T2 ON T2.setCode = T1.setCode WHERE T1.name = 'Ancestor''s Chosen'",
+    "predicted_sql": "SELECT CASE WHEN COUNT(*) > 0 THEN 'Yes' ELSE 'No' END AS has_korean_version\n  FROM foreign_data\n  WHERE `uuid` = (\n    SELECT `uuid`\n    FROM cards\n    WHERE `name` = 'Ancestor''s Chosen'\n  )\n  AND `language` = 'Korean'",
+    "ex": 0,
+    "score": 0.0,
+    "prover_details": {
+      "expected_answer": "A yes/no indication of whether any Korean-language printing exists for the card named \"Ancestor's Chosen\" across all its printings.",
+      "sql_description": "Counts rows in foreign_data with language = 'Korean' whose uuid equals a single uuid returned from cards where name = 'Ancestor''s Chosen'; returns 'Yes' if count > 0 else 'No'.",
+      "reason": "The subquery uses '=' to match a single uuid, so it tests only one printing of the card. If other printings with different uuids have a Korean version, they would be missed. The query therefore does not reliably answer whether *any* Korean version exists.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 544,
+    "question": "What is the display name of the user who last edited the post \"Examples for teaching: Correlation does not mean causation\"?",
+    "evidence": "\"Examples for teaching: Correlation does not mean causation\" is the Title of post; user who last edited refers to LastEditorUserId",
+    "gold_sql": "SELECT T2.DisplayName FROM posts AS T1 INNER JOIN users AS T2 ON T1.LastEditorUserId = T2.Id WHERE T1.Title = 'Examples for teaching: Correlation does not mean causation'",
+    "predicted_sql": "SELECT T2.`DisplayName`\n  FROM posts AS T1\n  INNER JOIN users AS T2\n  ON T1.`LastEditorUserId` = T2.`Id`\n  WHERE T1.`Title` = 'Examples for teaching: Correlation does not mean causation'\n  AND T1.`LastEditorUserId` IS NOT NULL",
+    "ex": 1,
+    "score": 1.0,
+    "refuter_details": {
+      "sql_diff": "Prediction adds extra WHERE condition T1.LastEditorUserId IS NOT NULL; otherwise identical joins and projection.",
+      "logic_diff": "Extra null-check is redundant because the inner join already eliminates NULL LastEditorUserId rows, so both queries return the same display name(s).",
+      "reason": "The added filter cannot change the result set and does not violate the question’s intent, so prediction is acceptable.",
+      "verdict": false,
+      "tag": "NA"
+    }
+  },
+  {
+    "question_id": 637,
+    "question": "State all the tags used by Mark Meckes in his posts that doesn't have comments.",
+    "evidence": "used by Mark Meckes refers to DisplayName = 'Mark Meckes'; Doen't have comments refers to CommentCount = 0;",
+    "gold_sql": "SELECT T3.Tags FROM users AS T1 INNER JOIN postHistory AS T2 ON T1.Id = T2.UserId INNER JOIN posts AS T3 ON T3.Id = T2.PostId WHERE T1.DisplayName = 'Mark Meckes' AND T3.CommentCount = 0",
+    "predicted_sql": "SELECT DISTINCT T2.`TagName`\n  FROM posts AS T1\n  INNER JOIN tags AS T2\n  ON T1.`Tags` LIKE '%<' || T2.`TagName` || '>%'\n  WHERE T1.`OwnerUserId` = (\n    SELECT `Id`\n    FROM users\n    WHERE `DisplayName` = 'Mark Meckes'\n  )\n  AND T1.`CommentCount` = 0",
+    "ex": 0,
+    "score": 1.0,
+    "prover_details": {
+      "expected_answer": "List of all distinct tag names that appear in posts authored by the user whose display name is \"Mark Meckes\" where those posts have zero comments",
+      "sql_description": "Finds posts with CommentCount = 0 written by the user id corresponding to DisplayName = 'Mark Meckes', matches each post’s <tag> strings against the tags table, and returns the distinct TagName values",
+      "reason": "The query filters on the correct author, restricts to posts with no comments, extracts every tag contained in those posts through a tag-string match, and returns a distinct list of tag names, matching the question requirements",
+      "verdict": true,
+      "evidence": "sql_result shows column TagName with value 'books', demonstrating the query outputs tag names; logic covers all required conditions (author filter, CommentCount=0, distinct tag list)"
+    },
+    "refuter_details": {
+      "sql_diff": "Gold selects raw Tags strings from posts via PostHistory, yielding duplicates and brackets; prediction joins posts with tags table, extracts TagName and DISTINCTs, outputting 'books'.",
+      "logic_diff": "Both return the set of tags used by Mark Meckes on posts with CommentCount=0; prediction returns cleaned distinct tag names while gold returns bracketed duplicates.",
+      "reason": "Prediction captures the required tag list correctly despite formatting differences.",
+      "verdict": false,
+      "tag": "NA"
+    }
+  },
+  {
+    "question_id": 785,
+    "question": "Describe the names of neutral alignment superheroes.",
+    "evidence": "names of superheroes refers to superhero_name; neutral alignment refers to alignment = 'Neutral';",
+    "gold_sql": "SELECT T1.superhero_name FROM superhero AS T1 INNER JOIN alignment AS T2 ON T1.alignment_id = T2.id WHERE T2.alignment = 'Neutral'",
+    "predicted_sql": "SELECT T1.`superhero_name`\n  FROM superhero AS T1\n  INNER JOIN alignment AS T2\n  ON T1.`alignment_id` = T2.`id`\n  WHERE T2.`alignment` = 'Neutral'",
+    "ex": 1,
+    "score": 1.0,
+    "refuter_details": {
+      "sql_diff": "Predicted SQL identical to gold; both join superhero with alignment and filter alignment='Neutral' selecting superhero_name.",
+      "logic_diff": "Both queries list superhero names whose alignment is Neutral.",
+      "reason": "Prediction correctly answers the question without extra constraints.",
+      "verdict": false,
+      "tag": "NA"
+    }
+  },
+  {
+    "question_id": 937,
+    "question": "What's the finish time for the driver who ranked second in 2008's AustChineseralian Grand Prix?",
+    "evidence": "finish time refers to time; Chinese Grand Prix refers to races.name = 'Chinese Grand Prix';",
+    "gold_sql": "SELECT T1.time FROM results AS T1 INNER JOIN races AS T2 on T1.raceId = T2.raceId WHERE T1.rank = 2 AND T2.name = 'Chinese Grand Prix' AND T2.year = 2008",
+    "predicted_sql": "SELECT `time`\n  FROM results\n  WHERE `raceId` = (\n    SELECT `raceId`\n    FROM races\n    WHERE `year` = 2008 AND `name` = 'Chinese Grand Prix'\n  )\n  AND `position` = 2",
+    "ex": 0,
+    "score": 1.0,
+    "prover_details": {
+      "expected_answer": "The finish time (as recorded in results.time) of the driver who finished second in the 2008 Chinese Grand Prix.",
+      "sql_description": "Finds the raceId of the Chinese Grand Prix in 2008, then returns the time value from results where that raceId matches and position equals 2 (second place).",
+      "reason": "Query targets the correct race (2008 Chinese Grand Prix), selects position 2, and returns the requested finish time; sql_result provides the single time value, satisfying the question.",
+      "verdict": true,
+      "evidence": "sql_result shows one row with column time = '+14.925', fulfilling the requested finish time for the second-place driver."
+    },
+    "refuter_details": {
+      "sql_diff": "Pred filters results where position = 2; Gold filters where rank = 2; both join/identify same race but return different times (+14.925 vs +16.445).",
+      "logic_diff": "Pred answers the finish time of the second-place finisher; Gold answers the finish time of the driver with fastest-lap rank 2.",
+      "reason": "‘Ranked second’ can reasonably refer to overall finishing position, so the prediction gives a valid interpretation and uses correct schema columns.",
+      "verdict": false,
+      "tag": "AMBIGUOUS_QUESTION"
+    }
+  },
+  {
+    "question_id": 1044,
+    "question": "List the football players with a birthyear of 1970 and a birthmonth of October.",
+    "evidence": "players with a birthyear of 1970 and a birthmonth of October refers to substr(birthday,1,7) AS 'year-month',WHERE year = '1970' AND month = '10';",
+    "gold_sql": "SELECT player_name FROM Player WHERE SUBSTR(birthday, 1, 7) = '1970-10'",
+    "predicted_sql": "SELECT `player_name`\n  FROM Player\n  WHERE strftime('%Y', `birthday`) = '1970'\n  AND strftime('%m', `birthday`) = '10'\n  AND `player_name` IS NOT NULL",
+    "ex": 1,
+    "score": 1.0,
+    "refuter_details": {
+      "sql_diff": "Pred uses strftime to compare year='1970' and month='10' and adds player_name IS NOT NULL; Gold compares SUBSTR(birthday,1,7)='1970-10'.",
+      "logic_diff": "Both queries return players born in October 1970; extra NOT NULL filter is benign.",
+      "reason": "Predicted SQL satisfies question requirements equivalently to gold, no substantive error.",
+      "verdict": false,
+      "tag": "NA"
+    }
+  },
+  {
+    "question_id": 1239,
+    "question": "Name the ID and age of patient with two or more laboratory examinations which show their hematoclit level exceeded the normal range.",
+    "evidence": "age = SUBTRACT(year(current_timestamp), year(Birthday)); patient with two or more laboratory examinations refers to COUNT(ID) > 2; hematoclit level exceeded the normal range refers to HCT > = 52;",
+    "gold_sql": "SELECT DISTINCT T1.ID, STRFTIME('%Y', CURRENT_TIMESTAMP) - STRFTIME('%Y', T1.Birthday) FROM Patient AS T1 INNER JOIN Laboratory AS T2 ON T1.ID = T2.ID WHERE T1.ID IN ( SELECT ID FROM Laboratory WHERE HCT >= 52 GROUP BY ID HAVING COUNT(ID) >= 2 )",
+    "predicted_sql": "SELECT T1.`ID`, (strftime('%Y', 'now') - strftime('%Y', T2.`Birthday`)) as age\n  FROM (\n    SELECT `ID`, COUNT(*) as exam_count\n    FROM Laboratory\n    WHERE `HCT` >= 52\n    GROUP BY `ID`\n    HAVING COUNT(*) >= 2\n  ) AS T1\n  INNER JOIN Patient AS T2\n  ON T1.`ID` = T2.`ID`\n  WHERE T2.`Birthday` IS NOT NULL",
+    "ex": 1,
+    "score": 1.0,
+    "refuter_details": {
+      "sql_diff": "Pred groups Laboratory then joins Patient, adds filter Birthday IS NOT NULL; Gold uses IN subquery without that filter; both compute age via year difference.",
+      "logic_diff": "Both queries return IDs that appear in at least two lab records with HCT >=52 and provide their age, with pred additionally excluding patients lacking birthday data.",
+      "reason": "Extra NULL-birthday filter is a minor implementation choice unlikely to contradict the question, so prediction remains acceptable.",
+      "verdict": false,
+      "tag": "NA"
+    }
+  },
+  {
+    "question_id": 1243,
+    "question": "For all patients who are older than 55 years old, what is the percentage of female who has abnormal prothrombin time (PT)?",
+    "evidence": "older than 55 years old = SUBTRACT(year(current_timestamp), year(Birthday)) > 55; abnormal prothrombin time (PT) refers to PT > = 14; percentage = DIVIDE(SUM(PT > = 14 AND SEX = 'F'), SUM(PT > = 14)) * 100; female refers to sex = 'F'; ",
+    "gold_sql": "SELECT CAST(SUM(CASE WHEN T2.PT >= 14 AND T1.SEX = 'F' THEN 1 ELSE 0 END) AS REAL) * 100 / COUNT(CASE WHEN T2.PT >= 14 THEN 1 ELSE 0 END) FROM Patient AS T1 INNER JOIN Laboratory AS T2 ON T1.ID = T2.ID WHERE STRFTIME('%Y', CURRENT_TIMESTAMP) - STRFTIME('%Y', T1.Birthday) > 55",
+    "predicted_sql": "SELECT \n  (COUNT(CASE WHEN T2.`SEX` = 'F' THEN 1 END) * 100.0 / COUNT(*)) AS percentage\n  FROM Laboratory AS T1\n  INNER JOIN Patient AS T2\n  ON T1.`ID` = T2.`ID`\n  WHERE T2.`Birthday` IS NOT NULL\n  AND (strftime('%Y', 'now') - strftime('%Y', T2.`Birthday`)) > 55\n  AND T1.`PT` >= 14",
+    "ex": 0,
+    "score": 0.0,
+    "prover_details": {
+      "expected_answer": "Return a single percentage value representing: among patients aged over 55 whose prothrombin time (PT) is abnormal (PT ≥ 14), the proportion who are female.",
+      "sql_description": "Joins Laboratory and Patient, filters rows where PT ≥ 14 and patient age >55, then counts all resulting laboratory rows and the subset with SEX='F'; outputs female-row count / total-row count *100.",
+      "reason": "The ratio should be calculated per patient, not per laboratory record. The query counts every laboratory row, so patients with multiple abnormal PT results are over-represented, potentially skewing the percentage. Key per-patient anchor therefore not satisfied.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 1275,
+    "question": "Among the patients who has a normal level of anti-centromere and a normal level of anti-SSB, how many of them are male?",
+    "evidence": "normal level of anti-centromere refers to CENTROMEA IN('-', '+-'); normal level of anti-SSB refers to SSB IN('-', '+-'); male refers to Sex = 'M'; Should consider DISTINCT in the final result;",
+    "gold_sql": "SELECT COUNT(DISTINCT T1.ID) FROM Patient AS T1 INNER JOIN Laboratory AS T2 ON T1.ID = T2.ID WHERE T2.CENTROMEA IN ('negative', '0') AND T2.SSB IN ('negative', '0') AND T1.SEX = 'M'",
+    "predicted_sql": "SELECT COUNT(DISTINCT T1.`ID`)\n  FROM Patient AS T1\n  INNER JOIN Laboratory AS T2\n  ON T1.`ID` = T2.`ID`\n  WHERE T2.`CENTROMEA` IN ('-', '+-')\n  AND T2.`SSB` IN ('-', '+-')\n  AND T1.`SEX` = 'M'",
+    "ex": 0,
+    "score": 0.0,
+    "prover_details": {
+      "expected_answer": "A single integer: the number of distinct patients who are male (Sex = 'M') and who have laboratory records where both anti-centromere (CENTROMEA) and anti-SSB (SSB) values are in the normal set ('-', '+-').",
+      "sql_description": "Counts DISTINCT Patient.ID values that have at least one Laboratory row with CENTROMEA in ('-', '+-') AND SSB in ('-', '+-') and whose Patient record shows SEX = 'M'.",
+      "reason": "Query filters by the required normal antibody levels and male sex, applies DISTINCT to patient IDs, and returns their count, meeting all stated constraints.",
+      "verdict": true,
+      "evidence": "sql_result shows column COUNT(DISTINCT T1.ID) with value 0, which is the requested single integer count."
+    },
+    "refuter_details": {
+      "sql_diff": "Both queries join Patient and Laboratory and count distinct patient IDs with SEX='M'; gold filters CENTROMEA IN ('negative','0') and SSB IN ('negative','0'), whereas prediction filters CENTROMEA/SSB IN ('-','+-'); results differ (pred 0 vs gold 1).",
+      "logic_diff": "Prediction excludes records whose normal-value strings are stored as 'negative' or '0', so it misses at least one qualifying male patient counted by gold.",
+      "reason": "By using an incorrect value set for the normal antibody levels, the prediction yields a different (0) and incorrect count, violating the query intent.",
+      "verdict": true,
+      "tag": "CORE_CONFLICT"
+    }
+  },
+  {
+    "question_id": 1356,
+    "question": "Which department was the President of the club in?",
+    "evidence": "'President' is a position of Student Club",
+    "gold_sql": "SELECT T2.department FROM member AS T1 INNER JOIN major AS T2 ON T1.link_to_major = T2.major_id WHERE T1.position = 'President'",
+    "predicted_sql": "SELECT T2.`department`\n  FROM member AS T1\n  INNER JOIN major AS T2\n  ON T1.`link_to_major` = T2.`major_id`\n  WHERE T1.`position` = 'President'",
+    "ex": 1,
+    "score": 1.0,
+    "refuter_details": {
+      "sql_diff": "Queries are structurally identical; no result difference.",
+      "logic_diff": "Both retrieve department(s) of member(s) whose position is 'President'.",
+      "reason": "Prediction answers the question exactly like gold; no grounds to overturn.",
+      "verdict": false,
+      "tag": "NA"
+    }
+  },
+  {
+    "question_id": 1361,
+    "question": "What is the total cost of the pizzas for all the events?",
+    "evidence": "total cost of the pizzas refers to SUM(cost) where expense_description = 'Pizza'",
+    "gold_sql": "SELECT SUM(cost) FROM expense WHERE expense_description = 'Pizza'",
+    "predicted_sql": "SELECT SUM(`cost`) AS total_pizza_cost\n  FROM expense\n  WHERE `expense_description` = 'Pizza'",
+    "ex": 1,
+    "score": 1.0,
+    "refuter_details": {
+      "sql_diff": "Identical query logic; prediction adds column alias but sums cost with same filter as gold.",
+      "logic_diff": "Both compute the sum of cost for expenses where description is 'Pizza', answering the question directly.",
+      "reason": "Prediction matches the required logic and yields correct answer.",
+      "verdict": false,
+      "tag": "NA"
+    }
+  },
+  {
+    "question_id": 1376,
+    "question": "Among all the closed events, which event has the highest spend-to-budget ratio?",
+    "evidence": "closed events refers to event_name where status = 'Closed'; highest spend-to budget ratio refers to MAX(DIVIDE(spent, amount))",
+    "gold_sql": "SELECT T2.event_name FROM budget AS T1 INNER JOIN event AS T2 ON T1.link_to_event = T2.event_id WHERE T2.status = 'Closed' ORDER BY T1.spent / T1.amount DESC LIMIT 1",
+    "predicted_sql": "SELECT T1.`event_name`\n  FROM event AS T1\n  INNER JOIN budget AS T2\n  ON T1.`event_id` = T2.`link_to_event`\n  WHERE T1.`status` = 'Closed'\n  AND T2.`amount` > 0\n  ORDER BY (T2.`spent` / T2.`amount`) DESC\n  LIMIT 1",
+    "ex": 1,
+    "score": 0.0,
+    "refuter_details": {
+      "sql_diff": "Predicted SQL adds `AND T2.amount > 0` filter not present in gold; otherwise same join, ordering, limit.",
+      "logic_diff": "Prediction omits closed events whose budget amount is zero, whereas the question asks to consider all closed events when picking the highest spend/amount ratio.",
+      "reason": "Extra amount>0 filter narrows the scope beyond the question, constituting a core mismatch.",
+      "verdict": true,
+      "tag": "CORE_CONFLICT"
+    }
+  },
+  {
+    "question_id": 1389,
+    "question": "Which event has the lowest cost?",
+    "evidence": "event refers to event_name; lowest cost means MIN(cost)",
+    "gold_sql": "SELECT T1.event_name FROM event AS T1 INNER JOIN budget AS T2 ON T1.event_id = T2.link_to_event INNER JOIN expense AS T3 ON T2.budget_id = T3.link_to_budget ORDER BY T3.cost LIMIT 1",
+    "predicted_sql": "SELECT T1.`event_name`\n  FROM event AS T1\n  INNER JOIN budget AS T2\n  ON T1.`event_id` = T2.`link_to_event`\n  INNER JOIN expense AS T3\n  ON T2.`budget_id` = T3.`link_to_budget`\n  WHERE T3.`cost` = (\n    SELECT MIN(`cost`)\n    FROM expense\n  )",
+    "ex": 1,
+    "score": 1.0,
+    "prover_details": {
+      "expected_answer": "The name(s) of the event(s) whose associated expense has the minimum cost among all expenses",
+      "sql_description": "Finds the global minimum cost in the expense table, then returns the event_name of every event that has at least one linked expense equal to that minimum cost",
+      "reason": "Query correctly links events through budgets to expenses and filters to the minimum cost; returned event_name column fulfills the question requirement",
+      "verdict": true,
+      "evidence": "sql_result shows column event_name with 3 rows (e.g., 'November Speaker', 'October Speaker', 'September Speaker'), indicating events tied for the minimum cost"
+    },
+    "refuter_details": {
+      "sql_diff": "Gold orders by cost then LIMIT 1 returning a single event; prediction filters cost = MIN(cost) without LIMIT so returns every event that shares the minimum cost (3 rows).",
+      "logic_diff": "Gold picks one event with the lowest cost; prediction lists all events having that lowest cost, differing only in tie-handling.",
+      "reason": "Tie-handling differences are tolerated and prediction still correctly identifies the lowest-cost event(s).",
+      "verdict": false,
+      "tag": "NA"
+    }
+  },
+  {
+    "question_id": 1426,
+    "question": "List the last name of members with a major in environmental engineering and include its department and college name.",
+    "evidence": "'Environmental Engineering' is the major_name;",
+    "gold_sql": "SELECT T2.last_name, T1.department, T1.college FROM major AS T1 INNER JOIN member AS T2 ON T1.major_id = T2.link_to_major WHERE T2.position = 'Member' AND T1.major_name = 'Environmental Engineering'",
+    "predicted_sql": "SELECT T1.`last_name`, T2.`department`, T2.`college`\n  FROM member AS T1\n  INNER JOIN major AS T2\n  ON T1.`link_to_major` = T2.`major_id`\n  WHERE T2.`major_name` = 'Environmental Engineering'",
+    "ex": 1,
+    "score": 1.0,
+    "refuter_details": {
+      "sql_diff": "Prediction omits filter T2.position = 'Member' and swaps table aliases/column order compared with gold.",
+      "logic_diff": "Predicted query returns all people with an Environmental Engineering major, whereas gold limits to those whose position field is literally 'Member'.",
+      "reason": "Whether to constrain by the position column is not explicitly stated––‘members’ can reasonably refer to every row in the member table, so the prediction is a plausible interpretation.",
+      "verdict": false,
+      "tag": "AMBIGUOUS_QUESTION"
+    }
+  },
+  {
+    "question_id": 1493,
+    "question": "In February 2012, what percentage of customers consumed more than 528.3?",
+    "evidence": "February 2012 refers to '201202' in yearmonth.date; The first 4 strings of the Date values in the yearmonth table can represent year; The 5th and 6th string of the date can refer to month.",
+    "gold_sql": "SELECT CAST(SUM(IIF(Consumption > 528.3, 1, 0)) AS FLOAT) * 100 / COUNT(CustomerID) FROM yearmonth WHERE Date = '201202'",
+    "predicted_sql": "SELECT \n    (COUNT(DISTINCT CASE WHEN `Consumption` > 528.3 THEN `CustomerID` END) * 100.0 / \n    COUNT(DISTINCT `CustomerID`)) AS Percentage\nFROM yearmonth\nWHERE `Date` LIKE '201202%'",
+    "ex": 1,
+    "score": 1.0,
+    "refuter_details": {
+      "sql_diff": "Pred uses DISTINCT counts and Date LIKE '201202%' whereas gold counts rows and filters Date='201202'; otherwise same aggregation.",
+      "logic_diff": "Both compute percentage of customers in Feb-2012 with consumption >528.3; distinct counting and LIKE wildcard have no effect when each customer has one row for the month.",
+      "reason": "Predicted query satisfies the question with only benign counting and filter variations that leave results unchanged.",
+      "verdict": false,
+      "tag": "NA"
+    }
+  },
+  {
+    "question_id": 1501,
+    "question": "Please list the countries of the gas stations with transactions taken place in June, 2013.",
+    "evidence": "June 2013 refers to '201306'; The first 4 strings of the Date values in the yearmonth table can represent year; The 5th and 6th string of the date can refer to month;",
+    "gold_sql": "SELECT DISTINCT T2.Country FROM transactions_1k AS T1 INNER JOIN gasstations AS T2 ON T1.GasStationID = T2.GasStationID INNER JOIN yearmonth AS T3 ON T1.CustomerID = T3.CustomerID WHERE T3.Date = '201306'",
+    "predicted_sql": "SELECT DISTINCT g.`Country`\nFROM yearmonth ym\nJOIN transactions_1k t ON ym.`CustomerID` = t.`CustomerID`\nJOIN gasstations g ON t.`GasStationID` = g.`GasStationID`\nWHERE SUBSTR(ym.`Date`, 1, 4) = '2013' \n  AND SUBSTR(ym.`Date`, 5, 2) = '06'",
+    "ex": 1,
+    "score": 1.0,
+    "refuter_details": {
+      "sql_diff": "Gold filters ym.Date exactly = '201306'; prediction uses SUBSTR to match year='2013' and month='06', allowing values like '20130601'; otherwise joins and selected distinct Country identical.",
+      "logic_diff": "Both queries return countries of gas stations whose customers have yearmonth records for June 2013; prediction may include rows where Date has day component but still June 2013, consistent with the question.",
+      "reason": "Predicted query satisfies the June-2013 requirement and shares the same logic as gold with only a tolerant date filter.",
+      "verdict": false,
+      "tag": "NA"
+    }
+  },
+  {
+    "question_id": 1505,
+    "question": "Among the customers who paid in euro, how many of them have a monthly consumption of over 1000?",
+    "evidence": "Pays in euro = Currency = 'EUR'.",
+    "gold_sql": "SELECT COUNT(*) FROM yearmonth AS T1 INNER JOIN customers AS T2 ON T1.CustomerID = T2.CustomerID WHERE T2.Currency = 'EUR' AND T1.Consumption > 1000.00",
+    "predicted_sql": "SELECT COUNT(DISTINCT T1.`CustomerID`)\n  FROM customers AS T1\n  INNER JOIN yearmonth AS T2\n  ON T1.`CustomerID` = T2.`CustomerID`\n  WHERE T1.`Currency` = 'EUR'\n  AND T2.`Consumption` > 1000",
+    "ex": 0,
+    "score": 1.0,
+    "prover_details": {
+      "expected_answer": "A single integer: the number of customers whose currency is EUR and whose recorded monthly consumption exceeds 1000",
+      "sql_description": "Joins customers with their monthly records, filters to rows where Currency = 'EUR' and Consumption > 1000, then counts distinct CustomerID values",
+      "reason": "The query implements exactly the requested conditions (EUR customers, consumption > 1000) and returns the count of such customers",
+      "verdict": true,
+      "evidence": "Result set contains column COUNT(DISTINCT T1.CustomerID) with value 391"
+    },
+    "refuter_details": {
+      "sql_diff": "Pred counts DISTINCT customers (391) whereas gold counts all joined rows (2730); syntactically pred uses COUNT(DISTINCT) on customers table while gold uses COUNT(*) on yearmonth rows.",
+      "logic_diff": "Pred returns the number of euro customers who ever had a month with consumption >1000; gold returns the total number of monthly records satisfying that condition, over-counting customers with multiple months.",
+      "reason": "The question asks how many customers (not monthly records) meet the criterion, so the prediction is semantically correct and the gold overcounts.",
+      "verdict": false,
+      "tag": "GOLD_FAULT"
+    }
+  }
+]

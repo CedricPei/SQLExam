@@ -1,0 +1,79 @@
+[
+  {
+    "question_id": 637,
+    "result": {
+      "expected_answer": "List of all distinct tag names that appear in posts authored by the user whose display name is \"Mark Meckes\" where those posts have zero comments",
+      "sql_description": "Finds posts with CommentCount = 0 written by the user id corresponding to DisplayName = 'Mark Meckes', matches each post’s <tag> strings against the tags table, and returns the distinct TagName values",
+      "reason": "The query filters on the correct author, restricts to posts with no comments, extracts every tag contained in those posts through a tag-string match, and returns a distinct list of tag names, matching the question requirements",
+      "verdict": true,
+      "evidence": "sql_result shows column TagName with value 'books', demonstrating the query outputs tag names; logic covers all required conditions (author filter, CommentCount=0, distinct tag list)"
+    }
+  },
+  {
+    "question_id": 1389,
+    "result": {
+      "expected_answer": "The name(s) of the event(s) whose associated expense has the minimum cost among all expenses",
+      "sql_description": "Finds the global minimum cost in the expense table, then returns the event_name of every event that has at least one linked expense equal to that minimum cost",
+      "reason": "Query correctly links events through budgets to expenses and filters to the minimum cost; returned event_name column fulfills the question requirement",
+      "verdict": true,
+      "evidence": "sql_result shows column event_name with 3 rows (e.g., 'November Speaker', 'October Speaker', 'September Speaker'), indicating events tied for the minimum cost"
+    }
+  },
+  {
+    "question_id": 465,
+    "result": {
+      "expected_answer": "A yes/no indication of whether any Korean-language printing exists for the card named \"Ancestor's Chosen\" across all its printings.",
+      "sql_description": "Counts rows in foreign_data with language = 'Korean' whose uuid equals a single uuid returned from cards where name = 'Ancestor''s Chosen'; returns 'Yes' if count > 0 else 'No'.",
+      "reason": "The subquery uses '=' to match a single uuid, so it tests only one printing of the card. If other printings with different uuids have a Korean version, they would be missed. The query therefore does not reliably answer whether *any* Korean version exists.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 1275,
+    "result": {
+      "expected_answer": "A single integer: the number of distinct patients who are male (Sex = 'M') and who have laboratory records where both anti-centromere (CENTROMEA) and anti-SSB (SSB) values are in the normal set ('-', '+-').",
+      "sql_description": "Counts DISTINCT Patient.ID values that have at least one Laboratory row with CENTROMEA in ('-', '+-') AND SSB in ('-', '+-') and whose Patient record shows SEX = 'M'.",
+      "reason": "Query filters by the required normal antibody levels and male sex, applies DISTINCT to patient IDs, and returns their count, meeting all stated constraints.",
+      "verdict": true,
+      "evidence": "sql_result shows column COUNT(DISTINCT T1.ID) with value 0, which is the requested single integer count."
+    }
+  },
+  {
+    "question_id": 1243,
+    "result": {
+      "expected_answer": "Return a single percentage value representing: among patients aged over 55 whose prothrombin time (PT) is abnormal (PT ≥ 14), the proportion who are female.",
+      "sql_description": "Joins Laboratory and Patient, filters rows where PT ≥ 14 and patient age >55, then counts all resulting laboratory rows and the subset with SEX='F'; outputs female-row count / total-row count *100.",
+      "reason": "The ratio should be calculated per patient, not per laboratory record. The query counts every laboratory row, so patients with multiple abnormal PT results are over-represented, potentially skewing the percentage. Key per-patient anchor therefore not satisfied.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 46,
+    "result": {
+      "expected_answer": "Name(s) of the state special school(s) (DOC = 31) that have the maximum enrollment in grades 1-12, returning every school that shares that highest enrollment value.",
+      "sql_description": "Joins satscores and schools, keeps rows where DOC = 31 and GSoffered = 'K-12', orders by enroll12 descending, and returns the single top row (sname, enroll12).",
+      "reason": "Adds an unnecessary GSoffered='K-12' filter that can exclude state special schools whose grade span is coded differently (e.g., P-12), so the true maximum may be omitted. It also limits the result to one row, omitting other schools that could share the highest enrollment. Therefore it does not reliably answer the question.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 937,
+    "result": {
+      "expected_answer": "The finish time (as recorded in results.time) of the driver who finished second in the 2008 Chinese Grand Prix.",
+      "sql_description": "Finds the raceId of the Chinese Grand Prix in 2008, then returns the time value from results where that raceId matches and position equals 2 (second place).",
+      "reason": "Query targets the correct race (2008 Chinese Grand Prix), selects position 2, and returns the requested finish time; sql_result provides the single time value, satisfying the question.",
+      "verdict": true,
+      "evidence": "sql_result shows one row with column time = '+14.925', fulfilling the requested finish time for the second-place driver."
+    }
+  },
+  {
+    "question_id": 1505,
+    "result": {
+      "expected_answer": "A single integer: the number of customers whose currency is EUR and whose recorded monthly consumption exceeds 1000",
+      "sql_description": "Joins customers with their monthly records, filters to rows where Currency = 'EUR' and Consumption > 1000, then counts distinct CustomerID values",
+      "reason": "The query implements exactly the requested conditions (EUR customers, consumption > 1000) and returns the count of such customers",
+      "verdict": true,
+      "evidence": "Result set contains column COUNT(DISTINCT T1.CustomerID) with value 391"
+    }
+  }
+]

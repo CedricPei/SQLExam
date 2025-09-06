@@ -1,0 +1,71 @@
+[
+  {
+    "question_id": 637,
+    "question": "State all the tags used by Mark Meckes in his posts that doesn't have comments.",
+    "evidence": "used by Mark Meckes refers to DisplayName = 'Mark Meckes'; Doen't have comments refers to CommentCount = 0;",
+    "gold_sql": "SELECT T3.Tags FROM users AS T1 INNER JOIN postHistory AS T2 ON T1.Id = T2.UserId INNER JOIN posts AS T3 ON T3.Id = T2.PostId WHERE T1.DisplayName = 'Mark Meckes' AND T3.CommentCount = 0",
+    "predicted_sql": "SELECT DISTINCT T2.`TagName`\n  FROM posts AS T1\n  INNER JOIN tags AS T2\n  ON T1.`Tags` LIKE '%<' || T2.`TagName` || '>%'\n  WHERE T1.`OwnerUserId` = (\n    SELECT `Id`\n    FROM users\n    WHERE `DisplayName` = 'Mark Meckes'\n  )\n  AND T1.`CommentCount` = 0",
+    "ex": 0,
+    "score": 1.0,
+    "prover_details": {
+      "expected_answer": "List of all distinct tag names that appear in posts authored by the user whose display name is \"Mark Meckes\" where those posts have zero comments",
+      "sql_description": "Finds posts with CommentCount = 0 written by the user id corresponding to DisplayName = 'Mark Meckes', matches each post’s <tag> strings against the tags table, and returns the distinct TagName values",
+      "reason": "The query filters on the correct author, restricts to posts with no comments, extracts every tag contained in those posts through a tag-string match, and returns a distinct list of tag names, matching the question requirements",
+      "verdict": true,
+      "evidence": "sql_result shows column TagName with value 'books', demonstrating the query outputs tag names; logic covers all required conditions (author filter, CommentCount=0, distinct tag list)"
+    },
+    "refuter_details": {
+      "sql_diff": "Gold selects raw Tags strings from posts via PostHistory, yielding duplicates and brackets; prediction joins posts with tags table, extracts TagName and DISTINCTs, outputting 'books'.",
+      "logic_diff": "Both return the set of tags used by Mark Meckes on posts with CommentCount=0; prediction returns cleaned distinct tag names while gold returns bracketed duplicates.",
+      "reason": "Prediction captures the required tag list correctly despite formatting differences.",
+      "verdict": false,
+      "tag": "NA"
+    }
+  },
+  {
+    "question_id": 937,
+    "question": "What's the finish time for the driver who ranked second in 2008's AustChineseralian Grand Prix?",
+    "evidence": "finish time refers to time; Chinese Grand Prix refers to races.name = 'Chinese Grand Prix';",
+    "gold_sql": "SELECT T1.time FROM results AS T1 INNER JOIN races AS T2 on T1.raceId = T2.raceId WHERE T1.rank = 2 AND T2.name = 'Chinese Grand Prix' AND T2.year = 2008",
+    "predicted_sql": "SELECT `time`\n  FROM results\n  WHERE `raceId` = (\n    SELECT `raceId`\n    FROM races\n    WHERE `year` = 2008 AND `name` = 'Chinese Grand Prix'\n  )\n  AND `position` = 2",
+    "ex": 0,
+    "score": 1.0,
+    "prover_details": {
+      "expected_answer": "The finish time (as recorded in results.time) of the driver who finished second in the 2008 Chinese Grand Prix.",
+      "sql_description": "Finds the raceId of the Chinese Grand Prix in 2008, then returns the time value from results where that raceId matches and position equals 2 (second place).",
+      "reason": "Query targets the correct race (2008 Chinese Grand Prix), selects position 2, and returns the requested finish time; sql_result provides the single time value, satisfying the question.",
+      "verdict": true,
+      "evidence": "sql_result shows one row with column time = '+14.925', fulfilling the requested finish time for the second-place driver."
+    },
+    "refuter_details": {
+      "sql_diff": "Pred filters results where position = 2; Gold filters where rank = 2; both join/identify same race but return different times (+14.925 vs +16.445).",
+      "logic_diff": "Pred answers the finish time of the second-place finisher; Gold answers the finish time of the driver with fastest-lap rank 2.",
+      "reason": "‘Ranked second’ can reasonably refer to overall finishing position, so the prediction gives a valid interpretation and uses correct schema columns.",
+      "verdict": false,
+      "tag": "AMBIGUOUS_QUESTION"
+    }
+  },
+  {
+    "question_id": 1505,
+    "question": "Among the customers who paid in euro, how many of them have a monthly consumption of over 1000?",
+    "evidence": "Pays in euro = Currency = 'EUR'.",
+    "gold_sql": "SELECT COUNT(*) FROM yearmonth AS T1 INNER JOIN customers AS T2 ON T1.CustomerID = T2.CustomerID WHERE T2.Currency = 'EUR' AND T1.Consumption > 1000.00",
+    "predicted_sql": "SELECT COUNT(DISTINCT T1.`CustomerID`)\n  FROM customers AS T1\n  INNER JOIN yearmonth AS T2\n  ON T1.`CustomerID` = T2.`CustomerID`\n  WHERE T1.`Currency` = 'EUR'\n  AND T2.`Consumption` > 1000",
+    "ex": 0,
+    "score": 1.0,
+    "prover_details": {
+      "expected_answer": "A single integer: the number of customers whose currency is EUR and whose recorded monthly consumption exceeds 1000",
+      "sql_description": "Joins customers with their monthly records, filters to rows where Currency = 'EUR' and Consumption > 1000, then counts distinct CustomerID values",
+      "reason": "The query implements exactly the requested conditions (EUR customers, consumption > 1000) and returns the count of such customers",
+      "verdict": true,
+      "evidence": "Result set contains column COUNT(DISTINCT T1.CustomerID) with value 391"
+    },
+    "refuter_details": {
+      "sql_diff": "Pred counts DISTINCT customers (391) whereas gold counts all joined rows (2730); syntactically pred uses COUNT(DISTINCT) on customers table while gold uses COUNT(*) on yearmonth rows.",
+      "logic_diff": "Pred returns the number of euro customers who ever had a month with consumption >1000; gold returns the total number of monthly records satisfying that condition, over-counting customers with multiple months.",
+      "reason": "The question asks how many customers (not monthly records) meet the criterion, so the prediction is semantically correct and the gold overcounts.",
+      "verdict": false,
+      "tag": "GOLD_FAULT"
+    }
+  }
+]
