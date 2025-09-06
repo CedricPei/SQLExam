@@ -3,7 +3,7 @@ import json
 import openai
 from dotenv import load_dotenv
 from typing import Dict, Any
-from helper import get_schema, extract_json_from_response, append_to_json_file
+from helper import get_db_info, extract_json_from_response, append_to_json_file
 from prompts.prompt_prover import system_prompt_prover, user_prompt_prover
 
 load_dotenv()
@@ -12,20 +12,21 @@ load_dotenv()
 class Prover:
     """Prover validates whether predicted SQL queries adequately answer given questions"""
     
-    def __init__(self, model: str = None):
+    def __init__(self, model: str = None, output_dir: str = "output"):
         self.model = model
+        self.output_dir = output_dir
     
     def call(self, question: Dict[str, Any], pred_sql: str, pred_result: Any) -> bool:
         """Validate whether predicted SQL adequately answers the question"""
         try:
-            schema = get_schema(question["db_id"])
+            db_info = get_db_info(question["db_id"], pred_sql)
             pred_result = pred_result.head(20)
             
             user_content = user_prompt_prover.format(
                 question=question["question"],
                 evidence=question.get("evidence", ""),
                 predicted_sql=pred_sql,
-                schema=schema,
+                db_info=db_info,
                 sql_result=pred_result
             )
             
@@ -46,7 +47,8 @@ class Prover:
                 "question_id": question["question_id"],
                 "result": result
             }
-            append_to_json_file(output_data, "output/prover_output.json")
+            output_file = os.path.join(self.output_dir, "prover_output.json")
+            append_to_json_file(output_data, output_file)
 
             return result.get("verdict", False)
 

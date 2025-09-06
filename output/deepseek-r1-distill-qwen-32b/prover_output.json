@@ -1,0 +1,82 @@
+[
+  {
+    "question_id": 637,
+    "result": {
+      "expected_answer": "A list of distinct tags used in posts by Mark Meckes where the CommentCount is zero.",
+      "sql_description": "The SQL query retrieves distinct tags from posts authored by Mark Meckes that have zero comments.",
+      "reason": "The SQL correctly identifies posts by Mark Meckes with no comments and extracts the tags used in those posts.",
+      "verdict": true,
+      "evidence": "The result includes the 'TagName' column with the value 'books' in row 0."
+    }
+  },
+  {
+    "question_id": 1389,
+    "result": {
+      "expected_answer": "The event name(s) associated with the minimum cost value.",
+      "sql_description": "The SQL query retrieves the event name(s) that have the minimum cost by joining the event, budget, and expense tables and filtering for the minimum cost.",
+      "reason": "The SQL query correctly identifies the event(s) with the lowest cost by using MIN(cost) and joining the relevant tables. The result includes all events with the minimum cost.",
+      "verdict": true,
+      "evidence": "The SQL result includes the column 'event_name' with values 'November Speaker', 'October Speaker', and 'September Speaker'."
+    }
+  },
+  {
+    "question_id": 465,
+    "result": {
+      "expected_answer": "A yes/no answer indicating whether there is a Korean version of the card named 'Ancestor's Chosen'.",
+      "sql_description": "The SQL query checks if there are any foreign_data entries for the card 'Ancestor's Chosen' in the Korean language.",
+      "reason": "The SQL query correctly identifies the card and checks for a Korean language entry. The result 'No' indicates no Korean version exists.",
+      "verdict": true,
+      "evidence": "The result shows 'No' in the has_korean_version column, indicating no Korean version exists."
+    }
+  },
+  {
+    "question_id": 1275,
+    "result": {
+      "expected_answer": "The number of distinct male patients with normal anti-centromere and normal anti-SSB levels.",
+      "sql_description": "Counts the distinct patient IDs where SEX is 'M', CENTROMEA is in ('-', '+-'), and SSB is in ('-', '+-').",
+      "reason": "The SQL query correctly implements the required conditions and returns a count of 0, which is a valid answer based on the data.",
+      "verdict": true,
+      "evidence": "The result shows COUNT(DISTINCT T1.`ID`) = 0, indicating no male patients meet the criteria."
+    }
+  },
+  {
+    "question_id": 1243,
+    "result": {
+      "expected_answer": "The percentage of female patients older than 55 years with abnormal prothrombin time (PT >= 14)",
+      "sql_description": "Calculates the percentage of female patients over 55 with PT >= 14 by joining Laboratory and Patient tables, filtering by age and PT, then computing the ratio of females to total patients in this group.",
+      "reason": "The SQL correctly implements the required calculation using the specified conditions and returns the expected percentage.",
+      "verdict": true,
+      "evidence": "The result includes a single 'percentage' column with a value of approximately 78.36%, indicating the calculated percentage of female patients meeting the criteria."
+    }
+  },
+  {
+    "question_id": 46,
+    "result": {
+      "expected_answer": "The state special school(s) with the highest number of students enrolled in grades 1 through 12.",
+      "sql_description": "The SQL query retrieves the school name and enrollment count for state special schools offering K-12 grades, sorted by enrollment in descending order, returning the top result.",
+      "reason": "The SQL correctly identifies state special schools (DOC=31) offering K-12 grades and retrieves the highest enrollment count. The result matches the expected answer.",
+      "verdict": true,
+      "evidence": "The result includes the column 'enroll12' with a value of 71 for 'California School for the Deaf-Riverside'."
+    }
+  },
+  {
+    "question_id": 937,
+    "result": {
+      "expected_answer": "The finish time of the driver who finished in second position in the 2008 Chinese Grand Prix race.",
+      "sql_description": "The SQL query retrieves the finish time from the results table for the driver who finished in second position in the 2008 Chinese Grand Prix race.",
+      "reason": "The SQL query correctly identifies the race using the year and name, filters for the second position, and retrieves the finish time. The result matches the expected answer.",
+      "verdict": true,
+      "evidence": "The result includes the 'time' column with the value '+14.925' in the first row."
+    }
+  },
+  {
+    "question_id": 1505,
+    "result": {
+      "expected_answer": "The number of unique customers who have a monthly consumption over 1000 and pay in euros.",
+      "sql_description": "Counts distinct customers with EUR currency and monthly consumption over 1000.",
+      "reason": "The SQL correctly joins tables, applies filters, and counts distinct customers matching the criteria.",
+      "verdict": true,
+      "evidence": "The result shows 391 unique customers meeting the conditions."
+    }
+  }
+]

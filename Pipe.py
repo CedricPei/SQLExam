@@ -1,6 +1,6 @@
 import sqlparse
 from typing import Dict, Any
-from helper import get_ddl
+from helper import get_db_info
 from ConstraintExtractor import ConstraintExtractor
 from RubricDesigner import RubricDesigner
 from RubricGrader import RubricGrader
@@ -18,7 +18,7 @@ class SQLEvaluationPipeline:
                 "question": question["question"],
                 "evidence": question.get("evidence", ""),
                 "gold_sql": sqlparse.format(question["gold_sql"], reindent=True, keyword_case='upper'),
-                "schema": get_ddl(question["db_id"])
+                "schema": get_db_info(question["db_id"], question["gold_sql"])
             }
             
             constraint_extractor = ConstraintExtractor(question_obj, model=self.model)

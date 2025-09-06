@@ -1,0 +1,18 @@
+[
+  {
+    "question_id": 1426,
+    "question": "List the last name of members with a major in environmental engineering and include its department and college name.",
+    "evidence": "'Environmental Engineering' is the major_name;",
+    "gold_sql": "SELECT T2.last_name, T1.department, T1.college FROM major AS T1 INNER JOIN member AS T2 ON T1.major_id = T2.link_to_major WHERE T2.position = 'Member' AND T1.major_name = 'Environmental Engineering'",
+    "predicted_sql": "SELECT T1.`last_name`, T2.`department`, T2.`college`\n  FROM member AS T1\n  INNER JOIN major AS T2\n  ON T1.`link_to_major` = T2.`major_id`\n  WHERE T2.`major_name` = 'Environmental Engineering'",
+    "ex": 1,
+    "score": 0.0,
+    "refuter_details": {
+      "sql_diff": "Predicted SQL lacks the WHERE clause condition 'position = \"Member\"' present in the gold SQL. The join order and alias usage differ but do not affect the result.",
+      "logic_diff": "Gold SQL includes a filter for members with position 'Member', while predicted SQL does not, potentially including non-member records.",
+      "reason": "Predicted SQL violates a core requirement by omitting the member position filter.",
+      "verdict": true,
+      "tag": "CORE_CONFLICT"
+    }
+  }
+]

@@ -1,0 +1,117 @@
+[
+  {
+    "question_id": 637,
+    "question": "State all the tags used by Mark Meckes in his posts that doesn't have comments.",
+    "evidence": "used by Mark Meckes refers to DisplayName = 'Mark Meckes'; Doen't have comments refers to CommentCount = 0;",
+    "gold_sql": "SELECT T3.Tags FROM users AS T1 INNER JOIN postHistory AS T2 ON T1.Id = T2.UserId INNER JOIN posts AS T3 ON T3.Id = T2.PostId WHERE T1.DisplayName = 'Mark Meckes' AND T3.CommentCount = 0",
+    "predicted_sql": "SELECT DISTINCT T2.`TagName`\n  FROM posts AS T1\n  INNER JOIN tags AS T2\n  ON T1.`Tags` LIKE '%<' || T2.`TagName` || '>%'\n  WHERE T1.`OwnerUserId` = (\n    SELECT `Id`\n    FROM users\n    WHERE `DisplayName` = 'Mark Meckes'\n  )\n  AND T1.`CommentCount` = 0",
+    "ex": 0,
+    "score": 1.0,
+    "prover_details": {
+      "expected_answer": "A list of distinct tags used in posts by Mark Meckes where the CommentCount is zero.",
+      "sql_description": "The SQL query retrieves distinct tags from posts authored by Mark Meckes that have zero comments.",
+      "reason": "The SQL correctly identifies posts by Mark Meckes with no comments and extracts the tags used in those posts.",
+      "verdict": true,
+      "evidence": "The result includes the 'TagName' column with the value 'books' in row 0."
+    },
+    "refuter_details": {
+      "sql_diff": "Predicted query joins posts and tags to extract distinct tag names, while gold query joins users, postHistory, and posts to retrieve the Tags string. Execution results differ in format and content.",
+      "logic_diff": "Predicted query correctly identifies distinct tags used by Mark Meckes in posts without comments, while gold query's result includes redundant '<books>' entries and a 'None' value.",
+      "reason": "Predicted SQL correctly answers the question without schema misuse or core conflicts.",
+      "verdict": false,
+      "tag": "NA"
+    }
+  },
+  {
+    "question_id": 937,
+    "question": "What's the finish time for the driver who ranked second in 2008's AustChineseralian Grand Prix?",
+    "evidence": "finish time refers to time; Chinese Grand Prix refers to races.name = 'Chinese Grand Prix';",
+    "gold_sql": "SELECT T1.time FROM results AS T1 INNER JOIN races AS T2 on T1.raceId = T2.raceId WHERE T1.rank = 2 AND T2.name = 'Chinese Grand Prix' AND T2.year = 2008",
+    "predicted_sql": "SELECT `time`\n  FROM results\n  WHERE `raceId` = (\n    SELECT `raceId`\n    FROM races\n    WHERE `year` = 2008 AND `name` = 'Chinese Grand Prix'\n  )\n  AND `position` = 2",
+    "ex": 0,
+    "score": 1.0,
+    "prover_details": {
+      "expected_answer": "The finish time of the driver who finished in second position in the 2008 Chinese Grand Prix race.",
+      "sql_description": "The SQL query retrieves the finish time from the results table for the driver who finished in second position in the 2008 Chinese Grand Prix race.",
+      "reason": "The SQL query correctly identifies the race using the year and name, filters for the second position, and retrieves the finish time. The result matches the expected answer.",
+      "verdict": true,
+      "evidence": "The result includes the 'time' column with the value '+14.925' in the first row."
+    },
+    "refuter_details": {
+      "sql_diff": "Predicted SQL uses `position` = 2, while gold SQL uses `rank` = 2. Execution results differ (+14.925 vs +16.445).",
+      "logic_diff": "Predicted SQL retrieves the finish time for the driver in position 2, while gold SQL retrieves the finish time for the driver with rank 2 (based on fastest lap speed).",
+      "reason": "The prediction correctly answers the question by using `position` to determine the second-place finisher.",
+      "verdict": false,
+      "tag": "GOLD_FAULT"
+    }
+  },
+  {
+    "question_id": 1243,
+    "question": "For all patients who are older than 55 years old, what is the percentage of female who has abnormal prothrombin time (PT)?",
+    "evidence": "older than 55 years old = SUBTRACT(year(current_timestamp), year(Birthday)) > 55; abnormal prothrombin time (PT) refers to PT > = 14; percentage = DIVIDE(SUM(PT > = 14 AND SEX = 'F'), SUM(PT > = 14)) * 100; female refers to sex = 'F'; ",
+    "gold_sql": "SELECT CAST(SUM(CASE WHEN T2.PT >= 14 AND T1.SEX = 'F' THEN 1 ELSE 0 END) AS REAL) * 100 / COUNT(CASE WHEN T2.PT >= 14 THEN 1 ELSE 0 END) FROM Patient AS T1 INNER JOIN Laboratory AS T2 ON T1.ID = T2.ID WHERE STRFTIME('%Y', CURRENT_TIMESTAMP) - STRFTIME('%Y', T1.Birthday) > 55",
+    "predicted_sql": "SELECT \n  (COUNT(CASE WHEN T2.`SEX` = 'F' THEN 1 END) * 100.0 / COUNT(*)) AS percentage\n  FROM Laboratory AS T1\n  INNER JOIN Patient AS T2\n  ON T1.`ID` = T2.`ID`\n  WHERE T2.`Birthday` IS NOT NULL\n  AND (strftime('%Y', 'now') - strftime('%Y', T2.`Birthday`)) > 55\n  AND T1.`PT` >= 14",
+    "ex": 0,
+    "score": 1.0,
+    "prover_details": {
+      "expected_answer": "The percentage of female patients older than 55 years with abnormal prothrombin time (PT >= 14)",
+      "sql_description": "Calculates the percentage of female patients over 55 with PT >= 14 by joining Laboratory and Patient tables, filtering by age and PT, then computing the ratio of females to total patients in this group.",
+      "reason": "The SQL correctly implements the required calculation using the specified conditions and returns the expected percentage.",
+      "verdict": true,
+      "evidence": "The result includes a single 'percentage' column with a value of approximately 78.36%, indicating the calculated percentage of female patients meeting the criteria."
+    },
+    "refuter_details": {
+      "sql_diff": "Gold SQL incorrectly references PT from Patient table instead of Laboratory. Prediction correctly joins and references PT from Laboratory.",
+      "logic_diff": "Gold SQL's schema misuse leads to incorrect calculation. Prediction correctly calculates female percentage among abnormal PT patients over 55.",
+      "reason": "Gold SQL has a schema misuse error, while prediction correctly implements the logic.",
+      "verdict": false,
+      "tag": "AMBIGUOUS_SCHEMA"
+    }
+  },
+  {
+    "question_id": 1275,
+    "question": "Among the patients who has a normal level of anti-centromere and a normal level of anti-SSB, how many of them are male?",
+    "evidence": "normal level of anti-centromere refers to CENTROMEA IN('-', '+-'); normal level of anti-SSB refers to SSB IN('-', '+-'); male refers to Sex = 'M'; Should consider DISTINCT in the final result;",
+    "gold_sql": "SELECT COUNT(DISTINCT T1.ID) FROM Patient AS T1 INNER JOIN Laboratory AS T2 ON T1.ID = T2.ID WHERE T2.CENTROMEA IN ('negative', '0') AND T2.SSB IN ('negative', '0') AND T1.SEX = 'M'",
+    "predicted_sql": "SELECT COUNT(DISTINCT T1.`ID`)\n  FROM Patient AS T1\n  INNER JOIN Laboratory AS T2\n  ON T1.`ID` = T2.`ID`\n  WHERE T2.`CENTROMEA` IN ('-', '+-')\n  AND T2.`SSB` IN ('-', '+-')\n  AND T1.`SEX` = 'M'",
+    "ex": 0,
+    "score": 1.0,
+    "prover_details": {
+      "expected_answer": "The number of distinct male patients with normal anti-centromere and normal anti-SSB levels.",
+      "sql_description": "Counts the distinct patient IDs where SEX is 'M', CENTROMEA is in ('-', '+-'), and SSB is in ('-', '+-').",
+      "reason": "The SQL query correctly implements the required conditions and returns a count of 0, which is a valid answer based on the data.",
+      "verdict": true,
+      "evidence": "The result shows COUNT(DISTINCT T1.`ID`) = 0, indicating no male patients meet the criteria."
+    },
+    "refuter_details": {
+      "sql_diff": "The predicted SQL uses `CENTROMEA` and `SSB` values `'-', '+-'`, while the gold uses `'negative', '0'`.",
+      "logic_diff": "The prediction correctly uses the schema-specified normal values `'-', '+-'`, whereas the gold incorrectly uses `'negative', '0'`.",
+      "reason": "The prediction adheres to the schema's defined normal ranges, making it correct.",
+      "verdict": false,
+      "tag": "GOLD_FAULT"
+    }
+  },
+  {
+    "question_id": 1505,
+    "question": "Among the customers who paid in euro, how many of them have a monthly consumption of over 1000?",
+    "evidence": "Pays in euro = Currency = 'EUR'.",
+    "gold_sql": "SELECT COUNT(*) FROM yearmonth AS T1 INNER JOIN customers AS T2 ON T1.CustomerID = T2.CustomerID WHERE T2.Currency = 'EUR' AND T1.Consumption > 1000.00",
+    "predicted_sql": "SELECT COUNT(DISTINCT T1.`CustomerID`)\n  FROM customers AS T1\n  INNER JOIN yearmonth AS T2\n  ON T1.`CustomerID` = T2.`CustomerID`\n  WHERE T1.`Currency` = 'EUR'\n  AND T2.`Consumption` > 1000",
+    "ex": 0,
+    "score": 1.0,
+    "prover_details": {
+      "expected_answer": "The number of unique customers who have a monthly consumption over 1000 and pay in euros.",
+      "sql_description": "Counts distinct customers with EUR currency and monthly consumption over 1000.",
+      "reason": "The SQL correctly joins tables, applies filters, and counts distinct customers matching the criteria.",
+      "verdict": true,
+      "evidence": "The result shows 391 unique customers meeting the conditions."
+    },
+    "refuter_details": {
+      "sql_diff": "Predicted uses COUNT(DISTINCT T1.CustomerID) with T1 as customers and T2 as yearmonth, while gold uses COUNT(*) with T1 as yearmonth and T2 as customers. WHERE conditions differ in table aliases.",
+      "logic_diff": "Predicted counts unique customers with monthly consumption over 1000, while gold counts all qualifying monthly instances.",
+      "reason": "Question allows for two interpretations: count of customers vs count of qualifying months.",
+      "verdict": false,
+      "tag": "AMBIGUOUS_QUESTION"
+    }
+  }
+]

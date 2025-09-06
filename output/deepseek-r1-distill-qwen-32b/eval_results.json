@@ -40,8 +40,8 @@
     "predicted_sql": "SELECT CASE WHEN COUNT(*) > 0 THEN 'Yes' ELSE 'No' END AS has_korean_version\n  FROM foreign_data\n  WHERE `uuid` = (\n    SELECT `uuid`\n    FROM cards\n    WHERE `name` = 'Ancestor''s Chosen'\n  )\n  AND `language` = 'Korean'",
     "ex": 0,
     "score": 0.0,
-    "prover_result": false,
-    "refuter_result": null
+    "prover_result": true,
+    "refuter_result": true
   },
   {
     "question_id": 1044,
@@ -50,9 +50,9 @@
     "gold_sql": "SELECT player_name FROM Player WHERE SUBSTR(birthday, 1, 7) = '1970-10'",
     "predicted_sql": "SELECT `player_name`\n  FROM Player\n  WHERE strftime('%Y', `birthday`) = '1970'\n  AND strftime('%m', `birthday`) = '10'\n  AND `player_name` IS NOT NULL",
     "ex": 1,
-    "score": 0.0,
+    "score": 1.0,
     "prover_result": null,
-    "refuter_result": true
+    "refuter_result": false
   },
   {
     "question_id": 1275,
@@ -61,9 +61,9 @@
     "gold_sql": "SELECT COUNT(DISTINCT T1.ID) FROM Patient AS T1 INNER JOIN Laboratory AS T2 ON T1.ID = T2.ID WHERE T2.CENTROMEA IN ('negative', '0') AND T2.SSB IN ('negative', '0') AND T1.SEX = 'M'",
     "predicted_sql": "SELECT COUNT(DISTINCT T1.`ID`)\n  FROM Patient AS T1\n  INNER JOIN Laboratory AS T2\n  ON T1.`ID` = T2.`ID`\n  WHERE T2.`CENTROMEA` IN ('-', '+-')\n  AND T2.`SSB` IN ('-', '+-')\n  AND T1.`SEX` = 'M'",
     "ex": 0,
-    "score": 0.0,
+    "score": 1.0,
     "prover_result": true,
-    "refuter_result": true
+    "refuter_result": false
   },
   {
     "question_id": 1243,
@@ -83,9 +83,9 @@
     "gold_sql": "SELECT T2.last_name, T1.department, T1.college FROM major AS T1 INNER JOIN member AS T2 ON T1.major_id = T2.link_to_major WHERE T2.position = 'Member' AND T1.major_name = 'Environmental Engineering'",
     "predicted_sql": "SELECT T1.`last_name`, T2.`department`, T2.`college`\n  FROM member AS T1\n  INNER JOIN major AS T2\n  ON T1.`link_to_major` = T2.`major_id`\n  WHERE T2.`major_name` = 'Environmental Engineering'",
     "ex": 1,
-    "score": 1.0,
+    "score": 0.0,
     "prover_result": null,
-    "refuter_result": false
+    "refuter_result": true
   },
   {
     "question_id": 459,
@@ -128,8 +128,8 @@
     "predicted_sql": "SELECT T1.`sname`, T1.`enroll12`\n  FROM satscores AS T1\n  INNER JOIN schools AS T2\n  ON T1.`cds` = T2.`CDSCode`\n  WHERE T2.`DOC` = '31'\n  AND T2.`GSoffered` = 'K-12'\n  ORDER BY T1.`enroll12` DESC\n  LIMIT 1",
     "ex": 0,
     "score": 0.0,
-    "prover_result": false,
-    "refuter_result": null
+    "prover_result": true,
+    "refuter_result": true
   },
   {
     "question_id": 785,

@@ -1,0 +1,246 @@
+{
+  "account": [
+    {
+      "column_name": "account_id",
+      "column_description": "account id; the id of the account"
+    },
+    {
+      "column_name": "district_id",
+      "column_description": "location of branch"
+    },
+    {
+      "column_name": "frequency",
+      "column_description": "frequency of the acount"
+    },
+    {
+      "column_name": "date",
+      "column_description": "the creation date of the account",
+      "value_description": "in the form YYMMDD"
+    }
+  ],
+  "card": [
+    {
+      "column_name": "card_id",
+      "column_description": "credit card id; id number of credit card"
+    },
+    {
+      "column_name": "disp_id",
+      "column_description": "disposition id"
+    },
+    {
+      "column_name": "type",
+      "column_description": "type of credit card",
+      "value_description": "junior: junior class of credit card; classic: standard class of credit card; gold: high-level credit card"
+    },
+    {
+      "column_name": "issued",
+      "column_description": "the date when the credit card issued",
+      "value_description": "in the form YYMMDD"
+    }
+  ],
+  "client": [
+    {
+      "column_name": "client_id",
+      "column_description": "the unique number"
+    },
+    {
+      "column_name": "gender",
+      "value_description": "F：female M：male"
+    },
+    {
+      "column_name": "birth_date",
+      "column_description": "birth date"
+    },
+    {
+      "column_name": "district_id",
+      "column_description": "location of branch"
+    }
+  ],
+  "disp": [
+    {
+      "column_name": "disp_id",
+      "column_description": "disposition id; unique number of identifying this row of record"
+    },
+    {
+      "column_name": "client_id",
+      "column_description": "id number of client"
+    },
+    {
+      "column_name": "account_id",
+      "column_description": "id number of account"
+    },
+    {
+      "column_name": "type",
+      "column_description": "type of disposition",
+      "value_description": "OWNER : USER : DISPONENT commonsense evidence: the account can only have the right to issue permanent orders or apply for loans"
+    }
+  ],
+  "district": [
+    {
+      "column_name": "district_id",
+      "column_description": "location of branch"
+    },
+    {
+      "column_name": "A2",
+      "column_description": "district_name"
+    },
+    {
+      "column_name": "A3",
+      "column_description": "region"
+    },
+    {
+      "column_name": "A4",
+      "column_description": "number of inhabitants"
+    },
+    {
+      "column_name": "A5",
+      "column_description": "no. of municipalities with inhabitants < 499; municipality < district < region"
+    },
+    {
+      "column_name": "A6",
+      "column_description": "no. of municipalities with inhabitants 500-1999; municipality < district < region"
+    },
+    {
+      "column_name": "A7",
+      "column_description": "no. of municipalities with inhabitants 2000-9999; municipality < district < region"
+    },
+    {
+      "column_name": "A8",
+      "column_description": "no. of municipalities with inhabitants > 10000; municipality < district < region"
+    },
+    {
+      "column_name": "A10",
+      "column_description": "ratio of urban inhabitants"
+    },
+    {
+      "column_name": "A11",
+      "column_description": "average salary"
+    },
+    {
+      "column_name": "A12",
+      "column_description": "unemployment rate 1995"
+    },
+    {
+      "column_name": "A13",
+      "column_description": "unemployment rate 1996"
+    },
+    {
+      "column_name": "A14",
+      "column_description": "no. of entrepreneurs per 1000 inhabitants"
+    },
+    {
+      "column_name": "A15",
+      "column_description": "no. of committed crimes 1995"
+    },
+    {
+      "column_name": "A16",
+      "column_description": "no. of committed crimes 1996"
+    }
+  ],
+  "loan": [
+    {
+      "column_name": "loan_id",
+      "column_description": "the id number identifying the loan data"
+    },
+    {
+      "column_name": "account_id",
+      "column_description": "the id number identifying the account"
+    },
+    {
+      "column_name": "date",
+      "column_description": "the date when the loan is approved"
+    },
+    {
+      "column_name": "amount",
+      "column_description": "approved amount",
+      "value_description": "unit：US dollar"
+    },
+    {
+      "column_name": "duration",
+      "column_description": "loan duration",
+      "value_description": "unit：month"
+    },
+    {
+      "column_name": "payments",
+      "column_description": "monthly payments",
+      "value_description": "unit：month"
+    },
+    {
+      "column_name": "status",
+      "column_description": "repayment status",
+      "value_description": "'A' stands for contract finished, no problems; 'B' stands for contract finished, loan not paid; 'C' stands for running contract, OK so far; 'D' stands for running contract, client in debt"
+    }
+  ],
+  "order": [
+    {
+      "column_name": "order_id",
+      "column_description": "identifying the unique order"
+    },
+    {
+      "column_name": "account_id",
+      "column_description": "id number of account"
+    },
+    {
+      "column_name": "bank_to",
+      "column_description": "bank of the recipient"
+    },
+    {
+      "column_name": "account_to",
+      "column_description": "account of the recipient",
+      "value_description": "each bank has unique two-letter code"
+    },
+    {
+      "column_name": "amount",
+      "column_description": "debited amount"
+    },
+    {
+      "column_name": "k_symbol",
+      "column_description": "characterization of the payment; purpose of the payment",
+      "value_description": "POJISTNE stands for insurance payment SIPO stands for household payment LEASING stands for leasing UVER stands for loan payment"
+    }
+  ],
+  "trans": [
+    {
+      "column_name": "trans_id",
+      "column_description": "transaction id"
+    },
+    {
+      "column_name": "date",
+      "column_description": "date of transaction"
+    },
+    {
+      "column_name": "type",
+      "column_description": "+/- transaction",
+      "value_description": "PRIJEM stands for credit VYDAJ stands for withdrawal"
+    },
+    {
+      "column_name": "operation",
+      "column_description": "mode of transaction",
+      "value_description": "VYBER KARTOU: credit card withdrawal VKLAD: credit in cash PREVOD Z UCTU :collection from another bank VYBER: withdrawal in cash PREVOD NA UCET: remittance to another bank"
+    },
+    {
+      "column_name": "amount",
+      "column_description": "amount of money",
+      "value_description": "Unit：USD"
+    },
+    {
+      "column_name": "balance",
+      "column_description": "balance after transaction",
+      "value_description": "Unit：USD"
+    },
+    {
+      "column_name": "k_symbol",
+      "column_description": "characterization of the transaction",
+      "value_description": "POJISTNE: stands for insurrance payment SLUZBY: stands for payment for statement UROK: stands for interest credited SANKC. UROK: sanction interest if negative balance SIPO: stands for household DUCHOD: stands for old-age pension UVER: stands for loan payment"
+    },
+    {
+      "column_name": "bank",
+      "column_description": "bank of the partner",
+      "value_description": "each bank has unique two-letter code"
+    },
+    {
+      "column_name": "account",
+      "column_description": "account of the partner"
+    }
+  ]
+}

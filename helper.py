@@ -6,37 +6,20 @@ import pandas as pd
 import numpy as np
 from pathlib import Path
 from pandas.util import hash_pandas_object
-from typing import Dict, List
+from typing import Dict, List, Callable, Any
 import multiprocessing as mp
-from typing import Callable, Any
 
-def get_ddl(db: str):
-    db_path = Path("dev_databases") / db / f"{db}.sqlite"
+def _get_db_path(db_id: str) -> Path:
+    return Path("dev_databases") / db_id / f"{db_id}.sqlite"
+
+def _execute_db_query(db_id: str, query: str, params: tuple = None):
+    db_path = _get_db_path(db_id)
     with sqlite3.connect(db_path) as conn:
         cur = conn.cursor()
-        rows = cur.execute(
-            "SELECT sql FROM sqlite_master "
-            "WHERE type='table' AND name NOT LIKE 'sqlite_%' "
-            "ORDER BY name;"
-        ).fetchall()
-        return "\n\n".join(ddl + ";" for (ddl,) in rows)
-
-def get_schema(db: str) -> Dict[str, List[str]]:
-    db_path = Path("dev_databases") / db / f"{db}.sqlite"
-    schema = {}
-    with sqlite3.connect(db_path) as conn:
-        cur = conn.cursor()
-        cur.execute(
-            "SELECT name FROM sqlite_master "
-            "WHERE type = 'table' AND name NOT LIKE 'sqlite_%' "
-            "ORDER BY name;"
-        )
-        tables = [row[0] for row in cur.fetchall()]
-        for table in tables:
-            cur.execute(f"PRAGMA table_info('{table}');")
-            cols = [row[1] for row in cur.fetchall()]
-            schema[table] = cols
-    return schema
+        if params:
+            return cur.execute(query, params).fetchall()
+        else:
+            return cur.execute(query).fetchall()
 
 def extract_json_from_response(response: str) -> str:
     response = response.strip()
@@ -52,10 +35,9 @@ def extract_json_from_response(response: str) -> str:
     return response
 
 def execute_sql(db: str | Path, sql: str) -> pd.DataFrame:
-    db_path = Path(db) if isinstance(db, Path) else Path("dev_databases") / db / f"{db}.sqlite"
+    db_path = Path(db) if isinstance(db, Path) else _get_db_path(db)
     with sqlite3.connect(db_path) as conn:
-        df = pd.read_sql_query(sql, conn)  
-        return df
+        return pd.read_sql_query(sql, conn)
 
 def compare_result(df1: pd.DataFrame, df2: pd.DataFrame) -> bool:
     if df1.shape != df2.shape:
@@ -98,7 +80,8 @@ def append_to_json_file(data, output_file):
     with open(output_file, "w", encoding="utf-8") as f:
         json.dump(existing_data, f, ensure_ascii=False, indent=2)
 
-def write_result_to_file(question, pred_sql, score, prover_result, refuter_result, output_file="output/eval_results.json"):
+def write_result_to_file(question, pred_sql, score, prover_result, refuter_result, output_dir="output"):
+    output_file = os.path.join(output_dir, "eval_results.json")
     result = {
         "question_id": question["question_id"], 
         "question": question["question"], 
@@ -111,3 +94,45 @@ def write_result_to_file(question, pred_sql, score, prover_result, refuter_resul
         "refuter_result": refuter_result
     }
     append_to_json_file(result, output_file)
+
+def get_db_info(db_id: str, sql: str | list[str]) -> str:
+    all_tables = [row[0] for row in _execute_db_query(db_id, "SELECT name FROM sqlite_master WHERE type = 'table' AND name NOT LIKE 'sqlite_%' ORDER BY name;")]
+    sql_list = [sql] if isinstance(sql, str) else sql
+    involved_tables = list(set(t for single_sql in sql_list for t in all_tables if t.upper() in single_sql.upper()))
+    
+    schema_lines = []
+    for table in involved_tables:
+        table_info = _execute_db_query(db_id, f"PRAGMA table_info('{table}');")
+        fk_info = _execute_db_query(db_id, f"PRAGMA foreign_key_list('{table}');")
+        fk_dict = {fk[3]: f"{fk[2]}.{fk[4]}" for fk in fk_info}
+        
+        col_definitions = []
+        for col in table_info:
+            col_def = f"{col[1]} {col[2]}"
+            if col[5]: col_def += " PRIMARY KEY"
+            if col[1] in fk_dict: col_def += f" foreign key({fk_dict[col[1]]})"
+            col_definitions.append(col_def)
+        schema_lines.append(f"{table} ({', '.join(col_definitions)})\n")
+    
+    descriptions = []
+    desc_file = Path("data/description") / f"{db_id}_schema.json"
+    if desc_file.exists():
+        with open(desc_file, 'r', encoding='utf-8') as f:
+            schema_data = json.load(f)
+        for table in involved_tables:
+            if table in schema_data:
+                table_desc = f"-- Table: {table}\n"
+                for col in schema_data[table]:
+                    col_name, col_desc, val_desc = col.get("column_name"), col.get("column_description"), col.get("value_description")
+                    if col_desc and val_desc:
+                        table_desc += f"  {col_name}: {col_desc}; value_description: {val_desc}\n"
+                    elif col_desc:
+                        table_desc += f"  {col_name}: {col_desc}\n"
+                    elif val_desc:
+                        table_desc += f"  {col_name}: {val_desc}\n"
+                descriptions.append(table_desc)
+    
+    result = f"Database: {db_id}\n"
+    if schema_lines: result += "Schema:\n" + "\n".join(schema_lines) + "\n\n"
+    if descriptions: result += "Descriptions:\n" + "\n".join(descriptions)
+    return result

@@ -4,7 +4,7 @@ You are a **SQL Refuter** judge for NL2SQL evaluation. The Prover has, without c
 ### Inputs
 - question: the user's natural language question
 - evidence: helpful hints and background information
-- schema: the database schema as DDL statements
+- db_info: database information including schema and column descriptions
 - predicted_sql: the predicted SQL query
 - sql_result: execution result of predicted SQL
 - gold_sql: the gold standard SQL query
@@ -140,8 +140,8 @@ Return ONLY the JSON object directly.
 ###### Evidence
 {evidence}
 
-###### Database Schema
-{schema}
+###### Database Information
+{db_info}
 
 ###### Predicted SQL
 {predicted_sql}
@@ -178,8 +178,8 @@ Return ONLY the JSON object directly.
 ###### Evidence
 {evidence}
 
-###### Database Schema
-{schema}
+###### Database Information
+{db_info}
 
 ###### Predicted SQL
 {predicted_sql}

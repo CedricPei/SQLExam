@@ -5,7 +5,7 @@ You are a **SQL Prover** judge for NL2SQL evaluation. Your role is to determine 
 - question: the user's natural language question
 - evidence: helpful hints and background information
 - predicted_sql: the SQL query to be validated
-- schema: the database schema as DDL statements
+- db_info: database information including schema and column descriptions
 - sql_result: the execution result of the predicted SQL
 
 ### Task
@@ -68,8 +68,8 @@ Return ONLY the JSON object directly.
 ###### Predicted SQL
 {predicted_sql}
 
-###### Database Schema
-{schema}
+###### Database Information
+{db_info}
 
 ###### SQL Execution Result
 {sql_result}

@@ -3,7 +3,7 @@ import json
 import openai
 from dotenv import load_dotenv
 from typing import Dict, Any
-from helper import get_schema, extract_json_from_response, append_to_json_file
+from helper import get_db_info, extract_json_from_response, append_to_json_file
 from prompts.prompt_refuter import system_prompt_refuter, user_prompt_refuter, user_prompt_refuter_without_results
 
 load_dotenv()
@@ -12,13 +12,14 @@ load_dotenv()
 class Refuter:
     """Refuter validates predicted SQL against gold standard SQL to identify critical conflicts"""
     
-    def __init__(self, model: str = None):
+    def __init__(self, model: str = None, output_dir: str = "output"):
         self.model = model
+        self.output_dir = output_dir
     
     def call(self, question: Dict[str, Any], pred_sql: str, pred_result: Any = None, gold_result: Any = None) -> bool:
         """Validate predicted SQL against gold standard SQL for critical conflicts"""
         try:
-            schema = get_schema(question["db_id"])
+            db_info = get_db_info(question["db_id"], pred_sql)
             
             if pred_result is not None and gold_result is not None:
 
@@ -30,7 +31,7 @@ class Refuter:
                     evidence=question.get("evidence", ""),
                     predicted_sql=pred_sql,
                     gold_sql=question["gold_sql"],
-                    schema=schema,
+                    db_info=db_info,
                     pred_result=pred_result,
                     gold_result=gold_result
                 )
@@ -40,7 +41,7 @@ class Refuter:
                     evidence=question.get("evidence", ""),
                     predicted_sql=pred_sql,
                     gold_sql=question["gold_sql"],
-                    schema=schema
+                    db_info=db_info
                 )
             
             client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"), base_url=os.getenv("OPENAI_BASE_URL"))
@@ -60,7 +61,8 @@ class Refuter:
                 "question_id": question["question_id"],
                 "result": result
             }
-            append_to_json_file(output_data, "output/refuter_output.json")
+            output_file = os.path.join(self.output_dir, "refuter_output.json")
+            append_to_json_file(output_data, output_file)
 
             return result.get("verdict", False)
 

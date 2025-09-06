@@ -1,4 +1,5 @@
 import json
+import os
 from Pipe import SQLEvaluationPipeline
 from helper import execute_sql, write_result_to_file, run_with_timeout, compare_result
 from tqdm import tqdm
@@ -7,12 +8,15 @@ from Refuter import Refuter
 
 # "deepseek-r1-distill-qwen-32b"
 
-reasoning_model = "o3"
+reasoning_model = "deepseek-r1-distill-qwen-32b"
 instruct_model = "deepseek-chat"
 partial = False
 
-Prover = Prover(model=reasoning_model)
-Refuter = Refuter(model=reasoning_model)
+output_dir = f"output/{reasoning_model}"
+os.makedirs(output_dir, exist_ok=True)
+
+Prover = Prover(model=reasoning_model, output_dir=output_dir)
+Refuter = Refuter(model=reasoning_model, output_dir=output_dir)
 PartialEval = SQLEvaluationPipeline(model=instruct_model)
 
 if __name__ == "__main__":
@@ -44,4 +48,4 @@ if __name__ == "__main__":
             if score != 1.0 and partial:
                 score = PartialEval.eval(question, pred_sql)
 
-        write_result_to_file(question, pred_sql, score, prover_res, refuter_res)
+        write_result_to_file(question, pred_sql, score, prover_res, refuter_res, output_dir)
