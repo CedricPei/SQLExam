@@ -30,9 +30,10 @@ Analyze whether the prediction should be overturned under the following principl
 - **Do not overturn for:**
   • Cosmetic/formatting differences.  
   • Logically equivalent formulations.  
-  • Equivalent date encodings.  
   • Benign representation changes that preserve meaning.  
   • Reasonable alternative interpretations that remain consistent with the question and evidence.
+  • **NULL and DISTINCT handling differences (unless explicitly required by the question).**
+  • **Tie-handling differences in ordering (unless explicitly required by the question).**
 
 ### Decision Types
 - `CORE_CONFLICT` under `verdict=true` (overturn)
@@ -74,6 +75,7 @@ If pred and gold show this type of difference, follow the gold standard.
 - `AMBIGUOUS_QUESTION` under `verdict=false`(uphold)
 When the question allows multiple reasonable interpretations, leading to different but valid logic.
 **IMPORTANT: This is a non-overturn case - the prediction should be upheld.**
+**Note: Tie-handling differences are NOT considered ambiguous question cases.**
   Example:
     Q: "What is the employee's salary for this year?"
     Gold: SELECT SUM(salary) FROM employee_salary WHERE employee_id = 1 AND year = 2023;
@@ -159,6 +161,7 @@ user_prompt_refuter_without_results = """
 Compare the prediction against the gold and decide whether to overturn the Prover's pass.
 
 Note: Execution results are not provided because the gold and predicted SQL produce identical results.
+Do not consider NULL or DISTINCT differences unless the question explicitly mentions them.
 **Important: Only refute for very obvious errors. In all other cases, uphold the Prover's decision.**
 
 **Example of overturn:**  
