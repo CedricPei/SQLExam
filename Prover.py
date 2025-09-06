@@ -40,6 +40,7 @@ class Prover:
             )
 
             result = json.loads(extract_json_from_response(response.choices[0].message.content))
+            # print(response.choices[0].message.content)
             # Save output to a single JSON file (append mode)
             output_data = {
                 "question_id": question["question_id"],

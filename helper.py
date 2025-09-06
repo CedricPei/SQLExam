@@ -39,9 +39,17 @@ def get_schema(db: str) -> Dict[str, List[str]]:
     return schema
 
 def extract_json_from_response(response: str) -> str:
-    match = re.search(r"```(?:json|js|javascript|txt|text)?\s*([\s\S]*?)```", response, re.IGNORECASE)
-    extracted = match.group(1).strip() if match else response.strip()
-    return extracted
+    response = response.strip()
+    if isinstance(response, dict):
+        return response
+    
+    for pattern in [r"```(?:json|js|javascript|txt|text)?\s*([\s\S]*?)```", r"```(?:json|js|javascript|txt|text)?\s*([\s\S]*)", r'\{[\s\S]*\}']:
+        match = re.search(pattern, response, re.IGNORECASE)
+        if match:
+            extracted = match.group(1 if '```' in pattern else 0).strip()
+            if extracted:
+                return extracted
+    return response
 
 def execute_sql(db: str | Path, sql: str) -> pd.DataFrame:
     db_path = Path(db) if isinstance(db, Path) else Path("dev_databases") / db / f"{db}.sqlite"

@@ -37,7 +37,6 @@ Use concise language. No extra fields. Always emit keys in this exact order:
 5. `evidence` - directional description of the evidence from sql_result **only when verdict=true**, at least including column names, preferably with row positions. Place this field last.
 
 ### Exact JSON Format
-```json
 {
   "expected_answer": "Natural-language answer specification without concrete values",
   "sql_description": "Natural language description of what the SQL accomplishes",
@@ -45,7 +44,6 @@ Use concise language. No extra fields. Always emit keys in this exact order:
   "verdict": true,
   "evidence": "Directional description of the evidence from sql_result"
 }
-```
 
 **Important**: verdict is a JSON boolean (true/false without quotes). Output keys in the exact order specified above. Return ONLY the JSON object with no additional text.
 """

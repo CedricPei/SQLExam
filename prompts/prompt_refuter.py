@@ -16,18 +16,18 @@ Note: When execution results are identical, results may be omitted.
 Analyze whether the prediction should be overturned under the following principles. **Overturn only under strong facts; otherwise uphold.** Default to **allowing multiple reasonable readings** of the question.
 
 ### Reasoning order (follow strictly)
-1) **Find semantic differences**: compare what the prediction vs gold results actually mean in answering the question.
-2) **Explain causes**: hypothesize why the semantic differences arise.
-3) **Assess correctness/tolerance**: whether the differences are tolerated and whether the gold SQL is correct.
-4) **Decide overturn vs uphold**: select tag and apply the decision type. Produce the JSON in the exact order.
+1) **Observe differences**: Start by examining SQL syntax and execution result differences between prediction and gold standard.
+2) **Analyze semantics**: Understand what each query actually means in answering the question - focus on the underlying logic and intent.
+3) **Classify the cause**: Determine if differences stem from ambiguous schema (prediction errors) or ambiguous question (valid alternative interpretations).
+4) **Apply decision**: Select appropriate tag and verdict based on the classification above.
 
 ### Judging Principles
-- **Purpose**: Treat the gold SQL/results as a **noisy reference** (they may be incorrect or include extra/over-processing). Judge the prediction primarily against the question/evidence/schema. Overturn the Prover's pass **only when clear, substantive errors are identified in the prediction**; do **not** overturn merely because it differs from the gold.
-- **Overturn only under strong facts**:
-  1) **Anchor missing or violations**: The prediction breaks explicit requirements from the question/evidence/schema—core entity/scope.
-  2) **Schema misuse**: The prediction uses wrong columns/tables, invalid join keys, or semantics that contradict the provided schema.
+- Purpose: Treat the gold SQL/results as a **noisy reference** (they may be incorrect or include extra/over-processing). Judge the prediction primarily against the question/evidence/schema. Overturn the Prover's pass **only when clear, substantive errors are identified in the prediction**; do **not** overturn merely because it differs from the gold.
+- Overturn only under strong facts:
+  1) Anchor missing or violations: The prediction breaks explicit requirements from the question/evidence/schema—core entity/scope.
+  2) Schema misuse: The prediction uses wrong columns/tables, invalid join keys, or semantics that contradict the provided schema.
 
-- **Do not overturn for**:
+- **Do not overturn for:**
   • Cosmetic/formatting differences.  
   • Logically equivalent formulations.  
   • Equivalent date encodings.  
@@ -43,29 +43,55 @@ Analyze whether the prediction should be overturned under the following principl
     Why: Pred violates a core anchor (ordering direction)
 
 - `AMBIGUOUS_SCHEMA` under `verdict=true` (overturn)
+When the prediction uses semantically similar but incorrect schema elements.
+**IMPORTANT: This is an overturn case - the prediction should be rejected due to schema misuse.**
+If pred and gold show this type of difference, follow the gold standard.
   Example:
     Schema: items(id, category, type)
     Q: "Count items of type 'Laptop'"
     Gold: SELECT COUNT(*) FROM items WHERE type='Laptop';
     Pred: SELECT COUNT(*) FROM items WHERE category='Laptop';
-    Why: Applies the filter to `category` instead of `type`, contradicting schema meaning.
+    Why: Pred wrongly applies the filter to `category` instead of `type`.
 
-- `AMBIGUOUS_QUESTION` under `verdict=false` (uphold)
+    Schema: players(id, position, rank)
+    Q: "Find the player with the highest rank."
+    Gold: SELECT * FROM players WHERE rank = 1;
+    Pred: SELECT * FROM players WHERE position = 1;
+    Why: Pred wrongly applies the filter to `position` instead of `rank`.
+
+    Schema: orders, purchases
+    Q: "Get the total sales from all orders."
+    Gold: SELECT SUM(total_amount) FROM orders;
+    Pred: SELECT SUM(total_amount) FROM purchases;
+    Why: Pred wrongly applies the query to `purchases` instead of `orders`.
+
+    Schema: users, customers
+    Q: "List all user emails."
+    Gold: SELECT email FROM users;
+    Pred: SELECT email FROM customers;
+    Why: Pred wrongly uses `customers` instead of `users`.
+
+- `AMBIGUOUS_QUESTION` under `verdict=false`(uphold)
+When the question allows multiple reasonable interpretations, leading to different but valid logic.
+**IMPORTANT: This is a non-overturn case - the prediction should be upheld.**
   Example:
-    Schema: items(id, category, type)
-    Q: "Count items of type 'Laptop'"
-    Gold: SELECT COUNT(*) FROM items WHERE type='Laptop';
-    Pred: SELECT COUNT(*) FROM items WHERE category='Laptop';
-    Why: Applies the filter to `category` instead of `type`, contradicting schema meaning.
+    Q: "What is the employee's salary for this year?"
+    Gold: SELECT SUM(salary) FROM employee_salary WHERE employee_id = 1 AND year = 2023;
+    Pred: SELECT salary FROM employee_salary WHERE employee_id = 1 AND month = 12 AND year = 2023;
+    Why: The question can be interpreted as total salary for the year or December's salary.
 
-- `REPRESENTATION_DIFF` under `verdict=false` (uphold)
-  Note: This refers to result representation differences, not SQL syntax differences.
-  Examples:
-    • Booleans/percentages: Gold returns 'Yes/No', Pred returns TRUE/FALSE; or 0.75 vs 75%.
-    • Presentation: Gold returns "<a><b>", Pred returns DISTINCT rows ['a','b'] when the task just asks to list tags.
-    • Date formats: Gold returns '2023-06-15', Pred returns '15/06/2023'.
+    Q: "How did the store perform this year?"
+    Gold: SELECT SUM(profit) FROM store_performance WHERE store_id = 1 AND year = 2023;
+    Pred: SELECT COUNT(DISTINCT customer_id) FROM store_visits WHERE store_id = 1 AND year = 2023;
+    Why: The question could refer to total profit or total customers, both valid measures.
+
+    Q: "How many products have more than 10 units sold?"
+    Gold: SELECT product_name FROM sales WHERE units_sold > 10;
+    Pred: SELECT product_name FROM sales GROUP BY product_name HAVING SUM(units_sold) > 10;
+    Why: The question can be understood as checking individual sales or grouping by product.
 
 - `GOLD_FAULT` under `verdict=false` (uphold)
+Avoid labeling as `GOLD_FAULT` unless absolutely necessary
   Example:
     Q: "City of user with id=5"
     Gold: SELECT city FROM users WHERE id=6;
@@ -80,18 +106,16 @@ Use concise language. No extra fields. Always emit keys in this exact order:
 2. `logic_diff` - concise description of semantic/logical differences in how prediction vs gold answer the question. Focus on the underlying logic and meaning.
 3. `reason` - concise one-sentence assessment of correctness/tolerance.
 4. `verdict` - boolean: `true` = overturn Prover's pass; `false` = uphold.
-5. `tag` - one of: `CORE_CONFLICT | AMBIGUOUS_SCHEMA | AMBIGUOUS_QUESTION | REPRESENTATION_DIFF | GOLD_FAULT | NA`.
+5. `tag` - one of: `CORE_CONFLICT | AMBIGUOUS_SCHEMA | AMBIGUOUS_QUESTION | GOLD_FAULT | NA`.
 
 ### Exact JSON Format
-```json
 {
   "sql_diff": "Concise description of SQL syntax and execution result differences",
   "logic_diff": "Concise description of semantic/logical differences in answering the question",
   "reason": "Concise one-sentence assessment of correctness/tolerance",
   "verdict": true,
-  "tag": "CORE_CONFLICT | AMBIGUOUS_SCHEMA | AMBIGUOUS_QUESTION | REPRESENTATION_DIFF | GOLD_FAULT | NA"
+  "tag": "CORE_CONFLICT | AMBIGUOUS_SCHEMA | AMBIGUOUS_QUESTION | GOLD_FAULT | NA"
 }
-```
 
 Important: Return ONLY the JSON object with no additional text. `verdict` must be a JSON boolean (true/false without quotes). Output keys strictly in the specified order.
 """
@@ -103,7 +127,7 @@ Compare the prediction against the gold and decide whether to overturn the Prove
 Follow this process:
 1. First, identify SQL differences: compare SQL syntax and execution results between prediction vs gold.
 2. Then, identify logical differences: compare what the prediction vs gold results actually mean in answering the question.
-3. Next, assess correctness/tolerance: whether the differences are tolerated and whether the gold SQL is correct.
+3. Next, assess acceptability: determine if differences are acceptable, or if caused by ambiguous schema (leading to errors) or ambiguous question (leading to different valid interpretations).
 4. Finally, select a tag under the Decision Types and apply the mapping to output the verdict (`true` = overturn, `false` = uphold).
 
 Return ONLY the JSON object directly.
@@ -134,13 +158,14 @@ user_prompt_refuter_without_results = """
 ###### Instructions
 Compare the prediction against the gold and decide whether to overturn the Prover's pass.
 
-Note: Execution results are not provided. Focus on query semantics and required anchors (entity/scope/metric/rank). Apply the same Decision Types and mapping.
+Note: Execution results are not provided because the gold and predicted SQL produce identical results.
+**Important: Only refute for very obvious errors. In all other cases, uphold the Prover's decision.**
 
-Follow this process:
-1. First, identify SQL differences: compare SQL syntax between prediction vs gold (execution results not available).
-2. Then, identify logical differences: compare what the prediction vs gold queries actually mean in answering the question.
-3. Next, assess correctness/tolerance: whether the differences are tolerated and whether the gold SQL is correct.
-4. Finally, select a tag under the Decision Types and apply the decision type to output the verdict (`true` = overturn, `false` = uphold).
+**Example of overturn:**  
+  Q: "City of user with id=5"  
+  Gold: SELECT city FROM users WHERE id=5;  
+  Pred: SELECT city FROM users WHERE id=5 AND status='active';  
+  Although both SQLs return the same result, the predicted SQL introduces an unnecessary filter.
 
 Return ONLY the JSON object directly.
 
