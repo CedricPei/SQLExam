@@ -16,7 +16,7 @@ class Refuter:
         self.model = model
         self.output_dir = output_dir
     
-    def call(self, question: Dict[str, Any], pred_sql: str, pred_result: Any = None, gold_result: Any = None) -> bool:
+    def call(self, question: Dict[str, Any], pred_sql: str, pred_result: Any = None, gold_result: Any = None, prover_reason: str = None) -> bool:
         """Validate predicted SQL against gold standard SQL for critical conflicts"""
         try:
             db_info = get_db_info(question["db_id"], pred_sql)
@@ -33,7 +33,8 @@ class Refuter:
                     gold_sql=question["gold_sql"],
                     db_info=db_info,
                     pred_result=pred_result,
-                    gold_result=gold_result
+                    gold_result=gold_result,
+                    prover_reason=prover_reason
                 )
             else:
                 user_content = user_prompt_refuter_without_results.format(
@@ -41,7 +42,7 @@ class Refuter:
                     evidence=question.get("evidence", ""),
                     predicted_sql=pred_sql,
                     gold_sql=question["gold_sql"],
-                    db_info=db_info
+                    db_info=db_info,
                 )
             
             client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"), base_url=os.getenv("OPENAI_BASE_URL"))

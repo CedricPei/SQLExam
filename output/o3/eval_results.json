@@ -40,8 +40,8 @@
     "predicted_sql": "SELECT CASE WHEN COUNT(*) > 0 THEN 'Yes' ELSE 'No' END AS has_korean_version\n  FROM foreign_data\n  WHERE `uuid` = (\n    SELECT `uuid`\n    FROM cards\n    WHERE `name` = 'Ancestor''s Chosen'\n  )\n  AND `language` = 'Korean'",
     "ex": 0,
     "score": 0.0,
-    "prover_result": false,
-    "refuter_result": null
+    "prover_result": true,
+    "refuter_result": true
   },
   {
     "question_id": 1044,
@@ -61,9 +61,9 @@
     "gold_sql": "SELECT COUNT(DISTINCT T1.ID) FROM Patient AS T1 INNER JOIN Laboratory AS T2 ON T1.ID = T2.ID WHERE T2.CENTROMEA IN ('negative', '0') AND T2.SSB IN ('negative', '0') AND T1.SEX = 'M'",
     "predicted_sql": "SELECT COUNT(DISTINCT T1.`ID`)\n  FROM Patient AS T1\n  INNER JOIN Laboratory AS T2\n  ON T1.`ID` = T2.`ID`\n  WHERE T2.`CENTROMEA` IN ('-', '+-')\n  AND T2.`SSB` IN ('-', '+-')\n  AND T1.`SEX` = 'M'",
     "ex": 0,
-    "score": 0.0,
+    "score": 1.0,
     "prover_result": true,
-    "refuter_result": true
+    "refuter_result": false
   },
   {
     "question_id": 1243,
@@ -72,9 +72,9 @@
     "gold_sql": "SELECT CAST(SUM(CASE WHEN T2.PT >= 14 AND T1.SEX = 'F' THEN 1 ELSE 0 END) AS REAL) * 100 / COUNT(CASE WHEN T2.PT >= 14 THEN 1 ELSE 0 END) FROM Patient AS T1 INNER JOIN Laboratory AS T2 ON T1.ID = T2.ID WHERE STRFTIME('%Y', CURRENT_TIMESTAMP) - STRFTIME('%Y', T1.Birthday) > 55",
     "predicted_sql": "SELECT \n  (COUNT(CASE WHEN T2.`SEX` = 'F' THEN 1 END) * 100.0 / COUNT(*)) AS percentage\n  FROM Laboratory AS T1\n  INNER JOIN Patient AS T2\n  ON T1.`ID` = T2.`ID`\n  WHERE T2.`Birthday` IS NOT NULL\n  AND (strftime('%Y', 'now') - strftime('%Y', T2.`Birthday`)) > 55\n  AND T1.`PT` >= 14",
     "ex": 0,
-    "score": 0.0,
-    "prover_result": false,
-    "refuter_result": null
+    "score": 1.0,
+    "prover_result": true,
+    "refuter_result": false
   },
   {
     "question_id": 1426,
@@ -105,9 +105,9 @@
     "gold_sql": "SELECT T2.event_name FROM budget AS T1 INNER JOIN event AS T2 ON T1.link_to_event = T2.event_id WHERE T2.status = 'Closed' ORDER BY T1.spent / T1.amount DESC LIMIT 1",
     "predicted_sql": "SELECT T1.`event_name`\n  FROM event AS T1\n  INNER JOIN budget AS T2\n  ON T1.`event_id` = T2.`link_to_event`\n  WHERE T1.`status` = 'Closed'\n  AND T2.`amount` > 0\n  ORDER BY (T2.`spent` / T2.`amount`) DESC\n  LIMIT 1",
     "ex": 1,
-    "score": 0.0,
+    "score": 1.0,
     "prover_result": null,
-    "refuter_result": true
+    "refuter_result": false
   },
   {
     "question_id": 340,
@@ -128,8 +128,8 @@
     "predicted_sql": "SELECT T1.`sname`, T1.`enroll12`\n  FROM satscores AS T1\n  INNER JOIN schools AS T2\n  ON T1.`cds` = T2.`CDSCode`\n  WHERE T2.`DOC` = '31'\n  AND T2.`GSoffered` = 'K-12'\n  ORDER BY T1.`enroll12` DESC\n  LIMIT 1",
     "ex": 0,
     "score": 0.0,
-    "prover_result": false,
-    "refuter_result": null
+    "prover_result": true,
+    "refuter_result": true
   },
   {
     "question_id": 785,

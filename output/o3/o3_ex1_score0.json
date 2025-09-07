@@ -1,18 +1,1 @@
-[
-  {
-    "question_id": 1376,
-    "question": "Among all the closed events, which event has the highest spend-to-budget ratio?",
-    "evidence": "closed events refers to event_name where status = 'Closed'; highest spend-to budget ratio refers to MAX(DIVIDE(spent, amount))",
-    "gold_sql": "SELECT T2.event_name FROM budget AS T1 INNER JOIN event AS T2 ON T1.link_to_event = T2.event_id WHERE T2.status = 'Closed' ORDER BY T1.spent / T1.amount DESC LIMIT 1",
-    "predicted_sql": "SELECT T1.`event_name`\n  FROM event AS T1\n  INNER JOIN budget AS T2\n  ON T1.`event_id` = T2.`link_to_event`\n  WHERE T1.`status` = 'Closed'\n  AND T2.`amount` > 0\n  ORDER BY (T2.`spent` / T2.`amount`) DESC\n  LIMIT 1",
-    "ex": 1,
-    "score": 0.0,
-    "refuter_details": {
-      "sql_diff": "Predicted SQL adds `AND T2.amount > 0` filter not present in gold; otherwise same join, ordering, limit.",
-      "logic_diff": "Prediction omits closed events whose budget amount is zero, whereas the question asks to consider all closed events when picking the highest spend/amount ratio.",
-      "reason": "Extra amount>0 filter narrows the scope beyond the question, constituting a core mismatch.",
-      "verdict": true,
-      "tag": "CORE_CONFLICT"
-    }
-  }
-]
+[]

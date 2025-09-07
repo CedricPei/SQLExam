@@ -16,7 +16,7 @@ class Prover:
         self.model = model
         self.output_dir = output_dir
     
-    def call(self, question: Dict[str, Any], pred_sql: str, pred_result: Any) -> bool:
+    def call(self, question: Dict[str, Any], pred_sql: str, pred_result: Any) -> tuple[bool, str]:
         """Validate whether predicted SQL adequately answers the question"""
         try:
             db_info = get_db_info(question["db_id"], pred_sql)
@@ -50,8 +50,8 @@ class Prover:
             output_file = os.path.join(self.output_dir, "prover_output.json")
             append_to_json_file(output_data, output_file)
 
-            return result.get("verdict", False)
+            return result.get("verdict", False), result.get("reason", "")
 
         except Exception as e:
             print(f"Prover error: {e}")
-            return False
+            return False, f"Error: {e}"

@@ -2,161 +2,172 @@
   {
     "question_id": 637,
     "result": {
-      "sql_diff": "Gold selects raw Tags strings from posts via PostHistory, yielding duplicates and brackets; prediction joins posts with tags table, extracts TagName and DISTINCTs, outputting 'books'.",
-      "logic_diff": "Both return the set of tags used by Mark Meckes on posts with CommentCount=0; prediction returns cleaned distinct tag names while gold returns bracketed duplicates.",
-      "reason": "Prediction captures the required tag list correctly despite formatting differences.",
+      "judgement": "Prediction lists the distinct tag names (e.g., \"books\") for Mark Meckes’s zero-comment posts, matching the question; differences are only formatting/duplication vs. gold.",
       "verdict": false,
-      "tag": "NA"
+      "ambiguity": "na",
+      "gold_correct": true
     }
   },
   {
     "question_id": 1389,
     "result": {
-      "sql_diff": "Gold orders by cost then LIMIT 1 returning a single event; prediction filters cost = MIN(cost) without LIMIT so returns every event that shares the minimum cost (3 rows).",
-      "logic_diff": "Gold picks one event with the lowest cost; prediction lists all events having that lowest cost, differing only in tie-handling.",
-      "reason": "Tie-handling differences are tolerated and prediction still correctly identifies the lowest-cost event(s).",
+      "judgement": "Predicted query lists every event whose expense equals the minimum cost, satisfying the request for the event(s) with the lowest cost; extra rows only reflect ties, so prediction is acceptable.",
       "verdict": false,
-      "tag": "NA"
+      "ambiguity": "na",
+      "gold_correct": true
     }
   },
   {
     "question_id": 1493,
     "result": {
-      "sql_diff": "Pred uses DISTINCT counts and Date LIKE '201202%' whereas gold counts rows and filters Date='201202'; otherwise same aggregation.",
-      "logic_diff": "Both compute percentage of customers in Feb-2012 with consumption >528.3; distinct counting and LIKE wildcard have no effect when each customer has one row for the month.",
-      "reason": "Predicted query satisfies the question with only benign counting and filter variations that leave results unchanged.",
+      "judgement": "Predicted query answers the asked percentage of customers in Feb-2012 correctly; differences (LIKE vs =, DISTINCT use) are allowable or even preferable, so no grounds to overturn.",
       "verdict": false,
-      "tag": "NA"
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 465,
+    "result": {
+      "judgement": "Prediction checks Korean translation of the card itself, while the question (and gold) target the set containing that card; key anchor (“set”) is missed, leading to the wrong answer.",
+      "verdict": true,
+      "ambiguity": "ambiguous question",
+      "gold_correct": true
     }
   },
   {
     "question_id": 1044,
     "result": {
-      "sql_diff": "Pred uses strftime to compare year='1970' and month='10' and adds player_name IS NOT NULL; Gold compares SUBSTR(birthday,1,7)='1970-10'.",
-      "logic_diff": "Both queries return players born in October 1970; extra NOT NULL filter is benign.",
-      "reason": "Predicted SQL satisfies question requirements equivalently to gold, no substantive error.",
+      "judgement": "Prediction equivalent; extra NOT NULL is benign and satisfies the query requirements.",
       "verdict": false,
-      "tag": "NA"
+      "ambiguity": "na",
+      "gold_correct": true
     }
   },
   {
     "question_id": 1275,
     "result": {
-      "sql_diff": "Both queries join Patient and Laboratory and count distinct patient IDs with SEX='M'; gold filters CENTROMEA IN ('negative','0') and SSB IN ('negative','0'), whereas prediction filters CENTROMEA/SSB IN ('-','+-'); results differ (pred 0 vs gold 1).",
-      "logic_diff": "Prediction excludes records whose normal-value strings are stored as 'negative' or '0', so it misses at least one qualifying male patient counted by gold.",
-      "reason": "By using an incorrect value set for the normal antibody levels, the prediction yields a different (0) and incorrect count, violating the query intent.",
-      "verdict": true,
-      "tag": "CORE_CONFLICT"
+      "judgement": "Predicted query follows the evidence-defined normal markers ('-','+-') and counts distinct male patients, matching the question; gold uses different marker values, so gold appears wrong.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": false
+    }
+  },
+  {
+    "question_id": 1243,
+    "result": {
+      "judgement": "Pred query restricts denominator to abnormal PT per spec, while gold counts all lab rows, yielding an incorrect tiny percentage; prediction is semantically correct.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": false
     }
   },
   {
     "question_id": 1426,
     "result": {
-      "sql_diff": "Prediction omits filter T2.position = 'Member' and swaps table aliases/column order compared with gold.",
-      "logic_diff": "Predicted query returns all people with an Environmental Engineering major, whereas gold limits to those whose position field is literally 'Member'.",
-      "reason": "Whether to constrain by the position column is not explicitly stated––‘members’ can reasonably refer to every row in the member table, so the prediction is a plausible interpretation.",
+      "judgement": "Predicted query satisfies question; gold adds debatable extra filter on position.",
       "verdict": false,
-      "tag": "AMBIGUOUS_QUESTION"
+      "ambiguity": "ambiguous question",
+      "gold_correct": true
     }
   },
   {
     "question_id": 459,
     "result": {
-      "sql_diff": "Pred uses two scalar subqueries in a CASE to output either 'Serra Angel' or 'Shrine Keeper'; gold filters both names, orders by convertedManaCost DESC, LIMIT 1.",
-      "logic_diff": "Both queries output the card whose convertedManaCost is larger, differing only in tie handling not specified by the question.",
-      "reason": "Prediction satisfies the question’s requirement with no clear violation or schema misuse.",
+      "judgement": "Prediction returns the higher-cost card among the two just like the gold; any tie-handling or scalar-subquery concerns are theoretical and not an explicit requirement.",
       "verdict": false,
-      "tag": "NA"
+      "ambiguity": "na",
+      "gold_correct": true
     }
   },
   {
     "question_id": 1376,
     "result": {
-      "sql_diff": "Predicted SQL adds `AND T2.amount > 0` filter not present in gold; otherwise same join, ordering, limit.",
-      "logic_diff": "Prediction omits closed events whose budget amount is zero, whereas the question asks to consider all closed events when picking the highest spend/amount ratio.",
-      "reason": "Extra amount>0 filter narrows the scope beyond the question, constituting a core mismatch.",
+      "judgement": "Predicted query matches intent; extra amount>0 safeguard doesn’t violate requirements.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 46,
+    "result": {
+      "judgement": "Predicted query only considers schools present in SAT scores, using enroll12 which yields California School for the Deaf-Riverside, but full K-12 enrollment data (FRPM) shows California School for the Deaf-Fremont has the highest enrollment; prediction therefore answers incorrectly.",
       "verdict": true,
-      "tag": "CORE_CONFLICT"
+      "ambiguity": "na",
+      "gold_correct": true
     }
   },
   {
     "question_id": 785,
     "result": {
-      "sql_diff": "Predicted SQL identical to gold; both join superhero with alignment and filter alignment='Neutral' selecting superhero_name.",
-      "logic_diff": "Both queries list superhero names whose alignment is Neutral.",
-      "reason": "Prediction correctly answers the question without extra constraints.",
+      "judgement": "Predicted SQL correctly lists superhero_name for Neutral alignment superheroes.",
       "verdict": false,
-      "tag": "NA"
+      "ambiguity": "na",
+      "gold_correct": true
     }
   },
   {
     "question_id": 1356,
     "result": {
-      "sql_diff": "Queries are structurally identical; no result difference.",
-      "logic_diff": "Both retrieve department(s) of member(s) whose position is 'President'.",
-      "reason": "Prediction answers the question exactly like gold; no grounds to overturn.",
+      "judgement": "Prediction answers the question correctly; matches gold logic and constraints.",
       "verdict": false,
-      "tag": "NA"
+      "ambiguity": "na",
+      "gold_correct": true
     }
   },
   {
     "question_id": 544,
     "result": {
-      "sql_diff": "Prediction adds extra WHERE condition T1.LastEditorUserId IS NOT NULL; otherwise identical joins and projection.",
-      "logic_diff": "Extra null-check is redundant because the inner join already eliminates NULL LastEditorUserId rows, so both queries return the same display name(s).",
-      "reason": "The added filter cannot change the result set and does not violate the question’s intent, so prediction is acceptable.",
+      "judgement": "Prediction matches intent; extra IS NOT NULL predicate is benign.",
       "verdict": false,
-      "tag": "NA"
+      "ambiguity": "na",
+      "gold_correct": true
     }
   },
   {
     "question_id": 937,
     "result": {
-      "sql_diff": "Pred filters results where position = 2; Gold filters where rank = 2; both join/identify same race but return different times (+14.925 vs +16.445).",
-      "logic_diff": "Pred answers the finish time of the second-place finisher; Gold answers the finish time of the driver with fastest-lap rank 2.",
-      "reason": "‘Ranked second’ can reasonably refer to overall finishing position, so the prediction gives a valid interpretation and uses correct schema columns.",
+      "judgement": "Prediction uses position=2 to get second-place finisher’s time (+14.925), matching normal interpretation of “ranked second”; gold uses rank=2 (fast-lap rank), giving a different driver, so gold is likely wrong.",
       "verdict": false,
-      "tag": "AMBIGUOUS_QUESTION"
+      "ambiguity": "na",
+      "gold_correct": false
     }
   },
   {
     "question_id": 1505,
     "result": {
-      "sql_diff": "Pred counts DISTINCT customers (391) whereas gold counts all joined rows (2730); syntactically pred uses COUNT(DISTINCT) on customers table while gold uses COUNT(*) on yearmonth rows.",
-      "logic_diff": "Pred returns the number of euro customers who ever had a month with consumption >1000; gold returns the total number of monthly records satisfying that condition, over-counting customers with multiple months.",
-      "reason": "The question asks how many customers (not monthly records) meet the criterion, so the prediction is semantically correct and the gold overcounts.",
+      "judgement": "Prediction counts distinct euro-paying customers with any month >1000, matching question’s \"how many customers\" wording; gold over-counts monthly rows, so prediction is correct.",
       "verdict": false,
-      "tag": "GOLD_FAULT"
+      "ambiguity": "na",
+      "gold_correct": false
     }
   },
   {
     "question_id": 1501,
     "result": {
-      "sql_diff": "Gold filters ym.Date exactly = '201306'; prediction uses SUBSTR to match year='2013' and month='06', allowing values like '20130601'; otherwise joins and selected distinct Country identical.",
-      "logic_diff": "Both queries return countries of gas stations whose customers have yearmonth records for June 2013; prediction may include rows where Date has day component but still June 2013, consistent with the question.",
-      "reason": "Predicted query satisfies the June-2013 requirement and shares the same logic as gold with only a tolerant date filter.",
+      "judgement": "Predicted query filters the same June-2013 customer set and returns the same gas-station countries as the gold; logic satisfies the question.",
       "verdict": false,
-      "tag": "NA"
+      "ambiguity": "na",
+      "gold_correct": true
     }
   },
   {
     "question_id": 1361,
     "result": {
-      "sql_diff": "Identical query logic; prediction adds column alias but sums cost with same filter as gold.",
-      "logic_diff": "Both compute the sum of cost for expenses where description is 'Pizza', answering the question directly.",
-      "reason": "Prediction matches the required logic and yields correct answer.",
+      "judgement": "Prediction correctly sums pizza expenses, matching question and gold.",
       "verdict": false,
-      "tag": "NA"
+      "ambiguity": "na",
+      "gold_correct": true
     }
   },
   {
     "question_id": 1239,
     "result": {
-      "sql_diff": "Pred groups Laboratory then joins Patient, adds filter Birthday IS NOT NULL; Gold uses IN subquery without that filter; both compute age via year difference.",
-      "logic_diff": "Both queries return IDs that appear in at least two lab records with HCT >=52 and provide their age, with pred additionally excluding patients lacking birthday data.",
-      "reason": "Extra NULL-birthday filter is a minor implementation choice unlikely to contradict the question, so prediction remains acceptable.",
+      "judgement": "Predicted query meets the requirement; additional NOT NULL check on Birthday is benign and still returns correct patients and ages.",
       "verdict": false,
-      "tag": "NA"
+      "ambiguity": "na",
+      "gold_correct": true
     }
   }
 ]

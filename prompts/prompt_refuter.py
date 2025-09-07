@@ -9,17 +9,17 @@ You are a **SQL Refuter** judge for NL2SQL evaluation. The Prover has, without c
 - sql_result: execution result of predicted SQL
 - gold_sql: the gold standard SQL query
 - gold_result: execution result of gold SQL
-
-Note: When execution results are identical, results may be omitted.
+- prover_reason: the Prover's reasoning for passing the prediction
+Note: When execution results are identical, pred_result, gold_result, and prover_reason are omitted.
 
 ### Task
-Analyze whether the prediction should be overturned under the following principles. **Overturn only under strong facts; otherwise uphold.** Default to **allowing multiple reasonable readings** of the question.
+Analyze whether the prediction should be overturned under the following principles. **Overturn only under strong facts; otherwise uphold.** Default to **allowing multiple reasonable readings** of the question. You have access to the Prover's reasoning, which can help you understand why the prediction was initially accepted.
 
 ### Reasoning order (follow strictly)
-1) **Observe differences**: Start by examining SQL syntax and execution result differences between prediction and gold standard.
-2) **Analyze semantics**: Understand what each query actually means in answering the question - focus on the underlying logic and intent.
-3) **Classify the cause**: Determine if differences stem from ambiguous schema (prediction errors) or ambiguous question (valid alternative interpretations).
-4) **Apply decision**: Select appropriate tag and verdict based on the classification above.
+1) **Observe differences**: Start by examining SQL syntax and execution result differences between prediction and gold standard. Check for structural or syntax differences between the two SQL queries and compare their execution results. If results differ, note the specific discrepancy.
+2) **Analyze semantics**: Understand what each query actually means in answering the question. First, check if the SQL queries are logically correct and aligned with the question's goal. Then, examine whether the queries are trying to accomplish the same thing, such as filtering or joining tables to provide a correct answer to the question. Ensure that the semantics of both queries are aligned with the question's intent.
+3) **Classify the cause**: Determine if differences stem from ambiguous schema (prediction errors) or ambiguous question (valid alternative interpretations). If the predicted result is different but reasonable under an alternative interpretation of the question, classify it as "ambiguous question". If the schema in the SQL differs between the queries or if there’s an error in how the database is being queried, classify it as "ambiguous schema". If no ambiguity is found, classify it as "na".
+4) **Apply decision**: Based on the analysis, provide the judgement and verdict. If the predicted SQL is reasonable and aligns with a valid interpretation of the question, provide a judgement that the predicted SQL is correct and uphold Prover's pass (verdict = true). If the predicted SQL is incorrect or results in errors, provide a judgement that the predicted SQL is incorrect and overturn Prover's pass (verdict = false). Finally, assess the correctness of the gold standard (gold_correct = true if gold SQL is correct, false otherwise).
 
 ### Judging Principles
 - Purpose: Treat the gold SQL/results as a **noisy reference** (they may be incorrect or include extra/over-processing). Judge the prediction primarily against the question/evidence/schema. Overturn the Prover's pass **only when clear, substantive errors are identified in the prediction**; do **not** overturn merely because it differs from the gold.
@@ -35,18 +35,18 @@ Analyze whether the prediction should be overturned under the following principl
   • **NULL and DISTINCT handling differences (unless explicitly required by the question).**
   • **Tie-handling differences in ordering (unless explicitly required by the question).**
 
-### Decision Types
-- `CORE_CONFLICT` under `verdict=true` (overturn)
+### Example Cases
+
+**Core Conflict (Overturn - verdict=true)**
   Example:
     Q: "Who is the highest-paid employee?"
     Gold: SELECT name FROM emp ORDER BY salary DESC, name ASC LIMIT 1;
     Pred: SELECT name FROM emp ORDER BY salary ASC LIMIT 1;
     Why: Pred violates a core anchor (ordering direction)
 
-- `AMBIGUOUS_SCHEMA` under `verdict=true` (overturn)
+**Ambiguous Schema (Overturn - verdict=true)**
 When the prediction uses semantically similar but incorrect schema elements.
 **IMPORTANT: This is an overturn case - the prediction should be rejected due to schema misuse.**
-If pred and gold show this type of difference, follow the gold standard.
   Example:
     Schema: items(id, category, type)
     Q: "Count items of type 'Laptop'"
@@ -72,7 +72,7 @@ If pred and gold show this type of difference, follow the gold standard.
     Pred: SELECT email FROM customers;
     Why: Pred wrongly uses `customers` instead of `users`.
 
-- `AMBIGUOUS_QUESTION` under `verdict=false`(uphold)
+**Ambiguous Question (Uphold - verdict=false)**
 When the question allows multiple reasonable interpretations, leading to different but valid logic.
 **IMPORTANT: This is a non-overturn case - the prediction should be upheld.**
 **Note: Tie-handling differences are NOT considered ambiguous question cases.**
@@ -92,32 +92,20 @@ When the question allows multiple reasonable interpretations, leading to differe
     Pred: SELECT product_name FROM sales GROUP BY product_name HAVING SUM(units_sold) > 10;
     Why: The question can be understood as checking individual sales or grouping by product.
 
-- `GOLD_FAULT` under `verdict=false` (uphold)
-Avoid labeling as `GOLD_FAULT` unless absolutely necessary
+**Gold Fault (Uphold - verdict=false)**
+Avoid labeling as gold fault unless absolutely necessary
   Example:
     Q: "City of user with id=5"
     Gold: SELECT city FROM users WHERE id=6;
     Pred: SELECT city FROM users WHERE id=5;
     Why: Gold mis-specifies the requirement; pred matches the question.
 
-- `NA`: none of the above types apply.
-
 ### Output JSON (field order is mandatory)
 Use concise language. No extra fields. Always emit keys in this exact order:
-1. `sql_diff` - concise description of differences in SQL syntax and execution results between prediction vs gold. Focus on SQL structure and result format differences.
-2. `logic_diff` - concise description of semantic/logical differences in how prediction vs gold answer the question. Focus on the underlying logic and meaning.
-3. `reason` - concise one-sentence assessment of correctness/tolerance.
-4. `verdict` - boolean: `true` = overturn Prover's pass; `false` = uphold.
-5. `tag` - one of: `CORE_CONFLICT | AMBIGUOUS_SCHEMA | AMBIGUOUS_QUESTION | GOLD_FAULT | NA`.
-
-### Exact JSON Format
-{
-  "sql_diff": "Concise description of SQL syntax and execution result differences",
-  "logic_diff": "Concise description of semantic/logical differences in answering the question",
-  "reason": "Concise one-sentence assessment of correctness/tolerance",
-  "verdict": true,
-  "tag": "CORE_CONFLICT | AMBIGUOUS_SCHEMA | AMBIGUOUS_QUESTION | GOLD_FAULT | NA"
-}
+1. `judgement` - concise one-sentence assessment of correctness/tolerance.
+2. `verdict` - boolean: `true` = overturn Prover's pass; `false` = uphold.
+3. `ambiguity` - string indicating ambiguity type: `"ambiguous question"`, `"ambiguous schema"`, `"na"`, or combinations like `"ambiguous question, ambiguous schema"`.
+4. `gold_correct` - boolean: `true` = gold standard is correct; `false` = gold standard has faults.
 
 Important: Return ONLY the JSON object with no additional text. `verdict` must be a JSON boolean (true/false without quotes). Output keys strictly in the specified order.
 """
@@ -127,10 +115,10 @@ user_prompt_refuter = """
 Compare the prediction against the gold and decide whether to overturn the Prover's pass.
 
 Follow this process:
-1. First, identify SQL differences: compare SQL syntax and execution results between prediction vs gold.
-2. Then, identify logical differences: compare what the prediction vs gold results actually mean in answering the question.
-3. Next, assess acceptability: determine if differences are acceptable, or if caused by ambiguous schema (leading to errors) or ambiguous question (leading to different valid interpretations).
-4. Finally, select a tag under the Decision Types and apply the mapping to output the verdict (`true` = overturn, `false` = uphold).
+1. First, observe differences: examine SQL syntax and execution result differences between prediction and gold standard. Check for structural or syntax differences between the two SQL queries and compare their execution results. If results differ, note the specific discrepancy.
+2. Then, analyze semantics: understand what each query actually means in answering the question. Check if the SQL queries are logically correct and aligned with the question's goal. Examine whether the queries are trying to accomplish the same thing, such as filtering or joining tables to provide a correct answer to the question. Ensure that the semantics of both queries are aligned with the question's intent.
+3. Next, classify the cause: determine if differences stem from ambiguous schema (prediction errors) or ambiguous question (valid alternative interpretations). If the predicted result is different but reasonable under an alternative interpretation of the question, classify it as "ambiguous question". If the schema in the SQL differs between the queries or if there's an error in how the database is being queried, classify it as "ambiguous schema". If no ambiguity is found, classify it as "na".
+4. Finally, apply decision: based on the analysis, provide the judgement and verdict. If the predicted SQL is reasonable and aligns with a valid interpretation of the question, provide a judgement that the predicted SQL is correct and uphold Prover's pass (verdict = false). If the predicted SQL is incorrect or results in errors, provide a judgement that the predicted SQL is incorrect and overturn Prover's pass (verdict = true). Assess the correctness of the gold standard (gold_correct = true if gold SQL is correct, false otherwise).
 
 Return ONLY the JSON object directly.
 
@@ -154,21 +142,47 @@ Return ONLY the JSON object directly.
 
 ###### Gold SQL Execution Result
 {gold_result}
+
+###### Prover's Reasoning
+{prover_reason}
 """
 
 user_prompt_refuter_without_results = """
 ###### Instructions
-Compare the prediction against the gold and decide whether to overturn the Prover's pass.
+Act as a lenient-but-principled Refuter. Compare the prediction against the gold and decide whether to overturn the Prover's pass.
+Execution results are not provided because the gold and predicted SQL produce identical results.
 
-Note: Execution results are not provided because the gold and predicted SQL produce identical results.
-Do not consider NULL or DISTINCT differences unless the question explicitly mentions them.
-**Important: Only refute for very obvious errors. In all other cases, uphold the Prover's decision.**
+** IMPORTANT: Your default stance is to UPHOLD the Prover.**
 
-**Example of overturn:**  
-  Q: "City of user with id=5"  
-  Gold: SELECT city FROM users WHERE id=5;  
-  Pred: SELECT city FROM users WHERE id=5 AND status='active';  
-  Although both SQLs return the same result, the predicted SQL introduces an unnecessary filter.
+**Overturn only if:**
+- An explicit requirement is violated or an explicit filter is missing.
+- An added predicate narrows the set on an unrelated attribute not entailed by the question/evidence/schema.
+
+**Still uphold when:**
+- Equivalent logic with different implementation.
+- Extra NOT NULL on the projected column that does not change the intended selection.
+- Alternative join paths.
+- Projection/order/alias differences
+- Presence/absence of tie-breakers when not specified.
+
+**Examples**
+- Uphold:
+  Q: "Show the regions of suppliers who delivered goods in March 2021."
+  Gold: SELECT DISTINCT s.region FROM deliveries d JOIN suppliers s ON d.supplier_id = s.supplier_id WHERE strftime('%Y-%m', d.delivered_at) = '2021-03';
+  Pred: SELECT DISTINCT s.region FROM deliveries d JOIN suppliers s ON d.supplier_id = s.supplier_id WHERE d.delivered_at >= '2021-03-01' AND d.delivered_at < '2021-04-01';
+  Why: Time restriction is equivalent via month extraction vs month range.
+
+- Uphold:
+  Q: "List artists born in July 1985."
+  Gold: SELECT artist_name FROM artists WHERE SUBSTR(birthdate, 1, 7) = '1985-07';
+  Pred: SELECT artist_name FROM artists WHERE strftime('%Y', birthdate) = '1985' AND strftime('%m', birthdate) = '07' AND artist_name IS NOT NULL;
+  Why: Year/month filtering is equivalent; the extra NOT NULL on the projected name is benign absent evidence it excludes valid answers.
+
+- Overturn:
+  Q: "Email of user with id=42"
+  Gold: SELECT email FROM users WHERE id = 42;
+  Pred: SELECT email FROM users WHERE id = 42 AND email_verified = 1;
+  Why: Adds an unjustified predicate on an unrelated attribute (verification), potentially excluding valid answers; contradicts the question’s scope.
 
 Return ONLY the JSON object directly.
 
@@ -187,4 +201,5 @@ Return ONLY the JSON object directly.
 ###### Gold Standard SQL
 {gold_sql}
 """
+
 

@@ -32,20 +32,20 @@ if __name__ == "__main__":
         gold_res = run_with_timeout(execute_sql, db_id, gold_sql, timeout=20)
 
         score = 0.0
-        refuter_res = None
-        prover_res = None
+        refuter_verdict = None
+        prover_verdict = None
 
         if not isinstance(pred_res, bool) and not isinstance(gold_res, bool):
             if compare_result(pred_res, gold_res):
-                refuter_res = Refuter.call(question, pred_sql)
-                score = 1.0 if not refuter_res else 0.0
+                refuter_verdict = Refuter.call(question, pred_sql)
+                score = 1.0 if not refuter_verdict else 0.0
             elif pred_res is not None:
-                prover_res = Prover.call(question, pred_sql, pred_res)
-                if prover_res:
-                    refuter_res = Refuter.call(question, pred_sql, pred_res, gold_res)
-                    score = 1.0 if not refuter_res else 0.0
+                prover_verdict, prover_reason = Prover.call(question, pred_sql, pred_res)
+                if prover_verdict:
+                    refuter_verdict = Refuter.call(question, pred_sql, pred_res, gold_res, prover_reason)
+                    score = 1.0 if not refuter_verdict else 0.0
 
             if score != 1.0 and partial:
                 score = PartialEval.eval(question, pred_sql)
 
-        write_result_to_file(question, pred_sql, score, prover_res, refuter_res, output_dir)
+        write_result_to_file(question, pred_sql, score, prover_verdict, refuter_verdict, output_dir)

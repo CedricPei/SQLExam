@@ -8,18 +8,17 @@
     "ex": 0,
     "score": 1.0,
     "prover_details": {
-      "expected_answer": "List of all distinct tag names that appear in posts authored by the user whose display name is \"Mark Meckes\" where those posts have zero comments",
-      "sql_description": "Finds posts with CommentCount = 0 written by the user id corresponding to DisplayName = 'Mark Meckes', matches each post’s <tag> strings against the tags table, and returns the distinct TagName values",
-      "reason": "The query filters on the correct author, restricts to posts with no comments, extracts every tag contained in those posts through a tag-string match, and returns a distinct list of tag names, matching the question requirements",
+      "expected_answer": "All tag names appearing in posts authored by the user whose DisplayName is 'Mark Meckes' where those posts have CommentCount equal to 0.",
+      "sql_description": "Find the Id of the user 'Mark Meckes'; from posts with that OwnerUserId and CommentCount = 0, pattern-match each post’s <Tags> field against the tags table, and return distinct matching TagName values.",
+      "reason": "The query applies both explicit anchors: owner = Mark Meckes and CommentCount = 0, then extracts every distinct tag attached to such posts. That directly answers the question.",
       "verdict": true,
-      "evidence": "sql_result shows column TagName with value 'books', demonstrating the query outputs tag names; logic covers all required conditions (author filter, CommentCount=0, distinct tag list)"
+      "evidence": "sql_result shows one row with column TagName = 'books', demonstrating the query outputs tag names as required."
     },
     "refuter_details": {
-      "sql_diff": "Gold selects raw Tags strings from posts via PostHistory, yielding duplicates and brackets; prediction joins posts with tags table, extracts TagName and DISTINCTs, outputting 'books'.",
-      "logic_diff": "Both return the set of tags used by Mark Meckes on posts with CommentCount=0; prediction returns cleaned distinct tag names while gold returns bracketed duplicates.",
-      "reason": "Prediction captures the required tag list correctly despite formatting differences.",
+      "judgement": "Prediction lists the distinct tag names (e.g., \"books\") for Mark Meckes’s zero-comment posts, matching the question; differences are only formatting/duplication vs. gold.",
       "verdict": false,
-      "tag": "NA"
+      "ambiguity": "na",
+      "gold_correct": true
     }
   },
   {
@@ -31,18 +30,61 @@
     "ex": 0,
     "score": 1.0,
     "prover_details": {
-      "expected_answer": "The finish time (as recorded in results.time) of the driver who finished second in the 2008 Chinese Grand Prix.",
-      "sql_description": "Finds the raceId of the Chinese Grand Prix in 2008, then returns the time value from results where that raceId matches and position equals 2 (second place).",
-      "reason": "Query targets the correct race (2008 Chinese Grand Prix), selects position 2, and returns the requested finish time; sql_result provides the single time value, satisfying the question.",
+      "expected_answer": "The finishing time (time field) for the driver who came 2nd in the 2008 Chinese Grand Prix.",
+      "sql_description": "Gets raceId for the 2008 race named 'Chinese Grand Prix', then returns the time value from results where that raceId matches and position = 2.",
+      "reason": "Question anchors: year 2008, race name 'Chinese Grand Prix', finishing position 2. Query applies all anchors and returns the requested time.",
       "verdict": true,
-      "evidence": "sql_result shows one row with column time = '+14.925', fulfilling the requested finish time for the second-place driver."
+      "evidence": "sql_result row0 time = '+14.925'"
     },
     "refuter_details": {
-      "sql_diff": "Pred filters results where position = 2; Gold filters where rank = 2; both join/identify same race but return different times (+14.925 vs +16.445).",
-      "logic_diff": "Pred answers the finish time of the second-place finisher; Gold answers the finish time of the driver with fastest-lap rank 2.",
-      "reason": "‘Ranked second’ can reasonably refer to overall finishing position, so the prediction gives a valid interpretation and uses correct schema columns.",
+      "judgement": "Prediction uses position=2 to get second-place finisher’s time (+14.925), matching normal interpretation of “ranked second”; gold uses rank=2 (fast-lap rank), giving a different driver, so gold is likely wrong.",
       "verdict": false,
-      "tag": "AMBIGUOUS_QUESTION"
+      "ambiguity": "na",
+      "gold_correct": false
+    }
+  },
+  {
+    "question_id": 1243,
+    "question": "For all patients who are older than 55 years old, what is the percentage of female who has abnormal prothrombin time (PT)?",
+    "evidence": "older than 55 years old = SUBTRACT(year(current_timestamp), year(Birthday)) > 55; abnormal prothrombin time (PT) refers to PT > = 14; percentage = DIVIDE(SUM(PT > = 14 AND SEX = 'F'), SUM(PT > = 14)) * 100; female refers to sex = 'F'; ",
+    "gold_sql": "SELECT CAST(SUM(CASE WHEN T2.PT >= 14 AND T1.SEX = 'F' THEN 1 ELSE 0 END) AS REAL) * 100 / COUNT(CASE WHEN T2.PT >= 14 THEN 1 ELSE 0 END) FROM Patient AS T1 INNER JOIN Laboratory AS T2 ON T1.ID = T2.ID WHERE STRFTIME('%Y', CURRENT_TIMESTAMP) - STRFTIME('%Y', T1.Birthday) > 55",
+    "predicted_sql": "SELECT \n  (COUNT(CASE WHEN T2.`SEX` = 'F' THEN 1 END) * 100.0 / COUNT(*)) AS percentage\n  FROM Laboratory AS T1\n  INNER JOIN Patient AS T2\n  ON T1.`ID` = T2.`ID`\n  WHERE T2.`Birthday` IS NOT NULL\n  AND (strftime('%Y', 'now') - strftime('%Y', T2.`Birthday`)) > 55\n  AND T1.`PT` >= 14",
+    "ex": 0,
+    "score": 1.0,
+    "prover_details": {
+      "expected_answer": "A single numeric value: the percentage of females among patients older than 55 whose prothrombin time (PT) is at least 14.",
+      "sql_description": "Joins Laboratory with Patient, filters to records where age (current year − birth year) > 55 and PT ≥ 14, then divides the number of those records with SEX = 'F' by the total number of such records and multiplies by 100 to yield a percentage.",
+      "reason": "The query enforces all explicit anchors (age > 55, PT ≥14, SEX='F') and returns the requested female-percentage; counting laboratory rows instead of distinct patients is a reasonable interpretation given the evidence formula that uses plain SUM/COUNT without DISTINCT.",
+      "verdict": true,
+      "evidence": "sql_result shows column \"percentage\" with value 78.362573 (row 0), matching the requested output format."
+    },
+    "refuter_details": {
+      "judgement": "Pred query restricts denominator to abnormal PT per spec, while gold counts all lab rows, yielding an incorrect tiny percentage; prediction is semantically correct.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": false
+    }
+  },
+  {
+    "question_id": 1275,
+    "question": "Among the patients who has a normal level of anti-centromere and a normal level of anti-SSB, how many of them are male?",
+    "evidence": "normal level of anti-centromere refers to CENTROMEA IN('-', '+-'); normal level of anti-SSB refers to SSB IN('-', '+-'); male refers to Sex = 'M'; Should consider DISTINCT in the final result;",
+    "gold_sql": "SELECT COUNT(DISTINCT T1.ID) FROM Patient AS T1 INNER JOIN Laboratory AS T2 ON T1.ID = T2.ID WHERE T2.CENTROMEA IN ('negative', '0') AND T2.SSB IN ('negative', '0') AND T1.SEX = 'M'",
+    "predicted_sql": "SELECT COUNT(DISTINCT T1.`ID`)\n  FROM Patient AS T1\n  INNER JOIN Laboratory AS T2\n  ON T1.`ID` = T2.`ID`\n  WHERE T2.`CENTROMEA` IN ('-', '+-')\n  AND T2.`SSB` IN ('-', '+-')\n  AND T1.`SEX` = 'M'",
+    "ex": 0,
+    "score": 1.0,
+    "prover_details": {
+      "expected_answer": "A single integer: the number of distinct male patients whose anti-centromere (CENTROMEA) and anti-SSB (SSB) test values are within the normal range ('-' or '+-').",
+      "sql_description": "Counts DISTINCT patient IDs after joining Patient and Laboratory where SEX = 'M' and both CENTROMEA and SSB are '-' or '+-'.",
+      "reason": "All required anchors are present: male filter (SEX='M'), normal level filters for CENTROMEA and SSB, and DISTINCT on patient IDs. Thus the query directly answers the question.",
+      "verdict": true,
+      "evidence": "Result set shows column COUNT(DISTINCT T1.ID) with value 0 (row 0), giving the requested count."
+    },
+    "refuter_details": {
+      "judgement": "Predicted query follows the evidence-defined normal markers ('-','+-') and counts distinct male patients, matching the question; gold uses different marker values, so gold appears wrong.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": false
     }
   },
   {
@@ -54,18 +96,17 @@
     "ex": 0,
     "score": 1.0,
     "prover_details": {
-      "expected_answer": "A single integer: the number of customers whose currency is EUR and whose recorded monthly consumption exceeds 1000",
-      "sql_description": "Joins customers with their monthly records, filters to rows where Currency = 'EUR' and Consumption > 1000, then counts distinct CustomerID values",
-      "reason": "The query implements exactly the requested conditions (EUR customers, consumption > 1000) and returns the count of such customers",
+      "expected_answer": "A single integer: the number of customers whose currency is EUR and whose monthly consumption exceeds 1000.",
+      "sql_description": "Joins customers with yearmonth, filters customers with currency='EUR' and at least one month where Consumption > 1000, counts distinct CustomerIDs.",
+      "reason": "Satisfies both anchors—EUR customers and monthly consumption >1000—by counting distinct customers meeting those criteria. No conflicting constraints.",
       "verdict": true,
-      "evidence": "Result set contains column COUNT(DISTINCT T1.CustomerID) with value 391"
+      "evidence": "Result set contains COUNT(DISTINCT T1.CustomerID)=391."
     },
     "refuter_details": {
-      "sql_diff": "Pred counts DISTINCT customers (391) whereas gold counts all joined rows (2730); syntactically pred uses COUNT(DISTINCT) on customers table while gold uses COUNT(*) on yearmonth rows.",
-      "logic_diff": "Pred returns the number of euro customers who ever had a month with consumption >1000; gold returns the total number of monthly records satisfying that condition, over-counting customers with multiple months.",
-      "reason": "The question asks how many customers (not monthly records) meet the criterion, so the prediction is semantically correct and the gold overcounts.",
+      "judgement": "Prediction counts distinct euro-paying customers with any month >1000, matching question’s \"how many customers\" wording; gold over-counts monthly rows, so prediction is correct.",
       "verdict": false,
-      "tag": "GOLD_FAULT"
+      "ambiguity": "na",
+      "gold_correct": false
     }
   }
 ]
