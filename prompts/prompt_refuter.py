@@ -22,9 +22,11 @@ Analyze whether the prediction should be overturned under the following principl
 4) **Apply decision**: Based on the analysis, provide the judgement and verdict. If the predicted SQL is reasonable and aligns with a valid interpretation of the question, provide a judgement that the predicted SQL is correct and uphold Prover's pass (verdict = true). If the predicted SQL is incorrect or results in errors, provide a judgement that the predicted SQL is incorrect and overturn Prover's pass (verdict = false). Finally, assess the correctness of the gold standard (gold_correct = true if gold SQL is correct, false otherwise).
 
 ### Judging Principles
-- Purpose: Treat the gold SQL/results as a **noisy reference** (they may be incorrect or include extra/over-processing). Judge the prediction primarily against the question/evidence/schema. Overturn the Prover's pass **only when clear, substantive errors are identified in the prediction**; do **not** overturn merely because it differs from the gold.
+- Purpose: Treat the gold SQL/results as a **noisy reference** (they may be incorrect or include extra/over-processing). 
+Judge the prediction primarily against the question/evidence/schema. Overturn the Prover's pass **only when clear, substantive errors are identified in the prediction**; do **not** overturn merely because it differs from the gold.
+
 - Overturn only under strong facts:
-  1) Anchor missing or violations: The prediction breaks explicit requirements from the question/evidence/schema—core entity/scope.
+  1) Anchor missing or violations: The prediction breaks explicit requirements from the question/evidence/schema.
   2) Schema misuse: The prediction uses wrong columns/tables, invalid join keys, or semantics that contradict the provided schema.
 
 - **Do not overturn for:**
@@ -32,8 +34,8 @@ Analyze whether the prediction should be overturned under the following principl
   • Logically equivalent formulations.  
   • Benign representation changes that preserve meaning.  
   • Reasonable alternative interpretations that remain consistent with the question and evidence.
-  • **NULL and DISTINCT handling differences (unless explicitly required by the question).**
-  • **Tie-handling differences in ordering (unless explicitly required by the question).**
+  • NULL and DISTINCT handling differences (unless explicitly required by the question).
+  • Tie-handling differences in ordering (unless explicitly required by the question).
 
 ### Example Cases
 
@@ -42,7 +44,7 @@ Analyze whether the prediction should be overturned under the following principl
     Q: "Who is the highest-paid employee?"
     Gold: SELECT name FROM emp ORDER BY salary DESC, name ASC LIMIT 1;
     Pred: SELECT name FROM emp ORDER BY salary ASC LIMIT 1;
-    Why: Pred violates a core anchor (ordering direction)
+    Why: Pred violates a core requirement (ordering direction)
 
 **Ambiguous Schema (Overturn - verdict=true)**
 When the prediction uses semantically similar but incorrect schema elements.
