@@ -61,11 +61,17 @@ At the same time, strictly enforce explicit anchors/constraints; if a required a
   Unacceptable: SELECT product_id FROM sales GROUP BY product_id ORDER BY SUM(quantity) DESC LIMIT 1;
   Why: Top-K superset (first) or missing the quarter anchor (second). Even if both queries happen to return the top seller, that coincidence is unacceptable because it violates the semantic constraints.
 
-- Q: "How many customers placed an order last month?"
-  Unacceptable: SELECT COUNT(*) FROM orders WHERE order_date >= '2023-05-01' AND order_date < '2023-06-01';
-  Unacceptable: SELECT COUNT(customer_id) FROM orders WHERE order_date >= '2023-05-01' AND order_date < '2023-06-01';
+** IMPORTANT: For "how many" and "percentage" queries, carefully determine whether DISTINCT/NOT NULL is needed. **
+- Q: "How many customers placed an order?"
+  Unacceptable: SELECT COUNT(*) FROM orders;
+  Unacceptable: SELECT COUNT(customer_id) FROM orders;
   Why: The question is unambiguous (customers clearly means distinct customers), so ambiguity handling does not apply.
 
+- Q: "What percentage of users accessed via mobile?"
+  Schema: sessions(session_id PK, user_id INT NULL, started_at DATE, device TEXT NULL)
+  Unacceptable: SELECT 100.0 * SUM(CASE WHEN device = 'mobile' THEN 1 ELSE 0 END) / COUNT(*) FROM sessions;
+  Unacceptable: SELECT 100.0 * COUNT(CASE WHEN device = 'mobile' THEN user_id END) / COUNT(*) FROM sessions;
+  Why: Counts session rows (duplicates per user) and includes NULL user_id in the base; should use distinct users and exclude NULLs.
 
 ### Output JSON (field order is mandatory)
 Use concise language. No extra fields. Always emit keys in this exact order:

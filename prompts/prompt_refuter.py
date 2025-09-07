@@ -37,8 +37,9 @@ Judge the prediction primarily against the question/evidence/schema. Overturn th
   • NULL and DISTINCT handling differences (unless explicitly required by the question).
   • Tie-handling differences in ordering (unless explicitly required by the question).
 
-### Example Cases
+- For “how many/percentage” queries, carefully determine whether DISTINCT/NOT NULL is needed. If proper de-duplication or NULL handling changes the figure, overturn the initial decision.
 
+### Example Cases
 **Core Conflict (Overturn - verdict=true)**
   Example:
     Q: "Who is the highest-paid employee?"

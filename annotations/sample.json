@@ -6,8 +6,8 @@
     "predicted_sql": "SELECT T2.team_long_name FROM Team_Attributes AS T1 INNER JOIN Team AS T2 ON T1.team_api_id = T2.team_api_id WHERE T1.buildUpPlayDribblingClass = 'Normal' AND T1.date LIKE '2014%' GROUP BY T2.team_long_name HAVING SUM(T1.chanceCreationPassing) / COUNT(T1.id) < ( SELECT CAST(SUM(chanceCreationPassing) AS REAL) / COUNT(id) FROM Team_Attributes WHERE date LIKE '2014%' ) ORDER BY SUM(T1.chanceCreationPassing) DESC",
     "gold_sql": "SELECT t3.team_long_name FROM Team AS t3 INNER JOIN Team_Attributes AS t4 ON t3.team_api_id = t4.team_api_id WHERE t4.buildUpPlayDribblingClass = 'Normal' AND t4.chanceCreationPassing < ( SELECT CAST(SUM(t2.chanceCreationPassing) AS REAL) / COUNT(t1.id) FROM Team AS t1 INNER JOIN Team_Attributes AS t2 ON t1.team_api_id = t2.team_api_id WHERE t2.buildUpPlayDribblingClass = 'Normal' AND SUBSTR(t2.`date`, 1, 4) = '2014') ORDER BY t4.chanceCreationPassing DESC",
     "label": false,
-    "reason_1": "Predicted SQL: Missing the dribbling class filter condition in the sub-query\nGOLD FALSE: 1. Missing the 2014 filter condition in the main query, 2. do comparison and ranking using chance creation passing rather than average chance creation passing, which is different from the intent of the question",
-    "reason_2": "Predicted SQL uses the wrong way to calculate the average value. It should be DIVIDE(SUM(chanceCreationPassing), COUNT(id)) > chanceCreationPassing.",
+    "reason_1": "Predicted SQL uses the wrong way to calculate the average value. It should be DIVIDE(SUM(chanceCreationPassing), COUNT(id)) > chanceCreationPassing.",
+    "reason_2": "Predicted SQL: Missing the dribbling class filter condition in the sub-query\nGOLD FALSE: 1. Missing the 2014 filter condition in the main query, 2. do comparison and ranking using chance creation passing rather than average chance creation passing, which is different from the intent of the question",
     "evidence": "normal build-up play dribbling class refers to buildUpPlayDribblingClass = 'Normal'; in 2014 refers to date > = '2014-01-01 00:00:00' AND date < = '2014-01-31 00:00:00'; names of the teams refers to team_long_name; less than average chance creation passing = DIVIDE(SUM(chanceCreationPassing), COUNT(id)) > chanceCreationPassing;"
   },
   {
@@ -17,8 +17,8 @@
     "predicted_sql": "SELECT code, SUM(CASE WHEN nationality IN ('Netherlandic', 'Dutch') THEN 1 ELSE 0 END) AS netherlandic_count FROM (SELECT code, nationality FROM drivers ORDER BY dob ASC LIMIT 3) AS top_drivers",
     "gold_sql": "SELECT COUNT(*) FROM ( SELECT T1.nationality FROM drivers AS T1 ORDER BY JULIANDAY(T1.dob) DESC LIMIT 3) AS T3 WHERE T3.nationality = 'Dutch'",
     "label": false,
-    "reason_1": "GOLD FALSE: should return code numbers of top 3 youngest drivers. Should use Netherlandic as the filter condition also. The problem should state how to return the answer given there are two separate questions (Ambiguous output)",
-    "reason_2": "ORDER BY dob ASC",
+    "reason_1": "ORDER BY dob ASC",
+    "reason_2": "GOLD FALSE: should return code numbers of top 3 youngest drivers. Should use Netherlandic as the filter condition also. The problem should state how to return the answer given there are two separate questions (Ambiguous output)",
     "evidence": "youngest driver refers to Max (year(dob)); Netherlandic and Dutch refer to the same country"
   },
   {
@@ -28,8 +28,8 @@
     "predicted_sql": "SELECT PostHistoryTypeId FROM postHistory WHERE PostId = 3720 UNION SELECT COUNT(DISTINCT UserId) AS UniqueUserCount FROM comments WHERE PostId = 3720",
     "gold_sql": "SELECT T1.PostHistoryTypeId, (SELECT COUNT(DISTINCT UserId) FROM comments WHERE PostId = 3720) AS NumberOfUsers FROM postHistory AS T1 WHERE T1.PostId = 3720",
     "label": false,
-    "reason_1": "Predicted SQL: Wrong return format\nGOLD FALSE: Wrong return format (Ambiguous output)",
-    "reason_2": "lack second answer",
+    "reason_1": "lack second answer",
+    "reason_2": "Predicted SQL: Wrong return format\nGOLD FALSE: Wrong return format (Ambiguous output)",
     "evidence": ""
   },
   {
@@ -127,8 +127,8 @@
     "predicted_sql": "SELECT ROUND(((CAST(SUM(CASE WHEN zip_code.state = 'Maine' THEN 1 ELSE 0 END) AS REAL) / CAST(SUM(CASE WHEN member.position = 'Member' THEN 1 ELSE 0 END) AS REAL)) - (CAST(SUM(CASE WHEN zip_code.state = 'Vermont' THEN 1 ELSE 0 END) AS REAL) / CAST(SUM(CASE WHEN member.position = 'Member' THEN 1 ELSE 0 END) AS REAL))) * 100, 2) FROM member INNER JOIN zip_code ON member.zip = zip_code.zip_code WHERE member.position = 'Member';",
     "gold_sql": "SELECT CAST((SUM(CASE WHEN T2.state = 'New Jersey' THEN 1 ELSE 0 END) - SUM(CASE WHEN T2.state = 'Vermont' THEN 1 ELSE 0 END)) AS REAL) * 100 / COUNT(T1.member_id) AS diff FROM member AS T1 INNER JOIN zip_code AS T2 ON T2.zip_code = T1.zip",
     "label": false,
-    "reason_1": "No New Jearsy",
-    "reason_2": "Predicted SQL: wrong filter: state = 'Maine'\nGOLD FALSE: missing filter on position = 'Member'",
+    "reason_1": "Predicted SQL: wrong filter: state = 'Maine'\nGOLD FALSE: missing filter on position = 'Member'",
+    "reason_2": "No New Jearsy",
     "evidence": "SUBTRACT( DIVIDE( SUM(state = 'New Jersey'), COUNT(position = 'Member')), DIVIDE( SUM(state = 'Vermont'), COUNT(position = 'Member')) )"
   },
   {
@@ -138,8 +138,8 @@
     "predicted_sql": "SELECT d.forename, d.surname FROM drivers d JOIN laptimes l ON d.driverId = l.driverId WHERE d.nationality = 'German' AND d.dob BETWEEN '1980-01-01' AND '1990-12-31' ORDER BY l.time ASC LIMIT 3",
     "gold_sql": "SELECT T2.driverId FROM pitStops AS T1 INNER JOIN drivers AS T2 on T1.driverId = T2.driverId WHERE T2.nationality = 'German' AND STRFTIME('%Y', T2.dob) BETWEEN '1980' AND '1990' ORDER BY T1.time LIMIT 3",
     "label": false,
-    "reason_1": "GOLD FALSE. gold sql uses the wrong table, laptime instend of pitStops, and is lack of ASC.",
-    "reason_2": "GOLD FALSE",
+    "reason_1": "GOLD FALSE",
+    "reason_2": "GOLD FALSE. gold sql uses the wrong table, laptime instend of pitStops, and is lack of ASC.",
     "evidence": "born from 1980-1990 refers to year(dob) between 1980 and 1990; earliest lap time refers to Min(time);"
   },
   {
@@ -182,8 +182,8 @@
     "predicted_sql": "SELECT Player.player_name FROM Player INNER JOIN Player_Attributes ON Player.player_api_id = Player_Attributes.player_api_id ORDER BY Player_Attributes.overall_rating DESC LIMIT 10;",
     "gold_sql": "SELECT DISTINCT t1.player_name FROM Player AS t1 INNER JOIN Player_Attributes AS t2 ON t1.player_api_id = t2.player_api_id WHERE t2.overall_rating = (SELECT MAX(overall_rating) FROM Player_Attributes)",
     "label": false,
-    "reason_1": "Should use MAX(overall_rating) rather than ORDER BY overall_rating DESC LIMIT 10; Should use DISTINCT to remove duplicates",
-    "reason_2": "The strongest player should only return one result, which should be limit 1.",
+    "reason_1": "The strongest player should only return one result, which should be limit 1.",
+    "reason_2": "Should use MAX(overall_rating) rather than ORDER BY overall_rating DESC LIMIT 10; Should use DISTINCT to remove duplicates",
     "evidence": "strongest players refers to player has MAX(overall_rating)"
   },
   {
@@ -215,8 +215,8 @@
     "predicted_sql": "SELECT MAX(`Date`) AS latest_date FROM Laboratory WHERE ID IN ( SELECT ID FROM Patient ORDER BY `First Date` DESC LIMIT 1 ) AND LDH >= 500",
     "gold_sql": "SELECT T1.`First Date` FROM Patient AS T1 INNER JOIN Laboratory AS T2 ON T1.ID = T2.ID WHERE T2.LDH >= 500 ORDER BY T1.`First Date` DESC LIMIT 1",
     "label": false,
-    "reason_1": "Error MAX function",
-    "reason_2": "Predicted SQL first identifies the latest patient and then looks for anomalies, but the latest patient is not necessarily abnormal",
+    "reason_1": "Predicted SQL first identifies the latest patient and then looks for anomalies, but the latest patient is not necessarily abnormal",
+    "reason_2": "Error MAX function",
     "evidence": "latest patient refers to ID with MAX('First Date'); abnormal level of lactate dehydrogenase refers to LDH > = 500;"
   },
   {
@@ -237,8 +237,8 @@
     "predicted_sql": "SELECT MAX(expense.cost) FROM expense WHERE expense.expense_description = 'Water, chips, cookies';",
     "gold_sql": "SELECT T2.budget_id FROM expense AS T1 INNER JOIN budget AS T2 ON T1.link_to_budget = T2.budget_id WHERE T1.expense_description = 'Water, chips, cookies' ORDER BY T1.cost DESC LIMIT 1",
     "label": false,
-    "reason_1": "Predicted SQL only returns cost and does not meet the requirement that question returns budget",
-    "reason_2": "Wrong return results & should join the budget and expense table",
+    "reason_1": "Wrong return results & should join the budget and expense table",
+    "reason_2": "Predicted SQL only returns cost and does not meet the requirement that question returns budget",
     "evidence": "budget allowed refers to expense_description; expense_description = 'Water, chips, cookies'; most money refers to MAX(cost)"
   },
   {
@@ -248,8 +248,8 @@
     "predicted_sql": "SELECT COUNT(*) FROM Player WHERE player_name LIKE 'Aaron%' AND birthday > '1990-12-31 00:00:00'",
     "gold_sql": "SELECT COUNT(id) FROM Player WHERE birthday > '1990' AND player_name LIKE 'Aaron%'",
     "label": false,
-    "reason_1": "1990 not 1990-12-31",
-    "reason_2": "wrong condition.",
+    "reason_1": "wrong condition.",
+    "reason_2": "1990 not 1990-12-31",
     "evidence": "first name \"Aaron\" refers to player_name LIKE 'Aaron%'; born after the 1990s refers to birthday > '1990'"
   },
   {
@@ -292,8 +292,8 @@
     "predicted_sql": "SELECT DISTINCT p.player_name FROM Player p JOIN Match m ON p.player_api_id = m.home_player_1 OR p.player_api_id = m.home_player_2 OR p.player_api_id = m.home_player_3 OR p.player_api_id = m.home_player_4 OR p.player_api_id = m.home_player_5 OR p.player_api_id = m.home_player_6 OR p.player_api_id = m.home_player_7 OR p.player_api_id = m.home_player_8 OR p.player_api_id = m.home_player_9 OR p.player_api_id = m.home_player_10 OR p.player_api_id = m.home_player_11 OR p.player_api_id = m.away_player_1 OR p.player_api_id = m.away_player_2 OR p.player_api_id = m.away_player_3 OR p.player_api_id = m.away_player_4 OR p.player_api_id = m.away_player_5 OR p.player_api_id = m.away_player_6 OR p.player_api_id = m.away_player_7 OR p.player_api_id = m.away_player_8 OR p.player_api_id = m.away_player_9 OR p.player_api_id = m.away_player_10 OR p.player_api_id = m.away_player_11",
     "gold_sql": "SELECT t3.player_name FROM Country AS t1 INNER JOIN Match AS t2 ON t1.id = t2.country_id INNER JOIN Player AS t3 ON t2.home_player_1 = t3.player_api_id WHERE t1.name = 'Belgium'",
     "label": false,
-    "reason_1": "The names are different.",
-    "reason_2": "Error WHERE condition",
+    "reason_1": "Error WHERE condition",
+    "reason_2": "The names are different.",
     "evidence": "name of players refers to player_name; Belgium is name of country"
   },
   {
