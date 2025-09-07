@@ -19,7 +19,7 @@ class Refuter:
     def call(self, question: Dict[str, Any], pred_sql: str, pred_result: Any = None, gold_result: Any = None, prover_reason: str = None) -> bool:
         """Validate predicted SQL against gold standard SQL for critical conflicts"""
         try:
-            db_info = get_db_info(question["db_id"], pred_sql)
+            db_info = get_db_info(question["db_id"], pred_sql, question["gold_sql"])
             
             if pred_result is not None and gold_result is not None:
 

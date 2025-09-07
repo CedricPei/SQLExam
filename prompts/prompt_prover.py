@@ -16,11 +16,17 @@ At the same time, strictly enforce explicit anchors/constraints; if a required a
 4) Make a judgment based on the analysis.
 
 ### Judging Principles
-- **Anchor requirements**: verify explicit constraints implied by the question, evidence, and schema. If a required anchor cannot be validated from the provided inputs, return `false` and name the missing anchor in `reason`.
-- **Ambiguity handling**: when wording admits multiple reasonable interpretations not contradicted by the evidence or schema, you may judge `true` if the predicted SQL clearly commits to one explicit interpretation and `sql_result` satisfies it. State the assumed interpretation in `expected_answer` and `reason`.
-- **Evidence on success**: when returning `true`, cite directional evidence from `sql_result` (column names and preferably row positions).
-- **No invented constraints**: do not introduce requirements absent from the question, evidence, or schema.
-- **When ambiguity does NOT apply**: return `false` if the SQL contradicts an explicit anchor, mismatches entity/time/scope, or relies on irrelevant tables/columns where the schema disambiguates.
+- Anchor requirements: verify explicit constraints implied by the question, evidence. If a required anchor cannot be validated from the provided inputs, return false and name the missing anchor in reason.
+- Ambiguity handling: when wording admits multiple reasonable interpretations not contradicted by the evidence, you may judge true if the predicted SQL clearly commits to one interpretation and `sql_result` supports it. Briefly state the adopted interpretation.
+- NULL / DISTINCT neutrality
+  - Do not judge false solely because the query may include NULL or duplicate values, unless required by the question/evidence.
+  - For questions like "How many <entity>?", the result set should be distinct.
+- Relation-mapping ambiguity: if the schema allows multiple reasonable mappings between the subject and target entities, treat this as ambiguity and accept either mapping when other anchors are satisfied.
+- No invented constraints: do not introduce requirements absent from the question, evidence.
+- Evidence on success: when returning true, cite directional evidence from `sql_result` (column names and preferably row positions).
+- No extraneous content
+  - For superlatives/extrema, approximations or supersets are unacceptable.
+  - Containment is insufficient - the result must be all related to the question.
 
 ### Ambiguity examples
 - Q: "What percentage of refunds are from euro payments?"
@@ -47,6 +53,19 @@ At the same time, strictly enforce explicit anchors/constraints; if a required a
   Acceptable: SELECT player FROM scores ORDER BY points DESC LIMIT 1;
   Acceptable: SELECT player FROM scores ORDER BY points DESC, last_name ASC LIMIT 1;
   Why: Tie-breaking was not specified.
+
+### False answer examples
+*REMEMBER: You are lenient but principled !!!*
+- Q: "Which product is the top seller this quarter?"
+  Unacceptable: SELECT product_id FROM sales WHERE quarter='Q2-2023' GROUP BY product_id ORDER BY SUM(quantity) DESC LIMIT 10;
+  Unacceptable: SELECT product_id FROM sales GROUP BY product_id ORDER BY SUM(quantity) DESC LIMIT 1;
+  Why: Top-K superset (first) or missing the quarter anchor (second). Even if both queries happen to return the top seller, that coincidence is unacceptable because it violates the semantic constraints.
+
+- Q: "How many customers placed an order last month?"
+  Unacceptable: SELECT COUNT(*) FROM orders WHERE order_date >= '2023-05-01' AND order_date < '2023-06-01';
+  Unacceptable: SELECT COUNT(customer_id) FROM orders WHERE order_date >= '2023-05-01' AND order_date < '2023-06-01';
+  Why: The question is unambiguous (customers clearly means distinct customers), so ambiguity handling does not apply.
+
 
 ### Output JSON (field order is mandatory)
 Use concise language. No extra fields. Always emit keys in this exact order:

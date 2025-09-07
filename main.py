@@ -20,7 +20,7 @@ Refuter = Refuter(model=reasoning_model, output_dir=output_dir)
 PartialEval = SQLEvaluationPipeline(model=instruct_model)
 
 if __name__ == "__main__":
-    with open("samples_20.json", "r", encoding="utf-8") as f:
+    with open("sample.json", "r", encoding="utf-8") as f:
         questions = json.load(f)
     
     for question in tqdm(questions):
@@ -28,8 +28,8 @@ if __name__ == "__main__":
         db_id = question["db_id"]
         gold_sql = question["gold_sql"]
 
-        pred_res = run_with_timeout(execute_sql, db_id, pred_sql, timeout=20)
-        gold_res = run_with_timeout(execute_sql, db_id, gold_sql, timeout=20)
+        pred_res = run_with_timeout(execute_sql, db_id, pred_sql, timeout=60)
+        gold_res = run_with_timeout(execute_sql, db_id, gold_sql, timeout=60)
 
         score = 0.0
         refuter_verdict = None
