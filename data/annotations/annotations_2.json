@@ -851,7 +851,7 @@
     "question": "What percentage of carcinogenic-type molecules does not contain fluorine?",
     "predicted_sql": "SELECT (100 - (CAST(COUNT(DISTINCT CASE WHEN T2.element = 'f' THEN T1.molecule_id END) AS REAL) * 100 / COUNT(DISTINCT T1.molecule_id))) AS percentage FROM molecule AS T1 LEFT JOIN atom AS T2 ON T1.molecule_id = T2.molecule_id WHERE T1.label = '+'",
     "gold_sql": "SELECT CAST(COUNT(DISTINCT CASE WHEN T1.element <> 'f' THEN T2.molecule_id ELSE NULL END) AS REAL) * 100 / COUNT(DISTINCT T2.molecule_id) FROM atom AS T1 INNER JOIN molecule AS T2 ON T1.molecule_id = T2.molecule_id WHERE T2.label = '+'",
-    "label": false,
+    "label": true,
     "reason": "GOLD FALSE"
   },
   {
@@ -878,7 +878,7 @@
     "question": "For all patients who are older than 55 years old, what is the percentage of female who has abnormal prothrombin time (PT)?",
     "predicted_sql": "SELECT CAST(SUM(CASE WHEN Patient.SEX = 'F' THEN 1 ELSE 0 END) AS REAL) * 100 / COUNT(*) FROM Patient JOIN Laboratory ON Patient.ID = Laboratory.ID WHERE strftime('%Y', current_timestamp) - strftime('%Y', Patient.Birthday) > 55 AND Laboratory.PT >= 14",
     "gold_sql": "SELECT CAST(SUM(CASE WHEN T2.PT >= 14 AND T1.SEX = 'F' THEN 1 ELSE 0 END) AS REAL) * 100 / COUNT(*) FROM Patient AS T1 INNER JOIN Laboratory AS T2 ON T1.ID = T2.ID WHERE STRFTIME('%Y', CURRENT_TIMESTAMP) - STRFTIME('%Y', T1.Birthday) > 55",
-    "label": false,
+    "label": true,
     "reason": "Error WHERE condition"
   },
   {
@@ -1004,8 +1004,8 @@
     "question": "What type of bond is there between the atoms TR004_8 and TR004_20?",
     "predicted_sql": "SELECT T2.bond_type FROM connected AS T1 INNER JOIN bond AS T2 ON T1.bond_id = T2.bond_id WHERE T1.atom_id = 'TR004_8' AND T1.atom_id2 = 'TR004_20'",
     "gold_sql": "SELECT T1.bond_type FROM bond AS T1 INNER JOIN connected AS T2 ON T1.bond_id = T2.bond_id WHERE T2.atom_id = 'TR004_8' AND T2.atom_id2 = 'TR004_20' OR T2.atom_id2 = 'TR004_8' AND T2.atom_id = 'TR004_20'",
-    "label": true,
-    "reason": ""
+    "label": false,
+    "reason": "Should consider both directions"
   },
   {
     "question_id": 1480,
@@ -1013,8 +1013,8 @@
     "question": "What was the gas consumption peak month for SME customers in 2013?",
     "predicted_sql": "SELECT T2.Date FROM customers AS T1 INNER JOIN yearmonth AS T2 ON T1.CustomerID = T2.CustomerID WHERE T1.Segment = 'SME' AND T2.Date LIKE '2013%' ORDER BY T2.Consumption DESC LIMIT 1",
     "gold_sql": "SELECT SUBSTR(T2.Date, 5, 2) FROM customers AS T1 INNER JOIN yearmonth AS T2 ON T1.CustomerID = T2.CustomerID WHERE SUBSTR(T2.Date, 1, 4) = '2013' AND T1.Segment = 'SME' GROUP BY SUBSTR(T2.Date, 5, 2) ORDER BY SUM(T2.Consumption) DESC LIMIT 1",
-    "label": true,
-    "reason": ""
+    "label": false,
+    "reason": "Should order by sum of consumption"
   },
   {
     "question_id": 872,
@@ -1292,8 +1292,8 @@
     "question": "Calculate the difference in view count from post posted by Mornington and view count from posts posted by Amos.",
     "predicted_sql": "SELECT SUM(CASE WHEN users.DisplayName = 'mornington' THEN posts.ViewCount ELSE 0 END) - SUM(CASE WHEN users.DisplayName = 'Amos' THEN posts.ViewCount ELSE 0 END) FROM posts JOIN users ON posts.OwnerUserId = users.Id WHERE users.DisplayName IN ('mornington', 'Amos')",
     "gold_sql": "SELECT SUM(IIF(T1.DisplayName = 'Mornington', T3.ViewCount, 0)) - SUM(IIF(T1.DisplayName = 'Amos', T3.ViewCount, 0)) AS diff FROM users AS T1 INNER JOIN postHistory AS T2 ON T1.Id = T2.UserId INNER JOIN posts AS T3 ON T3.Id = T2.PostId",
-    "label": false,
-    "reason": "Missing JOIN"
+    "label": true,
+    "reason": "GOLD FALSE"
   },
   {
     "question_id": 271,

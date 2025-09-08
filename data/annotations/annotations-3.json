@@ -447,8 +447,8 @@
     "question": "Which district has the most accounts with loan contracts finished with no problems?",
     "predicted_sql": "SELECT d.district_id FROM loan l JOIN account a ON l.account_id = a.account_id JOIN district d ON a.district_id = d.district_id WHERE l.status = 'A' GROUP BY d.district_id ORDER BY COUNT(l.loan_id) DESC LIMIT 1",
     "gold_sql": "SELECT T1.A2 FROM District AS T1 INNER JOIN Account AS T2 ON T1.District_id = T2.District_id INNER JOIN Loan AS T3 ON T2.Account_id = T3.Account_id WHERE T3.status = 'A' GROUP BY T1.District_id ORDER BY COUNT(T2.Account_id) DESC LIMIT 1",
-    "label": true,
-    "reason": ""
+    "label": false,
+    "reason": "Pred counts loans, not accounts"
   },
   {
     "question_id": 46,
@@ -996,8 +996,8 @@
     "question": "What type of bond is there between the atoms TR004_8 and TR004_20?",
     "predicted_sql": "SELECT T2.bond_type FROM connected AS T1 INNER JOIN bond AS T2 ON T1.bond_id = T2.bond_id WHERE T1.atom_id = 'TR004_8' AND T1.atom_id2 = 'TR004_20'",
     "gold_sql": "SELECT T1.bond_type FROM bond AS T1 INNER JOIN connected AS T2 ON T1.bond_id = T2.bond_id WHERE T2.atom_id = 'TR004_8' AND T2.atom_id2 = 'TR004_20' OR T2.atom_id2 = 'TR004_8' AND T2.atom_id = 'TR004_20'",
-    "label": true,
-    "reason": ""
+    "label": false,
+    "reason": "Pred do not consider another direction"
   },
   {
     "question_id": 1487,

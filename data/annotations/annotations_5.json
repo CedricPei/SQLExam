@@ -356,8 +356,8 @@
     "question": "What is the lap record for the Austrian Grand Prix Circuit?",
     "predicted_sql": "SELECT MIN(lt.time) FROM laptimes lt JOIN races r ON lt.raceId = r.raceId WHERE r.name = 'Austrian Grand Prix'",
     "gold_sql": "WITH fastest_lap_times AS ( SELECT T1.raceId, T1.fastestLapTime FROM results AS T1 WHERE T1.FastestLapTime IS NOT NULL) SELECT MIN(fastest_lap_times.fastestLapTime) as lap_record FROM fastest_lap_times INNER JOIN races AS T2 on fastest_lap_times.raceId = T2.raceId INNER JOIN circuits AS T3 on T2.circuitId = T3.circuitId WHERE T2.name = 'Austrian Grand Prix'",
-    "label": true,
-    "reason": ""
+    "label": false,
+    "reason": "Austrian Grand Prix is not a circuit"
   },
   {
     "question_id": 939,
@@ -572,8 +572,8 @@
     "question": "Which country was the card owner of No.667467 in?",
     "predicted_sql": "SELECT CASE WHEN T2.Currency = 'EUR' THEN 'SVK' WHEN T2.Currency = 'CZK' THEN 'CZE' END AS Country FROM transactions_1k AS T1 INNER JOIN customers AS T2 ON T1.CustomerID = T2.CustomerID WHERE T1.CardID = 667467",
     "gold_sql": "SELECT T2.Country FROM transactions_1k AS T1 INNER JOIN gasstations AS T2 ON T1.GasStationID = T2.GasStationID WHERE T1.CardID = '667467'",
-    "label": true,
-    "reason": ""
+    "label": false,
+    "reason": "wrong logic with compulsory mapping"
   },
   {
     "question_id": 562,
@@ -627,7 +627,7 @@
     "predicted_sql": "SELECT COUNT(*) FROM cards WHERE cards.availability LIKE '%paper%' AND cards.hand LIKE '+%';",
     "gold_sql": "SELECT SUM(CASE WHEN availability = 'paper' AND hAND = '3' THEN 1 ELSE 0 END) FROM cards",
     "label": false,
-    "reason": "hand=3 未满足条件"
+    "reason": "hand=3 not satisfied"
   },
   {
     "question_id": 1527,

@@ -19,15 +19,15 @@ Execution results are only AUXILIARY; do not treat them as decisive. Focus on th
 ### Judging Principles
 - Anchor requirements: verify explicit constraints implied by the question, evidence. If a required anchor cannot be validated from the provided inputs, return false and name the missing anchor in reason.
 - Ambiguity handling: when wording admits multiple reasonable interpretations not contradicted by the evidence, you may judge true if the predicted SQL clearly commits to one interpretation and `sql_result` supports it. Briefly state the adopted interpretation.
+- Relation-mapping ambiguity: if the schema allows multiple reasonable mappings between the subject and target entities, treat this as ambiguity and accept either mapping when other anchors are satisfied.
 - NULL / DISTINCT neutrality
   - Do not judge false solely because the query may include NULL or duplicate values, unless required by the question/evidence.
-  - For questions like "How many <entity>?", the result set should be distinct.
-- Relation-mapping ambiguity: if the schema allows multiple reasonable mappings between the subject and target entities, treat this as ambiguity and accept either mapping when other anchors are satisfied.
-- No invented constraints: do not introduce requirements absent from the question, evidence.
-- Evidence on success: when returning true, cite directional evidence from `sql_result` (column names and preferably row positions).
+  - For quantitative questions (counts, percentages, ratios), carefully ensure nulls and duplicates don't affect the result (use DISTINCT and IS NOT NULL when needed).
 - No extraneous content
+  - No invented constraints: do not introduce requirements absent from the question, evidence.
   - For superlatives/extrema, approximations or supersets are unacceptable.
   - Containment is insufficient - the result must be all related to the question.
+- For singularly phrased questions (e.g., “what is”, “which is”), allow multiple results and NULLs unless the question explicitly requires.
 
 ### Ambiguity examples
 - Q: "What percentage of refunds are from euro payments?"

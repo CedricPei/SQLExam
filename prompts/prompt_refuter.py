@@ -37,7 +37,7 @@ Judge the prediction primarily against the question/evidence/schema. Overturn th
   • Tie-handling differences in ordering (unless explicitly required by the question).
 
 - Special notes:
-  - For "how many" or percentage/ratio questions, ensure nulls and duplicates don't impact the result.
+  - For "how many" or percentage/ratio questions, ensure nulls and duplicates don't impact the result (use DISTINCT and IS NOT NULL when needed).
     Q: "How many products are in the inventory?"
     Acceptable: SELECT COUNT(DISTINCT product_id) FROM inventory;
     Unacceptable: SELECT COUNT(product_id) FROM inventory;

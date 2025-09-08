@@ -5,7 +5,8 @@ import numpy as np
 from sklearn.metrics import cohen_kappa_score
 
 def merge_results_by_question_id(model_name):
-    model_dir = model_name
+    preferred_dir = os.path.join("output", model_name)
+    model_dir = preferred_dir if os.path.isdir(preferred_dir) else model_name
     refuter_file = os.path.join(model_dir, "refuter_output.json")
     prover_file = os.path.join(model_dir, "prover_output.json")
     eval_file = os.path.join(model_dir, "eval_results.json")
@@ -47,12 +48,15 @@ def merge_results_by_question_id(model_name):
 
         merged_results.append(merged_item)
     
-    results_file = f"{model_name}_results.json"
+    os.makedirs(model_dir, exist_ok=True)
+    results_file = os.path.join(model_dir, f"{model_name}_results.json")
     with open(results_file, 'w', encoding='utf-8') as f:
         json.dump(merged_results, f, ensure_ascii=False, indent=2)
 
 def analyze_results(model_name):
-    results_file = f"{model_name}_results.json"
+    preferred_dir = os.path.join("output", model_name)
+    model_dir = preferred_dir if os.path.isdir(preferred_dir) else model_name
+    results_file = os.path.join(model_dir, f"{model_name}_results.json")
     with open(results_file, 'r', encoding='utf-8') as f:
         data = json.load(f)
     
@@ -95,7 +99,8 @@ def analyze_results(model_name):
     recall = tp / (tp + fn) if (tp + fn) > 0 else 0
     f1_score = 2 * (precision * recall) / (precision + recall) if (precision + recall) > 0 else 0
     
-    model_dir = model_name
+    preferred_dir = os.path.join("output", model_name)
+    model_dir = preferred_dir if os.path.isdir(preferred_dir) else model_name
     os.makedirs(model_dir, exist_ok=True)
     
     label_true_score_0_file = os.path.join(model_dir, f"{model_name}_label_true_score_0.json")
@@ -134,7 +139,9 @@ def analyze_results(model_name):
         }
     }
     
-    stats_file = os.path.join(model_dir, f"{model_name}_statistics.json")
+    stats_dir = "output"
+    os.makedirs(stats_dir, exist_ok=True)
+    stats_file = os.path.join(stats_dir, f"{model_name}_statistics.json")
     with open(stats_file, 'w', encoding='utf-8') as f:
         json.dump(stats, f, ensure_ascii=False, indent=2)
 

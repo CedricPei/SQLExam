@@ -9,7 +9,6 @@ from collections import defaultdict
 from typing import Dict, List, Any
 
 def load_annotation_files():
-    """加载所有annotation文件"""
     annotation_files = [
         'annotations_1.json',
         'annotations_2.json', 
@@ -23,13 +22,10 @@ def load_annotation_files():
     for filename in annotation_files:
         filepath = os.path.join(os.path.dirname(__file__), filename)
         if os.path.exists(filepath):
-            print(f"正在加载 {filename}...")
             with open(filepath, 'r', encoding='utf-8-sig') as f:
                 data = json.load(f)
                 
-                # 处理不同的JSON格式
                 if isinstance(data, dict) and 'Sheet1' in data:
-                    # annotations_1.json 有特殊的Sheet1结构，需要跳过
                     print(f"跳过 {filename} (特殊格式)")
                     continue
                 elif isinstance(data, list):
@@ -48,7 +44,6 @@ def group_by_question_id(data: List[Dict]) -> Dict[int, List[Dict]]:
     for item in data:
         if 'question_id' in item:
             question_id = item['question_id']
-            # 保留需要的字段，包括reason
             filtered_item = {
                 'question_id': item['question_id'],
                 'db_id': item.get('db_id', ''),
@@ -98,17 +93,12 @@ def analyze_labels(grouped_data: Dict[int, List[Dict]]):
     return test_cases, argue_cases, lack_cases
 
 def save_results(test_cases: List[Dict], argue_cases: List[Dict], lack_cases: List[Dict]):
-    """保存结果到JSON文件"""
-    # 保存test.json (相同label)
     test_data = []
     for case in test_cases:
-        # 为每个相同label的question_id创建一个记录，包含两个不同的reason
         if len(case['items']) >= 2:
-            # 找到两个不同的reason
             reasons = [item.get('reason', '') for item in case['items']]
             unique_reasons = list(set(reasons))
             
-            # 创建包含两个不同reason的记录
             test_record = {
                 'question_id': case['question_id'],
                 'db_id': case['items'][0].get('db_id', ''),
@@ -124,16 +114,12 @@ def save_results(test_cases: List[Dict], argue_cases: List[Dict], lack_cases: Li
     with open('test.json', 'w', encoding='utf-8') as f:
         json.dump(test_data, f, ensure_ascii=False, indent=2)
     
-    # 保存argue.json (不同label)
     argue_data = []
     for case in argue_cases:
-        # 为每个有争议的question_id创建一个记录，包含两个不同的reason
         if len(case['items']) >= 2:
-            # 找到两个不同的reason
             reasons = [item.get('reason', '') for item in case['items']]
             unique_reasons = list(set(reasons))
             
-            # 创建包含两个不同reason的记录
             argue_record = {
                 'question_id': case['question_id'],
                 'db_id': case['items'][0].get('db_id', ''),
@@ -148,7 +134,6 @@ def save_results(test_cases: List[Dict], argue_cases: List[Dict], lack_cases: Li
     with open('argue.json', 'w', encoding='utf-8') as f:
         json.dump(argue_data, f, ensure_ascii=False, indent=2)
     
-    # 保存lack.json (只有一个标注)
     lack_data = []
     for case in lack_cases:
         for item in case['items']:
@@ -160,35 +145,10 @@ def save_results(test_cases: List[Dict], argue_cases: List[Dict], lack_cases: Li
     return len(test_data), len(argue_data), len(lack_data)
 
 def main():
-    print("开始分析annotations文件...")
-    
-    # 加载数据
     data = load_annotation_files()
-    print(f"总共加载了 {len(data)} 条记录")
-    
-    # 按question_id分组
     grouped_data = group_by_question_id(data)
-    print(f"找到 {len(grouped_data)} 个不同的question_id")
-    
-    # 分析label一致性
     test_cases, argue_cases, lack_cases = analyze_labels(grouped_data)
-    
-    print(f"\n分析结果:")
-    print(f"- 相同label的question_id数量: {len(test_cases)}")
-    print(f"- 不同label的question_id数量: {len(argue_cases)}")
-    print(f"- 只有一个标注的question_id数量: {len(lack_cases)}")
-    
-    # 保存结果
     test_count, argue_count, lack_count = save_results(test_cases, argue_cases, lack_cases)
-    
-    print(f"\n保存结果:")
-    print(f"- test.json: {test_count} 条记录 (相同label)")
-    print(f"- argue.json: {argue_count} 条记录 (不同label)")
-    print(f"- lack.json: {lack_count} 条记录 (只有一个标注)")
-    
-    # 显示一些统计信息
-    print(f"\n详细统计:")
-    print(f"- 有多个标注的question_id总数: {len(test_cases) + len(argue_cases)}")
     print(f"- 标注一致的question_id: {len(test_cases)}")
     print(f"- 标注不一致的question_id: {len(argue_cases)}")
     print(f"- 只有一个标注的question_id: {len(lack_cases)}")
