@@ -725,8 +725,8 @@
     "question": "For all the set of cards that has Brazil Portuguese translation, what is the percentage of them are only available online?",
     "predicted_sql": "SELECT CAST(SUM(CASE WHEN T2.isOnlineOnly = 1 THEN 1 ELSE 0 END) AS REAL) * 100 / COUNT(T1.uuid) AS percentage FROM foreign_data AS T1 INNER JOIN cards AS T2 ON T1.uuid = T2.uuid WHERE T1.language = 'Portuguese (Brazil)'",
     "gold_sql": "SELECT CAST(SUM(CASE WHEN isOnlineOnly = 1 THEN 1 ELSE 0 END) AS REAL) * 100 / COUNT(id) FROM sets WHERE code IN ( SELECT setCode FROM set_translations WHERE language = 'Portuguese (Brazil)' )",
-    "label": false,
-    "reason": "do not operate on sets"
+    "label": true,
+    "reason": ""
   },
   {
     "question_id": 1006,
@@ -1211,7 +1211,7 @@
     "question": "How many posts with votes that were created in 2011 have a bounty of 50?",
     "predicted_sql": "SELECT COUNT(PostId) FROM votes WHERE strftime('%Y', CreationDate) = '2011' AND BountyAmount = 50",
     "gold_sql": "SELECT COUNT(T1.Id) FROM posts AS T1 INNER JOIN votes AS T2 ON T1.Id = T2.PostId WHERE T2.BountyAmount = 50 AND STRFTIME('%Y', T2.CreationDate) = '2011'",
-    "label": true,
+    "label": false,
     "reason": ""
   },
   {

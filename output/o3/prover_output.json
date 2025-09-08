@@ -1,0 +1,39 @@
+[
+  {
+    "question_id": 437,
+    "result": {
+      "expected_answer": "Names of the card(s) whose borderColor is 'black' and whose isFullArt flag is 1.",
+      "sql_description": "Returns the name field for every row in cards where borderColor = 'black' and isFullArt = 1.",
+      "reason": "Query applies both required filters (black border, full art) and outputs the requested card name(s). Presence of duplicates does not violate the question, which asks only which card(s).",
+      "verdict": true,
+      "evidence": "sql_result shows column 'name' with examples like 'Plains', 'Island', confirming names returned under the specified filters."
+    }
+  },
+  {
+    "question_id": 1267,
+    "result": {
+      "expected_answer": "Number of patients whose anti-SM result is normal (value '-' or '+-' which correspond to 'negative' or '0') AND who do not have thrombosis (Thrombosis = 0).",
+      "sql_description": "Counts patients where Laboratory.SM is 'negative' or '0', but only if Examination.Thrombosis = 1 (has thrombosis).",
+      "reason": "The SQL applies the opposite thrombosis condition; it counts patients WITH thrombosis instead of WITHOUT (missing anchor Thrombosis = 0).",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 139,
+    "result": {
+      "expected_answer": "The number of credit cards of type 'gold' (high-level) whose related disposition record has type 'OWNER'. It should be a single count value.",
+      "sql_description": "Counts all card records with type 'gold' whose linked disposition has type 'disponent'.",
+      "reason": "The query uses disp.type = 'disponent' instead of the required 'OWNER', violating the explicit disposition anchor.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 595,
+    "result": {
+      "expected_answer": "User IDs (users.Id) of users whose profile has at least 1000 Views AND for every post they authored each post appears exactly once in postHistory (i.e., no post written by the user has more than one postHistory entry).",
+      "sql_description": "Selects users with Views >= 1000; groups only by UserId and retains those having COUNT(DISTINCT PostId) = 1 – meaning the user is associated with exactly one post in postHistory, regardless of how many history rows that one post has.",
+      "reason": "The query checks that the user has only ONE distinct PostId overall, not that each of the user’s posts has only one postHistory entry. It therefore excludes valid users with multiple posts that each have a single history record, and may include users whose single post has multiple history entries. The anchor on \"one post history per post\" is not satisfied.",
+      "verdict": false
+    }
+  }
+]

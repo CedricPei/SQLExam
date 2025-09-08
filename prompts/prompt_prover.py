@@ -8,6 +8,7 @@ At the same time, strictly enforce explicit anchors/constraints; if a required a
 - predicted_sql: the SQL query to be validated
 - db_info: database information including schema and column descriptions
 - sql_result: the execution result of the predicted SQL
+Execution results are only AUXILIARY; do not treat them as decisive. Focus on the logical correctness and its alignment with the question's intent.
 
 ### Reasoning order (follow strictly)
 1) Determine what the expected answer content should be based on the question and evidence.
@@ -57,9 +58,12 @@ At the same time, strictly enforce explicit anchors/constraints; if a required a
 ### False answer examples
 *REMEMBER: You are lenient but principled !!!*
 - Q: "Which product is the top seller this quarter?"
-  Unacceptable: SELECT product_id FROM sales WHERE quarter='Q2-2023' GROUP BY product_id ORDER BY SUM(quantity) DESC LIMIT 10;
   Unacceptable: SELECT product_id FROM sales GROUP BY product_id ORDER BY SUM(quantity) DESC LIMIT 1;
-  Why: Top-K superset (first) or missing the quarter anchor (second). Even if both queries happen to return the top seller, that coincidence is unacceptable because it violates the semantic constraints.
+  Why: Missing the quarter anchor.
+
+- Q: "Which product is the top seller this quarter?"
+  Unacceptable: SELECT product_id FROM sales WHERE quarter='Q2-2023' GROUP BY product_id ORDER BY SUM(quantity) DESC LIMIT 10;
+  Why: Top-K superset. Even though the 10 returned products could be the same (duplicates), it incorrectly retrieves multiple results.
 
 ** IMPORTANT: For "how many" and "percentage" queries, carefully determine whether DISTINCT/NOT NULL is needed. **
 - Q: "How many customers placed an order?"
@@ -72,6 +76,10 @@ At the same time, strictly enforce explicit anchors/constraints; if a required a
   Unacceptable: SELECT 100.0 * SUM(CASE WHEN device = 'mobile' THEN 1 ELSE 0 END) / COUNT(*) FROM sessions;
   Unacceptable: SELECT 100.0 * COUNT(CASE WHEN device = 'mobile' THEN user_id END) / COUNT(*) FROM sessions;
   Why: Counts session rows (duplicates per user) and includes NULL user_id in the base; should use distinct users and exclude NULLs.
+
+### Special notes
+- "After [year]" means on or after [year], including the specified year.
+- "Before [year]" means strictly before [year], excluding the specified year.
 
 ### Output JSON (field order is mandatory)
 Use concise language. No extra fields. Always emit keys in this exact order:

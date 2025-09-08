@@ -22,6 +22,8 @@ PartialEval = SQLEvaluationPipeline(model=instruct_model)
 if __name__ == "__main__":
     with open("sample.json", "r", encoding="utf-8") as f:
         questions = json.load(f)
+    # questions = [q for q in questions if int(q["question_id"]) in {1501}]
+    problem_ids = []
     
     for question in tqdm(questions):
         pred_sql = question["predicted_sql"]
@@ -47,5 +49,10 @@ if __name__ == "__main__":
 
             if score != 1.0 and partial:
                 score = PartialEval.eval(question, pred_sql)
-
+        else:
+            problem_ids.append(question.get("question_id"))
+            continue
         write_result_to_file(question, pred_sql, score, prover_verdict, refuter_verdict, output_dir)
+
+    with open(os.path.join(output_dir, "problem_question_ids.json"), "w", encoding="utf-8") as f:
+        json.dump(problem_ids, f, ensure_ascii=False, indent=2)

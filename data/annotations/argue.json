@@ -41,8 +41,8 @@
     "question": "Which molecule consisted of Sulphur atom with double bond?",
     "predicted_sql": "SELECT DISTINCT T1.molecule_id FROM atom AS T1 INNER JOIN connected AS T2 ON T1.atom_id = T2.atom_id2 INNER JOIN bond AS T3 ON T2.bond_id = T3.bond_id WHERE T1.element = 's' AND T3.bond_type = '='",
     "gold_sql": "SELECT DISTINCT T1.molecule_id FROM atom AS T1 INNER JOIN bond AS T2 ON T1.molecule_id = T2.molecule_id WHERE T1.element = 's' AND T2.bond_type = '='",
-    "reason_1": "use the connect, mislead the meaning.",
-    "reason_2": "ground truth false"
+    "reason_1": "ground truth false",
+    "reason_2": "use the connect, mislead the meaning."
   },
   {
     "question_id": 220,
@@ -99,13 +99,22 @@
     "reason_2": "wrong aggregation in condition"
   },
   {
+    "question_id": 1391,
+    "db_id": "student_club",
+    "question": "What is the ratio between students majored in finance and physics?",
+    "predicted_sql": "SELECT CAST(SUM(CASE WHEN T1.major_name = 'Finance' THEN 1 ELSE 0 END) AS REAL) / SUM(CASE WHEN T1.major_name = 'Physics' THEN 1 ELSE 0 END) FROM major AS T1 INNER JOIN member AS T2 ON T1.major_id = T2.link_to_major",
+    "gold_sql": "SELECT SUM(CASE WHEN major_name = 'Finance' THEN 1 ELSE 0 END) / SUM(CASE WHEN major_name = 'Physics' THEN 1 ELSE 0 END) AS ratio FROM major",
+    "reason_1": "",
+    "reason_2": "GOLD FALSE"
+  },
+  {
     "question_id": 1389,
     "db_id": "student_club",
     "question": "Which event has the lowest cost?",
     "predicted_sql": "SELECT T3.event_name FROM budget AS T1 INNER JOIN expense AS T2 ON T1.budget_id = T2.link_to_budget INNER JOIN event AS T3 ON T1.link_to_event = T3.event_id ORDER BY T2.cost ASC LIMIT 1",
     "gold_sql": "SELECT T1.event_name FROM event AS T1 INNER JOIN budget AS T2 ON T1.event_id = T2.link_to_event INNER JOIN expense AS T3 ON T2.budget_id = T3.link_to_budget WHERE T3.cost = (SELECT MIN(T6.cost) FROM event AS T4 INNER JOIN budget AS T5 ON T4.event_id = T5.link_to_event INNER JOIN expense AS T6 ON T5.budget_id = T6.link_to_budget)",
-    "reason_1": "There are more than one lowest value candidates",
-    "reason_2": ""
+    "reason_1": "",
+    "reason_2": "There are more than one lowest value candidates"
   },
   {
     "question_id": 1441,
@@ -113,8 +122,8 @@
     "question": "How many members have education major in the College of Education & Human Services?",
     "predicted_sql": "SELECT COUNT(member_id) FROM member INNER JOIN major ON member.link_to_major = major.major_id WHERE major_name = 'education' AND college = 'College of Education & Human Services' AND position = 'Member'",
     "gold_sql": "SELECT COUNT(T1.member_id) FROM member AS T1 INNER JOIN major AS T2 ON T2.major_id = T1.link_to_major WHERE T1.position = 'Member' AND T2.major_name LIKE '%Education%' AND T2.college = 'College of Education & Human Services'",
-    "reason_1": "need approximate condition",
-    "reason_2": "Error major value"
+    "reason_1": "Error major value",
+    "reason_2": "need approximate condition"
   },
   {
     "question_id": 1068,
@@ -131,8 +140,8 @@
     "question": "Which schools served a grade span of Kindergarten to 9th grade in the county of Los Angeles and what is its Percent (%) Eligible FRPM (Ages 5-17)?",
     "predicted_sql": "SELECT schools.School, frpm.`Percent (%) Eligible FRPM (Ages 5-17)` FROM schools INNER JOIN frpm ON schools.CDSCode = frpm.CDSCode WHERE schools.GSserved = 'K-9' AND schools.County = 'Los Angeles';",
     "gold_sql": "SELECT T2.School, T1.`FRPM Count (Ages 5-17)` * 100 / T1.`Enrollment (Ages 5-17)` FROM frpm AS T1 INNER JOIN schools AS T2 ON T1.CDSCode = T2.CDSCode WHERE T2.County = 'Los Angeles' AND T2.GSserved = 'K-9'",
-    "reason_1": "",
-    "reason_2": "forgot to * 100"
+    "reason_1": "forgot to * 100",
+    "reason_2": ""
   },
   {
     "question_id": 892,
@@ -162,6 +171,15 @@
     "reason_2": "there are more than 1 top"
   },
   {
+    "question_id": 1214,
+    "db_id": "thrombosis_prediction",
+    "question": "List ID, sex and date of birth of patient whose total protein (TP) below the lower range of the normal index.",
+    "predicted_sql": "SELECT Patient.ID, Patient.SEX, Patient.Birthday FROM Patient INNER JOIN Laboratory ON Patient.ID = Laboratory.ID WHERE Laboratory.TP < 6.0",
+    "gold_sql": "SELECT DISTINCT T1.ID, T1.SEX, T1.Birthday FROM Patient AS T1 INNER JOIN Laboratory AS T2 ON T1.ID = T2.ID WHERE T2.TP < 6.0",
+    "reason_1": "",
+    "reason_2": ""
+  },
+  {
     "question_id": 49,
     "db_id": "california_schools",
     "question": "Which different county has the most number of closed schools? Please provide the name of each school as well as the closure date.",
@@ -176,8 +194,8 @@
     "question": "What is the average age of patients as of year 1999 examined in the laboratory for the October of the year 1991?",
     "predicted_sql": "SELECT AVG(1999 - STRFTIME('%Y', patient.birthday)) AS averageage FROM patient INNER JOIN laboratory ON patient.id = laboratory.id WHERE laboratory.date BETWEEN '1991-10-01' AND '1991-10-31'",
     "gold_sql": "SELECT AVG('1999'  - STRFTIME('%Y', T2.Birthday)) FROM Laboratory AS T1 INNER JOIN Patient AS T2 ON T1.ID = T2.ID WHERE T1.Date BETWEEN '1991-10-01' AND '1991-10-30'",
-    "reason_1": "precision error I think",
-    "reason_2": "1991-10-31 false"
+    "reason_1": "1991-10-31 false",
+    "reason_2": "precision error I think"
   },
   {
     "question_id": 1514,
@@ -338,8 +356,8 @@
     "question": "What is the type of card \"Benalish Knight\"?",
     "predicted_sql": "SELECT type FROM cards WHERE name = 'Benalish Knight'",
     "gold_sql": "SELECT DISTINCT T1.type FROM cards AS T1 INNER JOIN foreign_data AS T2 ON T1.uuid = T2.uuid WHERE T1.name = 'Benalish Knight'",
-    "reason_1": "GOLD FALSE. Predicted SQL is correct. gold sql filters foreign_data, which is completely unnecessary and cannot meet the requirements of the question under certain conditions.",
-    "reason_2": "GOLD FALSE: should not use foreign_data.name as filter condition"
+    "reason_1": "GOLD FALSE: should not use foreign_data.name as filter condition",
+    "reason_2": "GOLD FALSE. Predicted SQL is correct. gold sql filters foreign_data, which is completely unnecessary and cannot meet the requirements of the question under certain conditions."
   },
   {
     "question_id": 102,
@@ -347,8 +365,8 @@
     "question": "State different accounts who have account opening date before 1997 and own an amount of money greater than 3000USD",
     "predicted_sql": "SELECT DISTINCT T1.account_id FROM account AS T1 INNER JOIN trans AS T2 ON T1.account_id = T2.account_id WHERE T1.date < '1997-01-01' AND T2.balance > 3000",
     "gold_sql": "SELECT DISTINCT T2.account_id FROM trans AS T1 INNER JOIN account AS T2 ON T1.account_id = T2.account_id WHERE STRFTIME('%Y', T2.date) < '1997' AND T1.amount > 3000",
-    "reason_1": "GOLD FALSE. amount represents the transaction amount, and balance is the balance after the transaction.",
-    "reason_2": "GOLD FALSE: the gold SQL uses trans.amount>3000 as the filter condition, which means the amount in a specific transaction. However, the question is asking for accounts own an amount of money greater than 3000USD, which in fact corresponding to the trans.balance column, which reflects the latest balance of the account"
+    "reason_1": "GOLD FALSE: the gold SQL uses trans.amount>3000 as the filter condition, which means the amount in a specific transaction. However, the question is asking for accounts own an amount of money greater than 3000USD, which in fact corresponding to the trans.balance column, which reflects the latest balance of the account",
+    "reason_2": "GOLD FALSE. amount represents the transaction amount, and balance is the balance after the transaction."
   },
   {
     "question_id": 649,
@@ -356,8 +374,8 @@
     "question": "Describe the post history counts and last edit date of the post title \"What is the best introductory Bayesian statistics textbook?\"",
     "predicted_sql": "SELECT COUNT(T2.Id), T1.LastEditDate FROM posts AS T1 INNER JOIN postHistory AS T2 ON T1.Id = T2.PostId WHERE T1.Title = 'What is the best introductory Bayesian statistics textbook?'",
     "gold_sql": "SELECT T1.Id, T2.LastEditDate FROM postHistory AS T1 INNER JOIN posts AS T2 ON T1.PostId = T2.Id WHERE T2.Title = 'What is the best introductory Bayesian statistics textbook?'",
-    "reason_1": "GOLD FALSE: Should return the post history counts",
-    "reason_2": "GOLD FALSE. The question requires a historical count, while gold sql returns the id of each edit"
+    "reason_1": "GOLD FALSE. The question requires a historical count, while gold sql returns the id of each edit",
+    "reason_2": "GOLD FALSE: Should return the post history counts"
   },
   {
     "question_id": 516,
@@ -383,8 +401,8 @@
     "question": "For the patients with the normal glutamic pylvic transaminase level, how many of them are male?",
     "predicted_sql": "SELECT COUNT(T1.ID) FROM Patient AS T1 INNER JOIN Laboratory AS T2 ON T1.ID = T2.ID WHERE T2.GPT < 60 AND T1.SEX = 'M'",
     "gold_sql": "SELECT COUNT(T1.ID) FROM Patient AS T1 INNER JOIN Laboratory AS T2 ON T1.ID = T2.ID WHERE T2.GOT < 60 AND T1.SEX = 'M'",
-    "reason_1": "GOLD FALSE: Wrong evidence. According to the real database schema, glutamic pyruvic transaminase corresponds to the Laboratory.GPT column, so the predicted SQL is right.",
-    "reason_2": "Predicted SQL uses T2.GPT < 60, and T2.GOT < 60 should be used instead"
+    "reason_1": "Predicted SQL uses T2.GPT < 60, and T2.GOT < 60 should be used instead",
+    "reason_2": "GOLD FALSE: Wrong evidence. According to the real database schema, glutamic pyruvic transaminase corresponds to the Laboratory.GPT column, so the predicted SQL is right."
   },
   {
     "question_id": 1457,
@@ -410,8 +428,8 @@
     "question": "In posts with 1 comment, how many of the comments have 0 score?",
     "predicted_sql": "SELECT COUNT(*) FROM comments WHERE PostId IN (SELECT Id FROM posts WHERE CommentCount = 1) AND Score = 0",
     "gold_sql": "SELECT COUNT(T1.id) FROM comments AS T1 INNER JOIN posts AS T2 ON T1.PostId = T2.Id WHERE T2.CommentCount = 1 AND T2.Score = 0",
-    "reason_1": "GOLD FALSE. gold sql calculates the number of posts with a score of 0, but the question requires the number of comments with a score of 0",
-    "reason_2": "GOLD FALSE: Since the question is asking for how many of the comments have 0 score, so the filter condition should be comments.Score=0 rather than posts.Score = 0"
+    "reason_1": "GOLD FALSE: Since the question is asking for how many of the comments have 0 score, so the filter condition should be comments.Score=0 rather than posts.Score = 0",
+    "reason_2": "GOLD FALSE. gold sql calculates the number of posts with a score of 0, but the question requires the number of comments with a score of 0"
   },
   {
     "question_id": 1006,
@@ -428,8 +446,8 @@
     "question": "Find the uuid of cards in which the old school format is restricted or banned.",
     "predicted_sql": "SELECT uuid FROM legalities WHERE format = 'oldschool' AND status IN ('banned', 'restricted')",
     "gold_sql": "SELECT uuid FROM legalities WHERE format = 'oldschool' AND (status = 'Banned' OR status = 'Restricted')",
-    "reason_1": "Wrong evidence and database schema provided, leading to wrong prediction",
-    "reason_2": "It should be correct in a case-insensitive database"
+    "reason_1": "It should be correct in a case-insensitive database",
+    "reason_2": "Wrong evidence and database schema provided, leading to wrong prediction"
   },
   {
     "question_id": 1318,
@@ -437,8 +455,17 @@
     "question": "What is the event that has the highest attendance of the students from the Student_Club?",
     "predicted_sql": "SELECT event.event_name FROM attendance INNER JOIN member ON attendance.link_to_member = member.member_id INNER JOIN event ON attendance.link_to_event = event.event_id GROUP BY attendance.link_to_event, event.event_name ORDER BY COUNT(member.member_id) DESC LIMIT 1",
     "gold_sql": "SELECT T1.event_name FROM event AS T1 INNER JOIN attendance AS T2 ON T1.event_id = T2.link_to_event GROUP BY T1.event_name HAVING COUNT(T2.link_to_event) = (SELECT MAX(attendance_count) FROM (SELECT COUNT(link_to_event) AS attendance_count FROM attendance GROUP BY link_to_event) AS subquery)",
-    "reason_1": "Using LIMIT 1 cann't handle cases where more than one event should return",
-    "reason_2": ""
+    "reason_1": "",
+    "reason_2": "Using LIMIT 1 cann't handle cases where more than one event should return"
+  },
+  {
+    "question_id": 1501,
+    "db_id": "debit_card_specializing",
+    "question": "Please list the countries of the gas stations with transactions taken place in June, 2013.",
+    "predicted_sql": "SELECT DISTINCT gasstations.Country FROM transactions_1k JOIN gasstations ON transactions_1k.GasStationID = gasstations.GasStationID WHERE strftime('%Y%m', transactions_1k.Date) = '201306';",
+    "gold_sql": "SELECT DISTINCT T2.Country FROM transactions_1k AS T1 INNER JOIN gasstations AS T2 ON T1.GasStationID = T2.GasStationID INNER JOIN yearmonth AS T3 ON T1.CustomerID = T3.CustomerID WHERE T3.Date = '201306'",
+    "reason_1": "Predicted SQL does not filter data with the dates specified in the table yearmonth.",
+    "reason_2": "GOLD FALSE: Filter date on the wrong table and column"
   },
   {
     "question_id": 1512,
@@ -486,6 +513,15 @@
     "reason_2": "There are multiple Superheroes with the same maximum height, and using LIMIT 1 is not strict."
   },
   {
+    "question_id": 214,
+    "db_id": "toxicology",
+    "question": "What type of label is not on molecules with atoms with tin?",
+    "predicted_sql": "SELECT DISTINCT T2.label FROM molecule AS T2 WHERE T2.molecule_id NOT IN (SELECT T1.molecule_id FROM atom AS T1 WHERE T1.element = 'Sn')",
+    "gold_sql": "SELECT DISTINCT T2.label FROM atom AS T1 INNER JOIN molecule AS T2 ON T1.molecule_id = T2.molecule_id WHERE T1.element != 'sn'",
+    "reason_1": "",
+    "reason_2": "Both predicted and gold SQL are incorrect"
+  },
+  {
     "question_id": 1482,
     "db_id": "debit_card_specializing",
     "question": "Which of the three segments—SME, LAM and KAM—has the biggest and lowest percentage increases in consumption paid in EUR between 2012 and 2013?",
@@ -509,8 +545,8 @@
     "question": "Write all the comments left by users who edited the post titled 'Why square the difference instead of taking the absolute value in standard deviation?'",
     "predicted_sql": "SELECT comments.text FROM comments INNER JOIN posthistory ON comments.userid = posthistory.userid INNER JOIN posts ON posthistory.postid = posts.id WHERE posts.title = 'Why square the difference instead of taking the absolute value in standard deviation?'",
     "gold_sql": "SELECT T2.Comment FROM posts AS T1 INNER JOIN postHistory AS T2 ON T1.Id = T2.PostId WHERE T1.Title = 'Why square the difference instead of taking the absolute value in standard deviation?'",
-    "reason_1": "The question should be the summary of the edit post, not the text of the comments in the post.",
-    "reason_2": "GOLD FALSE: Wrong Join logic: should be posts -> posthistory -> comments"
+    "reason_1": "GOLD FALSE: Wrong Join logic: should be posts -> posthistory -> comments",
+    "reason_2": "The question should be the summary of the edit post, not the text of the comments in the post."
   },
   {
     "question_id": 1527,
@@ -572,8 +608,8 @@
     "question": "What is the average score in writing for the schools that were opened after 1991 or closed before 2000? List the school names along with the score. Also, list the communication number of the schools if there is any.",
     "predicted_sql": "SELECT T1.School, T2.AvgScrWrite, T1.Phone FROM schools AS T1 INNER JOIN satscores AS T2 ON T1.CDSCode = T2.cds WHERE STRFTIME('%Y', T1.OpenDate) > '1991' OR STRFTIME('%Y', T1.ClosedDate) < '2000'",
     "gold_sql": "SELECT T2.School, T1.AvgScrWrite, T2.Phone FROM schools AS T2 LEFT JOIN satscores AS T1 ON T2.CDSCode = T1.cds WHERE strftime('%Y', T2.OpenDate) > '1991' OR strftime('%Y', T2.ClosedDate) < '2000'",
-    "reason_1": "some schools may not have satscores",
-    "reason_2": "GOLD FALSE: Using Left Join will include schools that lack records in the stascores table, which is not aligned with the intent"
+    "reason_1": "GOLD FALSE: Using Left Join will include schools that lack records in the stascores table, which is not aligned with the intent",
+    "reason_2": "some schools may not have satscores"
   },
   {
     "question_id": 1175,
@@ -581,7 +617,7 @@
     "question": "How old was the patient who had the highest hemoglobin count at the time of the examination, and what is the doctor's diagnosis?",
     "predicted_sql": "SELECT strftime('%Y', T1.`Examination Date`) - strftime('%Y', T3.Birthday) AS age, T1.Diagnosis FROM Examination AS T1 INNER JOIN Laboratory AS T2 ON T1.ID = T2.ID INNER JOIN Patient AS T3 ON T1.ID = T3.ID ORDER BY T2.HGB DESC LIMIT 1;",
     "gold_sql": "SELECT STRFTIME('%Y', T2.Date) - STRFTIME('%Y', T1.Birthday), T1.Diagnosis FROM Patient AS T1 INNER JOIN Laboratory AS T2 ON T1.ID = T2.ID ORDER BY T2.HGB DESC LIMIT 1",
-    "reason_1": "should use T2.Date",
-    "reason_2": "GOLD FALSE: Should use  SUBTRACT(year(`Examination Date`), year(Birthday))"
+    "reason_1": "GOLD FALSE: Should use  SUBTRACT(year(`Examination Date`), year(Birthday))",
+    "reason_2": "should use T2.Date"
   }
 ]
