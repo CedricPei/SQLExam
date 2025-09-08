@@ -84,25 +84,25 @@ When the prediction uses semantically similar but incorrect schema elements.
     Schema: items(id, category, type)
     Q: "Count items of type 'Laptop'"
     Gold: SELECT COUNT(*) FROM items WHERE type='Laptop';
-    Pred: SELECT COUNT(*) FROM items WHERE category='Laptop';
+    Unacceptable Pred: SELECT COUNT(*) FROM items WHERE category='Laptop';
     Why: Pred wrongly applies the filter to `category` instead of `type`.
 
     Schema: players(id, position, rank)
     Q: "Find the player with the highest rank."
     Gold: SELECT * FROM players WHERE rank = 1;
-    Pred: SELECT * FROM players WHERE position = 1;
-    Why: Pred wrongly applies the filter to `position` instead of `rank`.
+    Unacceptable Pred: SELECT * FROM players WHERE position = 1;
+    Why: Pred wrongly applies the filter to `position` (initial position) instead of `rank` (final rank).
 
     Schema: orders, purchases
     Q: "Get the total sales from all orders."
     Gold: SELECT SUM(total_amount) FROM orders;
-    Pred: SELECT SUM(total_amount) FROM purchases;
+    Unacceptable Pred: SELECT SUM(total_amount) FROM purchases;
     Why: Pred wrongly applies the query to `purchases` instead of `orders`.
 
     Schema: users, customers
     Q: "List all user emails."
     Gold: SELECT email FROM users;
-    Pred: SELECT email FROM customers;
+    Unacceptable Pred: SELECT email FROM customers;
     Why: Pred wrongly uses `customers` instead of `users`.
 
 **Ambiguous Question (Uphold - verdict=false)**
@@ -111,31 +111,43 @@ When the question allows multiple reasonable interpretations, leading to differe
 **Note: Tie-handling differences are NOT considered ambiguous question cases.**
   Example:
     Q: "What is the employee's salary for this year?"
-    Gold: SELECT SUM(salary) FROM employee_salary WHERE employee_id = 1 AND year = 2023;
-    Pred: SELECT salary FROM employee_salary WHERE employee_id = 1 AND month = 12 AND year = 2023;
+    Acceptable Gold: SELECT SUM(salary) FROM employee_salary WHERE employee_id = 1 AND year = 2023;
+    Acceptable Pred: SELECT salary FROM employee_salary WHERE employee_id = 1 AND month = 12 AND year = 2023;
     Why: The question can be interpreted as total salary for the year or December's salary.
 
     Q: "How did the store perform this year?"
-    Gold: SELECT SUM(profit) FROM store_performance WHERE store_id = 1 AND year = 2023;
-    Pred: SELECT COUNT(DISTINCT customer_id) FROM store_visits WHERE store_id = 1 AND year = 2023;
+    Acceptable Gold: SELECT SUM(profit) FROM store_performance WHERE store_id = 1 AND year = 2023;
+    Acceptable Pred: SELECT COUNT(DISTINCT customer_id) FROM store_visits WHERE store_id = 1 AND year = 2023;
     Why: The question could refer to total profit or total customers, both valid measures.
 
     Q: "How many products have more than 10 units sold?"
-    Gold: SELECT product_name FROM sales WHERE units_sold > 10;
-    Pred: SELECT product_name FROM sales GROUP BY product_name HAVING SUM(units_sold) > 10;
+    Acceptable Gold: SELECT product_name FROM sales WHERE units_sold > 10;
+    Acceptable Pred: SELECT product_name FROM sales GROUP BY product_name HAVING SUM(units_sold) > 10;
     Why: The question can be understood as checking individual sales or grouping by product.
+
+    Schema: flights(flight_id, airline, flight_number, aircraft_id), aircraft(aircraft_id, tail_number, model)
+    Q: "What is the number for flight 'BA123'?"
+    Acceptable Gold: SELECT a.tail_number FROM flights f JOIN aircraft a ON a.aircraft_id = f.aircraft_id WHERE f.flight_number = 'BA123';
+    Acceptable Pred: SELECT f.flight_number FROM flights f WHERE f.flight_number = 'BA123';
+    Why: “Number” could mean tail number or flight number.
+
+    Schema: orders(order_id, status, shipment_id), shipments(shipment_id, status, carrier)
+    Q: "What is the status for order 12345?"
+    Acceptable Gold: SELECT o.status FROM orders o WHERE o.order_id = 12345;
+    Acceptable Pred: SELECT s.status FROM orders o JOIN shipments s ON s.shipment_id = o.shipment_id WHERE o.order_id = 12345;
+    Why: “Status” could mean the orders's status or the shipment's status
 
 **Gold Fault (Uphold - verdict=false)**
 Avoid labeling as gold fault unless absolutely necessary
   Example:
     Q: "City of user with id=5"
-    Gold: SELECT city FROM users WHERE id=6;
-    Pred: SELECT city FROM users WHERE id=5;
+    Unacceptable Gold: SELECT city FROM users WHERE id=6;
+    Acceptable Pred: SELECT city FROM users WHERE id=5;
     Why: Gold mis-specifies the requirement; pred matches the question.
 
 ### Output JSON (field order is mandatory)
 Use concise language. No extra fields. Always emit keys in this exact order:
-1. `judgement` - concise one-sentence assessment of correctness/tolerance.
+1. `judgement` - concise one-sentence assessment grounded in semantic logic (not syntax).
 2. `verdict` - boolean: `true` = overturn Prover's pass; `false` = uphold.
 3. `ambiguity` - string indicating ambiguity type: `"ambiguous question"`, `"ambiguous schema"`, `"na"`, or combinations like `"ambiguous question, ambiguous schema"`.
 4. `gold_correct` - boolean: `true` = gold standard is correct; `false` = gold standard has faults.

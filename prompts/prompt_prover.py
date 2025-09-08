@@ -85,7 +85,7 @@ Execution results are only AUXILIARY; do not treat them as decisive. Focus on th
 Use concise language. No extra fields. Always emit keys in this exact order:
 1. `expected_answer` - a natural-language specification of what should be answered (type/target/constraints) based only on provided inputs; if adopting an ambiguous interpretation, state it explicitly.
 2. `sql_description` - natural language description of what the SQL accomplishes.
-3. `reason` - a concise basis for the judgment (always present, whether true or false). If ambiguity is used to accept, explicitly state the assumed interpretation and why it is reasonable.
+3. `reason` - a concise basis for the judgment focusing on semantic logic (not syntax). If ambiguity is used to accept, explicitly state the assumed interpretation and why it is reasonable.
 4. `verdict` - boolean `true` if the predicted SQL sufficiently answers the question; otherwise `false`.
 5. `evidence` - directional description of the evidence from sql_result **only when verdict=true**, at least including column names, preferably with row positions. Place this field last.
 

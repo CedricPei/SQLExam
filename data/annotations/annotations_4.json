@@ -311,8 +311,8 @@
     "question": "What languages are available in the set known as Archenemy on the magic card market and having the code ARC?",
     "predicted_sql": "SELECT set_translations.language FROM set_translations WHERE set_translations.setCode = 'ARC';",
     "gold_sql": "SELECT T2.language FROM sets AS T1 INNER JOIN set_translations AS T2 ON T1.code = T2.setCode WHERE T1.mcmName = 'Archenemy' AND T2.setCode = 'ARC'",
-    "label": false,
-    "reason": "False Positive: wrong filter condition"
+    "label": true,
+    "reason": ""
   },
   {
     "question_id": 91,
@@ -1085,8 +1085,8 @@
     "question": "What is the average number of bonds the atoms with the element iodine have?",
     "predicted_sql": "SELECT AVG(bond_count) FROM (     SELECT a.atom_id, COUNT(c.bond_id) as bond_count     FROM atom a     JOIN connected c ON a.atom_id = c.atom_id     WHERE a.element = 'i'     GROUP BY a.atom_id ) as iodine_atoms",
     "gold_sql": "SELECT CAST(COUNT(T2.bond_id) AS REAL) / COUNT(T1.atom_id) FROM atom AS T1 INNER JOIN connected AS T2 ON T1.atom_id = T2.atom_id WHERE T1.element = 'i'",
-    "label": true,
-    "reason": ""
+    "label": false,
+    "reason": "Pred does not consider the other side of the bond"
   },
   {
     "question_id": 938,

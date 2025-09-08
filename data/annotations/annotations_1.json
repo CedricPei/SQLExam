@@ -482,8 +482,8 @@
     "question": "For all the set of cards that has Brazil Portuguese translation, what is the percentage of them are only available online?",
     "predicted_sql": "SELECT CAST(SUM(CASE WHEN T2.isOnlineOnly = 1 THEN 1 ELSE 0 END) AS REAL) * 100 / COUNT(T1.uuid) AS percentage FROM foreign_data AS T1 INNER JOIN cards AS T2 ON T1.uuid = T2.uuid WHERE T1.language = 'Portuguese (Brazil)'",
     "gold_sql": "SELECT CAST(SUM(CASE WHEN isOnlineOnly = 1 THEN 1 ELSE 0 END) AS REAL) * 100 / COUNT(id) FROM sets WHERE code IN ( SELECT setCode FROM set_translations WHERE language = 'Portuguese (Brazil)' )",
-    "label": true,
-    "reason": ""
+    "label": false,
+    "reason": "Pred operates on cards instead of sets"
   },
   {
     "question_id": 999,
@@ -509,8 +509,8 @@
     "question": "What year was account owner number 130 born?",
     "predicted_sql": "SELECT strftime('%Y', T1.birth_date) FROM client AS T1 WHERE T1.client_id = 130",
     "gold_sql": "SELECT STRFTIME('%Y', T1.birth_date) FROM client AS T1 INNER JOIN disp AS T3 ON T1.client_id = T3.client_id INNER JOIN account AS T2 ON T3.account_id = T2.account_id WHERE T2.account_id = 130",
-    "label": false,
-    "reason": "wrong column, account id is required."
+    "label": true,
+    "reason": ""
   },
   {
     "question_id": 1133,
@@ -572,8 +572,8 @@
     "question": "In 1996, which districts have the highest unemployment rate? List their branch location and district name.",
     "predicted_sql": "SELECT A2 FROM district WHERE A13 = ( SELECT MAX(A13) FROM district )",
     "gold_sql": "SELECT district_id, A2 FROM district ORDER BY A13 DESC LIMIT 1",
-    "label": true,
-    "reason": ""
+    "label": false,
+    "reason": "lack branch location required by question"
   },
   {
     "question_id": 1241,
@@ -1076,8 +1076,8 @@
     "question": "What is the average total price of the transactions taken place in gas stations in the Czech Republic?",
     "predicted_sql": "SELECT AVG(transactions_1k.Amount * transactions_1k.Price) as avg_total_price FROM transactions_1k INNER JOIN gasstations ON transactions_1k.GasStationID = gasstations.GasStationID WHERE gasstations.Country = 'CZE';",
     "gold_sql": "SELECT AVG(T1.Price) FROM transactions_1k AS T1 INNER JOIN gasstations AS T2 ON T1.GasStationID = T2.GasStationID WHERE T2.Country = 'CZE'",
-    "label": false,
-    "reason": "wrong computation"
+    "label": true,
+    "reason": "GOLD FALSE"
   },
   {
     "question_id": 1116,

@@ -27,7 +27,7 @@ def create_evidence_mapping(dev_data: List[Dict]):
 def sample_data(data: List[Dict], evidence_map: Dict[int, str], num_true=None, num_false=None):
     # If counts are not provided, randomly pick up to 30 examples overall
     if num_true is None and num_false is None:
-        k = 30 if len(data) >= 30 else len(data)
+        k = 50 if len(data) >= 50 else len(data)
         sampled_data = random.sample(data, k)
     else:
         # Backward-compatible path: sample by label counts
@@ -61,7 +61,7 @@ def save_sample(sampled_data: List[Dict], filename: str = 'sample.json'):
         json.dump(sampled_data, f, ensure_ascii=False, indent=2)
 
 def main():
-    random.seed(50)
+    random.seed(9)
     test_data = load_test_data()
     dev_data = load_dev_data()
     evidence_map = create_evidence_mapping(dev_data)

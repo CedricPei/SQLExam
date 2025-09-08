@@ -1095,8 +1095,8 @@
     "question": "What is the average number of bonds the atoms with the element iodine have?",
     "predicted_sql": "SELECT AVG(bond_count) FROM (     SELECT a.atom_id, COUNT(c.bond_id) as bond_count     FROM atom a     JOIN connected c ON a.atom_id = c.atom_id     WHERE a.element = 'i'     GROUP BY a.atom_id ) as iodine_atoms",
     "gold_sql": "SELECT CAST(COUNT(T2.bond_id) AS REAL) / COUNT(T1.atom_id) FROM atom AS T1 INNER JOIN connected AS T2 ON T1.atom_id = T2.atom_id WHERE T1.element = 'i'",
-    "label": true,
-    "reason": ""
+    "label": false,
+    "reason": "GOLD FALSE and Pred FALSE"
   },
   {
     "question_id": 373,

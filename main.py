@@ -30,8 +30,8 @@ if __name__ == "__main__":
         db_id = question["db_id"]
         gold_sql = question["gold_sql"]
 
-        pred_res = run_with_timeout(execute_sql, db_id, pred_sql, timeout=60)
-        gold_res = run_with_timeout(execute_sql, db_id, gold_sql, timeout=60)
+        pred_res = run_with_timeout(execute_sql, db_id, pred_sql, timeout=45)
+        gold_res = run_with_timeout(execute_sql, db_id, gold_sql, timeout=45)
 
         score = 0.0
         refuter_verdict = None
