@@ -203,7 +203,7 @@
     "question": "Tally the toxicology element of the 4th atom of each molecule that was carcinogenic.",
     "predicted_sql": "SELECT atom.element, COUNT(*) FROM atom INNER JOIN molecule ON atom.molecule_id = molecule.molecule_id WHERE molecule.label = '+' AND SUBSTRING(atom.atom_id, 7, 1) = '4' GROUP BY atom.element",
     "gold_sql": "SELECT DISTINCT T1.element FROM atom AS T1 INNER JOIN molecule AS T2 ON T1.molecule_id = T2.molecule_id WHERE T2.label = '+' AND SUBSTR(T1.atom_id, -1) = '4' AND LENGTH(T1.atom_id) = 7",
-    "label": false,
+    "label": true,
     "reason": "GOLD FALSE"
   },
   {
@@ -284,8 +284,8 @@
     "question": "What is the display name of the user who acquired the highest amount of badges?",
     "predicted_sql": "SELECT T2.DisplayName FROM badges AS T1 JOIN users AS T2 ON T1.UserId = T2.Id GROUP BY T2.DisplayName ORDER BY COUNT(T1.Name) DESC LIMIT 1",
     "gold_sql": "SELECT T1.DisplayName FROM users AS T1 INNER JOIN badges AS T2 ON T1.Id = T2.UserId GROUP BY T1.DisplayName ORDER BY COUNT(T1.Id) DESC LIMIT 1",
-    "label": true,
-    "reason": ""
+    "label": false,
+    "reason": "GOLD FALSE"
   },
   {
     "question_id": 1491,
@@ -293,7 +293,7 @@
     "question": "Which country has more \"value for money\" gas stations? Please give a total number of \"value for money\" gas stations in each country.",
     "predicted_sql": "SELECT gasstations.country, COUNT(gasstations.gasstationid) AS totalstations FROM gasstations WHERE gasstations.segment = 'Value for money' GROUP BY gasstations.country",
     "gold_sql": "SELECT Country , ( SELECT COUNT(GasStationID) FROM gasstations WHERE Segment = 'Value for money' ) FROM gasstations WHERE Segment = 'Value for money' GROUP BY Country ORDER BY COUNT(GasStationID) DESC LIMIT 1",
-    "label": false,
+    "label": true,
     "reason": "GOLD FALSE"
   },
   {
@@ -761,8 +761,8 @@
     "question": "What are the labels for TR000, TR001 and TR002?",
     "predicted_sql": "SELECT label FROM molecule WHERE molecule_id IN ('TR000', 'TR001', 'TR002')",
     "gold_sql": "SELECT molecule_id, T.label FROM molecule AS T WHERE T.molecule_id IN ('TR000', 'TR001', 'TR002')",
-    "label": true,
-    "reason": ""
+    "label": false,
+    "reason": "Pred should return in pairs"
   },
   {
     "question_id": 634,
@@ -1148,8 +1148,8 @@
     "question": "What are the atoms that can bond with the atom that has the element lead?",
     "predicted_sql": "SELECT T2.atom_id2 FROM atom AS T1 INNER JOIN connected AS T2 ON T1.atom_id = T2.atom_id WHERE T1.element = 'pb'",
     "gold_sql": "SELECT T2.atom_id, T2.atom_id2 FROM atom AS T1 INNER JOIN connected AS T2 ON T1.atom_id = T2.atom_id WHERE T1.element = 'pb'",
-    "label": true,
-    "reason": ""
+    "label": false,
+    "reason": "GOLD FALSE"
   },
   {
     "question_id": 1267,

@@ -61,7 +61,7 @@ def save_sample(sampled_data: List[Dict], filename: str = 'sample.json'):
         json.dump(sampled_data, f, ensure_ascii=False, indent=2)
 
 def main():
-    random.seed(9)
+    random.seed(24)
     test_data = load_test_data()
     dev_data = load_dev_data()
     evidence_map = create_evidence_mapping(dev_data)

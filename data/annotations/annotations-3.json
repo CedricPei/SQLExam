@@ -276,8 +276,8 @@
     "question": "What is the display name of the user who acquired the highest amount of badges?",
     "predicted_sql": "SELECT T2.DisplayName FROM badges AS T1 JOIN users AS T2 ON T1.UserId = T2.Id GROUP BY T2.DisplayName ORDER BY COUNT(T1.Name) DESC LIMIT 1",
     "gold_sql": "SELECT T1.DisplayName FROM users AS T1 INNER JOIN badges AS T2 ON T1.Id = T2.UserId GROUP BY T1.DisplayName ORDER BY COUNT(T1.Id) DESC LIMIT 1",
-    "label": true,
-    "reason": ""
+    "label": false,
+    "reason": "DisplayName may not be unique"
   },
   {
     "question_id": 500,

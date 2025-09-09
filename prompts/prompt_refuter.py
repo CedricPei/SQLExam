@@ -77,6 +77,12 @@ Judge the prediction primarily against the question/evidence/schema. Overturn th
     Pred: SELECT name FROM emp ORDER BY salary DESC LIMIT 3;
     Why: Though the top 3 employees may be the same, LIMIT 3 does not align with the question's intent.
 
+    Q: "What is the flight duration between Lydon and Meras?"
+    Evidence: Flights are directed; a record may exist for either direction, so both orders must be checked.
+    Acceptable Gold: SELECT duration_min FROM flights WHERE (source='Lydon' AND destination='Meras') OR (source='Meras' AND destination='Lydon');
+    Unacceptable Pred: SELECT duration_min FROM flights WHERE source='Lydon' AND destination='Meras';
+    Why: Pred checks single-direction and can miss the record of reverse direction.
+
 **Ambiguous Schema (Overturn or Gold Fault)**
 When the prediction uses semantically similar but incorrect schema elements.
 **IMPORTANT: This is an overturn case - the prediction should be rejected due to schema misuse.**
@@ -206,6 +212,7 @@ Execution results are not provided because the gold and predicted SQL produce id
 **Still uphold when:**
 - Equivalent logic with different implementation.
 - Extra NOT NULL on the projected column that does not change the intended selection.
+- Omitting NOT NULL is always acceptable unless explicitly required by the evidence/question.
 - Alternative join paths.
 - Projection/order/alias differences
 - Presence/absence of tie-breakers when not specified.

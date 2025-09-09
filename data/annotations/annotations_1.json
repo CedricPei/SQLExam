@@ -293,7 +293,7 @@
     "question": "Which country has more \"value for money\" gas stations? Please give a total number of \"value for money\" gas stations in each country.",
     "predicted_sql": "SELECT gasstations.country, COUNT(gasstations.gasstationid) AS totalstations FROM gasstations WHERE gasstations.segment = 'Value for money' GROUP BY gasstations.country",
     "gold_sql": "SELECT Country , ( SELECT COUNT(GasStationID) FROM gasstations WHERE Segment = 'Value for money' ) FROM gasstations WHERE Segment = 'Value for money' GROUP BY Country ORDER BY COUNT(GasStationID) DESC LIMIT 1",
-    "label": false,
+    "label": true,
     "reason": "FALSE GOLD. The question need data in each country, gold return a sum."
   },
   {
@@ -626,7 +626,7 @@
     "question": "Among products comments with 0 score, what is the total number of users ages 40 years old?",
     "predicted_sql": "SELECT COUNT(DISTINCT T1.UserId) FROM comments AS T1 INNER JOIN users AS T2 ON T1.UserId = T2.Id WHERE T1.Score = 0 AND T2.Age = 40",
     "gold_sql": "SELECT COUNT(DISTINCT T1.id) FROM comments AS T1 INNER JOIN users AS T2 ON T1.UserId = T2.Id WHERE T1.Score = 0 AND T2.Age = 40",
-    "label": false,
+    "label": true,
     "reason": "FALSE GOLD. userID not commend id"
   },
   {
@@ -761,8 +761,8 @@
     "question": "What are the labels for TR000, TR001 and TR002?",
     "predicted_sql": "SELECT label FROM molecule WHERE molecule_id IN ('TR000', 'TR001', 'TR002')",
     "gold_sql": "SELECT molecule_id, T.label FROM molecule AS T WHERE T.molecule_id IN ('TR000', 'TR001', 'TR002')",
-    "label": true,
-    "reason": ""
+    "label": false,
+    "reason": "answer is hard to understand"
   },
   {
     "question_id": 465,
@@ -1157,8 +1157,8 @@
     "question": "What are the atoms that can bond with the atom that has the element lead?",
     "predicted_sql": "SELECT T2.atom_id2 FROM atom AS T1 INNER JOIN connected AS T2 ON T1.atom_id = T2.atom_id WHERE T1.element = 'pb'",
     "gold_sql": "SELECT T2.atom_id, T2.atom_id2 FROM atom AS T1 INNER JOIN connected AS T2 ON T1.atom_id = T2.atom_id WHERE T1.element = 'pb'",
-    "label": true,
-    "reason": ""
+    "label": false,
+    "reason": "does not cover the other side of the bond"
   },
   {
     "question_id": 173,

@@ -65,6 +65,12 @@ Execution results are only AUXILIARY; do not treat them as decisive. Focus on th
   Unacceptable: SELECT product_id FROM sales WHERE quarter='Q2-2023' GROUP BY product_id ORDER BY SUM(quantity) DESC LIMIT 10;
   Why: Top-K superset. Even though the 10 returned products could be the same (duplicates), it incorrectly retrieves multiple results.
 
+- Q: "What is the train distance between Aldor and Bexley?"
+  Evidence: Train routes are directed; a record may exist for either direction, so both orders must be checked.
+  Acceptable Gold: SELECT train_distance_km FROM rail_links WHERE (city_a='Aldor' AND city_b='Bexley') OR (city_a='Bexley' AND city_b='Aldor');
+  Unacceptable Pred: SELECT train_distance_km FROM rail_links WHERE city_a='Aldor' AND city_b='Bexley';
+  Why: Pred misses the situation where city_a='Bexley' AND city_b='Aldor'.
+
 ** IMPORTANT: For "how many" and "percentage" queries, carefully determine whether DISTINCT/NOT NULL is needed. **
 - Q: "How many customers placed an order?"
   Unacceptable: SELECT COUNT(*) FROM orders;
