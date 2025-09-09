@@ -10,21 +10,7 @@ def load_test_data():
         data = json.load(f)
     return data
 
-def load_dev_data():
-    with open('dev.json', 'r', encoding='utf-8-sig') as f:
-        data = json.load(f)
-    return data
-
-def create_evidence_mapping(dev_data: List[Dict]):
-    evidence_map = {}
-    for item in dev_data:
-        question_id = item.get('question_id')
-        evidence = item.get('evidence', '')
-        if question_id is not None:
-            evidence_map[question_id] = evidence
-    return evidence_map
-
-def sample_data(data: List[Dict], evidence_map: Dict[int, str], num_true=None, num_false=None):
+def sample_data(data: List[Dict], num_true=None, num_false=None):
     # If counts are not provided, randomly pick up to 30 examples overall
     if num_true is None and num_false is None:
         k = 50 if len(data) >= 50 else len(data)
@@ -46,14 +32,6 @@ def sample_data(data: List[Dict], evidence_map: Dict[int, str], num_true=None, n
         sampled_data = sampled_true + sampled_false
         random.shuffle(sampled_data)
 
-    for item in sampled_data:
-        question_id = item.get('question_id')
-        if question_id in evidence_map:
-            item['evidence'] = evidence_map[question_id]
-        else:
-            item['evidence'] = ""
-            print(f"警告: question_id {question_id} 在dev.json中未找到evidence")
-    
     return sampled_data
 
 def save_sample(sampled_data: List[Dict], filename: str = 'sample.json'):
@@ -63,9 +41,7 @@ def save_sample(sampled_data: List[Dict], filename: str = 'sample.json'):
 def main():
     random.seed(24)
     test_data = load_test_data()
-    dev_data = load_dev_data()
-    evidence_map = create_evidence_mapping(dev_data)
-    sampled_data = sample_data(test_data, evidence_map)
+    sampled_data = sample_data(test_data)
     project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
     save_sample(sampled_data, os.path.join(project_root, 'sample.json'))
 
