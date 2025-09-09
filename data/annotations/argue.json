@@ -5,8 +5,8 @@
     "question": "When was the set of cards with \"Ancestor's Chosen\" released?",
     "predicted_sql": "SELECT T2.releaseDate FROM cards AS T1 INNER JOIN sets AS T2 ON T1.setCode = T2.code WHERE T1.name = 'Ancestor''s Chosen'",
     "gold_sql": "SELECT DISTINCT T2.releaseDate FROM cards AS T1 INNER JOIN sets AS T2 ON T2.code = T1.setCode WHERE T1.name = 'Ancestor''s Chosen'",
-    "reason_1": "",
-    "reason_2": "No distinct"
+    "reason_1": "No distinct",
+    "reason_2": ""
   },
   {
     "question_id": 215,
@@ -23,8 +23,8 @@
     "question": "Tally the toxicology element of the 4th atom of each molecule that was carcinogenic.",
     "predicted_sql": "SELECT atom.element, COUNT(*) FROM atom INNER JOIN molecule ON atom.molecule_id = molecule.molecule_id WHERE molecule.label = '+' AND SUBSTRING(atom.atom_id, 7, 1) = '4' GROUP BY atom.element",
     "gold_sql": "SELECT DISTINCT T1.element FROM atom AS T1 INNER JOIN molecule AS T2 ON T1.molecule_id = T2.molecule_id WHERE T2.label = '+' AND SUBSTR(T1.atom_id, -1) = '4' AND LENGTH(T1.atom_id) = 7",
-    "reason_1": "GOLD FALSE",
-    "reason_2": "extra 'na'"
+    "reason_1": "extra 'na'",
+    "reason_2": "GOLD FALSE"
   },
   {
     "question_id": 177,
@@ -140,8 +140,8 @@
     "question": "How many members have education major in the College of Education & Human Services?",
     "predicted_sql": "SELECT COUNT(member_id) FROM member INNER JOIN major ON member.link_to_major = major.major_id WHERE major_name = 'education' AND college = 'College of Education & Human Services' AND position = 'Member'",
     "gold_sql": "SELECT COUNT(T1.member_id) FROM member AS T1 INNER JOIN major AS T2 ON T2.major_id = T1.link_to_major WHERE T1.position = 'Member' AND T2.major_name LIKE '%Education%' AND T2.college = 'College of Education & Human Services'",
-    "reason_1": "Error major value",
-    "reason_2": "need approximate condition"
+    "reason_1": "need approximate condition",
+    "reason_2": "Error major value"
   },
   {
     "question_id": 1068,
@@ -185,8 +185,8 @@
     "question": "Give the name of the league had the most matches in the 2008/2009 season?",
     "predicted_sql": "SELECT L.name AS league_name FROM Match M JOIN League L ON M.league_id = L.id WHERE M.season = '2008/2009' GROUP BY L.name ORDER BY COUNT(M.id) DESC LIMIT 1",
     "gold_sql": "SELECT t1.name FROM League AS t1 JOIN Match AS t2 ON t1.id = t2.league_id WHERE t2.season = '2008/2009' GROUP BY t1.name HAVING COUNT(t2.id) = (SELECT MAX(match_count) FROM (SELECT COUNT(t2.id) AS match_count FROM Match AS t2 WHERE t2.season = '2008/2009' GROUP BY t2.league_id))",
-    "reason_1": "",
-    "reason_2": "there are more than 1 top"
+    "reason_1": "there are more than 1 top",
+    "reason_2": ""
   },
   {
     "question_id": 1214,
@@ -212,8 +212,8 @@
     "question": "What is the average age of patients as of year 1999 examined in the laboratory for the October of the year 1991?",
     "predicted_sql": "SELECT AVG(1999 - STRFTIME('%Y', patient.birthday)) AS averageage FROM patient INNER JOIN laboratory ON patient.id = laboratory.id WHERE laboratory.date BETWEEN '1991-10-01' AND '1991-10-31'",
     "gold_sql": "SELECT AVG('1999'  - STRFTIME('%Y', T2.Birthday)) FROM Laboratory AS T1 INNER JOIN Patient AS T2 ON T1.ID = T2.ID WHERE T1.Date BETWEEN '1991-10-01' AND '1991-10-30'",
-    "reason_1": "precision error I think",
-    "reason_2": "1991-10-31 false"
+    "reason_1": "1991-10-31 false",
+    "reason_2": "precision error I think"
   },
   {
     "question_id": 1514,
@@ -356,8 +356,8 @@
     "question": "What is the ratio of outpatient to inpatient followed up treatment among all the 'SLE' diagnosed patient?",
     "predicted_sql": "SELECT CAST(COUNT(CASE WHEN Admission = '-' THEN 1 END) AS REAL) / COUNT(CASE WHEN Admission = '+' THEN 1 END) AS outpatient_to_inpatient_ratio FROM Patient WHERE Diagnosis = 'SLE'",
     "gold_sql": "SELECT SUM(CASE WHEN Admission = '+' THEN 1.0 ELSE 0 END) / SUM(CASE WHEN Admission = '-' THEN 1 ELSE 0 END) FROM Patient WHERE Diagnosis = 'SLE'",
-    "reason_1": "GOLD FALSE: The question is asking for the ratio of outpatient to inpatient, so should use DIVIDE(COUNT(ID) where Diagnosis = 'SLE' and Admission = '-', COUNT(ID) where Diagnosis = 'SLE' and Admission = '+'). The provided evicence is also wrong here.",
-    "reason_2": "GOLD FALSE. The numerator should be Admission = '-', that is, outpatient."
+    "reason_1": "GOLD FALSE. The numerator should be Admission = '-', that is, outpatient.",
+    "reason_2": "GOLD FALSE: The question is asking for the ratio of outpatient to inpatient, so should use DIVIDE(COUNT(ID) where Diagnosis = 'SLE' and Admission = '-', COUNT(ID) where Diagnosis = 'SLE' and Admission = '+'). The provided evicence is also wrong here."
   },
   {
     "question_id": 1525,
@@ -374,8 +374,8 @@
     "question": "What is the category of event which was taken place in 2020-03-24T12:00:00?",
     "predicted_sql": "SELECT type FROM event WHERE event_date = '2020-03-24T12:00:00'",
     "gold_sql": "SELECT T2.category FROM event AS T1 INNER JOIN budget AS T2 ON T1.event_id = T2.link_to_event WHERE T1.event_date = '2020-03-24T12:00:00'",
-    "reason_1": "GOLD FALSE. Check that the type of the event is indeed type, not category in the budget table. The category in budget is the type of budget.",
-    "reason_2": "GOLD FALSE: The column budget.category is the category of the budget rather than the event. The question should state which column means the category of event (Ambiguous question)"
+    "reason_1": "GOLD FALSE: The column budget.category is the category of the budget rather than the event. The question should state which column means the category of event (Ambiguous question)",
+    "reason_2": "GOLD FALSE. Check that the type of the event is indeed type, not category in the budget table. The category in budget is the type of budget."
   },
   {
     "question_id": 365,
@@ -383,8 +383,8 @@
     "question": "What is the type of card \"Benalish Knight\"?",
     "predicted_sql": "SELECT type FROM cards WHERE name = 'Benalish Knight'",
     "gold_sql": "SELECT DISTINCT T1.type FROM cards AS T1 INNER JOIN foreign_data AS T2 ON T1.uuid = T2.uuid WHERE T1.name = 'Benalish Knight'",
-    "reason_1": "GOLD FALSE: should not use foreign_data.name as filter condition",
-    "reason_2": "GOLD FALSE. Predicted SQL is correct. gold sql filters foreign_data, which is completely unnecessary and cannot meet the requirements of the question under certain conditions."
+    "reason_1": "GOLD FALSE. Predicted SQL is correct. gold sql filters foreign_data, which is completely unnecessary and cannot meet the requirements of the question under certain conditions.",
+    "reason_2": "GOLD FALSE: should not use foreign_data.name as filter condition"
   },
   {
     "question_id": 102,
@@ -428,8 +428,8 @@
     "question": "For the patients with the normal glutamic pylvic transaminase level, how many of them are male?",
     "predicted_sql": "SELECT COUNT(T1.ID) FROM Patient AS T1 INNER JOIN Laboratory AS T2 ON T1.ID = T2.ID WHERE T2.GPT < 60 AND T1.SEX = 'M'",
     "gold_sql": "SELECT COUNT(T1.ID) FROM Patient AS T1 INNER JOIN Laboratory AS T2 ON T1.ID = T2.ID WHERE T2.GOT < 60 AND T1.SEX = 'M'",
-    "reason_1": "Predicted SQL uses T2.GPT < 60, and T2.GOT < 60 should be used instead",
-    "reason_2": "GOLD FALSE: Wrong evidence. According to the real database schema, glutamic pyruvic transaminase corresponds to the Laboratory.GPT column, so the predicted SQL is right."
+    "reason_1": "GOLD FALSE: Wrong evidence. According to the real database schema, glutamic pyruvic transaminase corresponds to the Laboratory.GPT column, so the predicted SQL is right.",
+    "reason_2": "Predicted SQL uses T2.GPT < 60, and T2.GOT < 60 should be used instead"
   },
   {
     "question_id": 427,
@@ -446,8 +446,8 @@
     "question": "Give the full name and contact number of members who had to spend more than average on each expense.",
     "predicted_sql": "SELECT T1.first_name, T1.last_name, T1.phone FROM member AS T1 INNER JOIN expense AS T2 ON T1.member_id = T2.link_to_member GROUP BY T1.first_name, T1.last_name, T1.phone HAVING SUM(T2.cost) > (SELECT AVG(cost) FROM expense)",
     "gold_sql": "SELECT DISTINCT T3.first_name, T3.last_name, T3.phone FROM expense AS T1 INNER JOIN budget AS T2 ON T1.link_to_budget = T2.budget_id INNER JOIN member AS T3 ON T3.member_id = T1.link_to_member WHERE T1.cost > ( SELECT AVG(T1.cost) FROM expense AS T1 INNER JOIN budget AS T2 ON T1.link_to_budget = T2.budget_id INNER JOIN member AS T3 ON T3.member_id = T1.link_to_member )",
-    "reason_1": "",
-    "reason_2": "False Positive: wrong filter condition"
+    "reason_1": "False Positive: wrong filter condition",
+    "reason_2": ""
   },
   {
     "question_id": 259,
@@ -455,8 +455,8 @@
     "question": "How many elements are there for single bond molecules?",
     "predicted_sql": "SELECT COUNT(DISTINCT atom.element) AS element_count FROM bond INNER JOIN connected ON bond.bond_id = connected.bond_id INNER JOIN atom ON connected.atom_id = atom.atom_id WHERE bond.bond_type = '-'",
     "gold_sql": "SELECT COUNT(DISTINCT T.element) FROM ( SELECT DISTINCT T2.molecule_id, T1.element FROM atom AS T1 INNER JOIN molecule AS T2 ON T1.molecule_id = T2.molecule_id INNER JOIN bond AS T3 ON T2.molecule_id = T3.molecule_id WHERE T3.bond_type = '-' ) AS T",
-    "reason_1": "GOLD FALSE: Wrong JOIN logic, all atoms in any molecule containing single bonds will be counted.",
-    "reason_2": "Predicted SQL does not perform screening at the molecule level."
+    "reason_1": "Predicted SQL does not perform screening at the molecule level.",
+    "reason_2": "GOLD FALSE: Wrong JOIN logic, all atoms in any molecule containing single bonds will be counted."
   },
   {
     "question_id": 710,
@@ -464,8 +464,8 @@
     "question": "In posts with 1 comment, how many of the comments have 0 score?",
     "predicted_sql": "SELECT COUNT(*) FROM comments WHERE PostId IN (SELECT Id FROM posts WHERE CommentCount = 1) AND Score = 0",
     "gold_sql": "SELECT COUNT(T1.id) FROM comments AS T1 INNER JOIN posts AS T2 ON T1.PostId = T2.Id WHERE T2.CommentCount = 1 AND T2.Score = 0",
-    "reason_1": "GOLD FALSE. gold sql calculates the number of posts with a score of 0, but the question requires the number of comments with a score of 0",
-    "reason_2": "GOLD FALSE: Since the question is asking for how many of the comments have 0 score, so the filter condition should be comments.Score=0 rather than posts.Score = 0"
+    "reason_1": "GOLD FALSE: Since the question is asking for how many of the comments have 0 score, so the filter condition should be comments.Score=0 rather than posts.Score = 0",
+    "reason_2": "GOLD FALSE. gold sql calculates the number of posts with a score of 0, but the question requires the number of comments with a score of 0"
   },
   {
     "question_id": 1006,
@@ -473,8 +473,8 @@
     "question": "Among all the lap records set on various circuits, what is the time for the fastest one?",
     "predicted_sql": "SELECT lapTimes.time FROM lapTimes ORDER BY lapTimes.time ASC LIMIT 1;",
     "gold_sql": "SELECT time FROM lapTimes ORDER BY (CASE WHEN INSTR(time, ':') <> INSTR(SUBSTR(time, INSTR(time, ':') + 1), ':') + INSTR(time, ':') THEN CAST(SUBSTR(time, 1, INSTR(time, ':') - 1) AS REAL) * 3600 ELSE 0 END) + (CAST(SUBSTR(time, INSTR(time, ':') - 2 * (INSTR(time, ':') = INSTR(SUBSTR(time, INSTR(time, ':') + 1), ':') + INSTR(time, ':')), INSTR(time, ':') - 1) AS REAL) * 60) + (CAST(SUBSTR(time, INSTR(time, ':') + 1, INSTR(time, '.') - INSTR(time, ':') - 1) AS REAL)) + (CAST(SUBSTR(time, INSTR(time, '.') + 1) AS REAL) / 1000) ASC LIMIT 1",
-    "reason_1": "Predict SQL should transform the lapTimes.time to milliseconds, or just use the lapTimes.milliseconds column\nGOLD FALSE: Wrong Calculation, the correct result should be 1:07.411",
-    "reason_2": "string ordering"
+    "reason_1": "string ordering",
+    "reason_2": "Predict SQL should transform the lapTimes.time to milliseconds, or just use the lapTimes.milliseconds column\nGOLD FALSE: Wrong Calculation, the correct result should be 1:07.411"
   },
   {
     "question_id": 525,
@@ -500,8 +500,8 @@
     "question": "Please list the countries of the gas stations with transactions taken place in June, 2013.",
     "predicted_sql": "SELECT DISTINCT gasstations.Country FROM transactions_1k JOIN gasstations ON transactions_1k.GasStationID = gasstations.GasStationID WHERE strftime('%Y%m', transactions_1k.Date) = '201306';",
     "gold_sql": "SELECT DISTINCT T2.Country FROM transactions_1k AS T1 INNER JOIN gasstations AS T2 ON T1.GasStationID = T2.GasStationID INNER JOIN yearmonth AS T3 ON T1.CustomerID = T3.CustomerID WHERE T3.Date = '201306'",
-    "reason_1": "GOLD FALSE: Filter date on the wrong table and column",
-    "reason_2": "Predicted SQL does not filter data with the dates specified in the table yearmonth."
+    "reason_1": "Predicted SQL does not filter data with the dates specified in the table yearmonth.",
+    "reason_2": "GOLD FALSE: Filter date on the wrong table and column"
   },
   {
     "question_id": 1512,
@@ -509,8 +509,8 @@
     "question": "Which customer paid the most in 2012/8/25?",
     "predicted_sql": "SELECT \"transactions_1k\".\"CustomerID\" FROM \"transactions_1k\" WHERE \"transactions_1k\".\"Date\" = '2012-08-25' GROUP BY \"transactions_1k\".\"CustomerID\" ORDER BY SUM(\"transactions_1k\".\"Amount\" * \"transactions_1k\".\"Price\") DESC LIMIT 1",
     "gold_sql": "SELECT CustomerID FROM transactions_1k WHERE Date = '2012-08-25' GROUP BY CustomerID ORDER BY SUM(Price) DESC LIMIT 1",
-    "reason_1": "GOLD FALSE: total price = Amount x Price, so should use ORDER BY SUM(\"transactions_1k\".\"Amount\" * \"transactions_1k\".\"Price\")",
-    "reason_2": "GOLD FALSE. the gold SQL treats Price as the total payment per transaction and sums it directly.However, \"price\" refers to the unit price rather than the total amount."
+    "reason_1": "GOLD FALSE. the gold SQL treats Price as the total payment per transaction and sums it directly.However, \"price\" refers to the unit price rather than the total amount.",
+    "reason_2": "GOLD FALSE: total price = Amount x Price, so should use ORDER BY SUM(\"transactions_1k\".\"Amount\" * \"transactions_1k\".\"Price\")"
   },
   {
     "question_id": 603,
@@ -518,8 +518,8 @@
     "question": "What is the sum of favourite count gained by user ID 686 in 2011?",
     "predicted_sql": "SELECT SUM(FavoriteCount) FROM posts WHERE OwnerUserId = 686 AND strftime('%Y', CreaionDate) = '2011'",
     "gold_sql": "SELECT SUM(DISTINCT FavoriteCount) FROM posts WHERE Id IN ( SELECT PostId FROM postHistory WHERE UserId = 686 AND STRFTIME('%Y', CreationDate) = '2011' )",
-    "reason_1": "If the question only tests the posts created by the user, it is correct. gold sql counts the posts that the user has modified.",
-    "reason_2": "GOLD FALSE: Using postHistory.UserId will count the posts where user 686 just updated the post. In addition, using distinct in the sum function will filter out the posts with the same favorite count"
+    "reason_1": "GOLD FALSE: Using postHistory.UserId will count the posts where user 686 just updated the post. In addition, using distinct in the sum function will filter out the posts with the same favorite count",
+    "reason_2": "If the question only tests the posts created by the user, it is correct. gold sql counts the posts that the user has modified."
   },
   {
     "question_id": 528,
@@ -536,8 +536,8 @@
     "question": "What percentage of clients who opened their accounts in the district with an average salary of over 10000 are women?",
     "predicted_sql": "SELECT CAST(SUM(CASE WHEN T1.gender = 'F' THEN 1 ELSE 0 END) AS REAL) * 100 / COUNT(T1.gender) FROM client AS T1 INNER JOIN disp AS T2 ON T1.client_id = T2.client_id INNER JOIN account AS T3 ON T2.account_id = T3.account_id INNER JOIN district AS T4 ON T3.district_id = T4.district_id WHERE T4.A11 > 10000",
     "gold_sql": "SELECT CAST(SUM(T2.gender = 'F') AS REAL) * 100 / COUNT(T2.client_id) FROM district AS T1 INNER JOIN client AS T2 ON T1.district_id = T2.district_id WHERE T1.A11 > 10000",
-    "reason_1": "GOLD FALSE: the filter condition of with an average salary of over 10000 should be on district (Ambiguous question)",
-    "reason_2": "When a client has multiple accounts, Predicted SQL will be recalculated, resulting in an increase in the proportion."
+    "reason_1": "When a client has multiple accounts, Predicted SQL will be recalculated, resulting in an increase in the proportion.",
+    "reason_2": "GOLD FALSE: the filter condition of with an average salary of over 10000 should be on district (Ambiguous question)"
   },
   {
     "question_id": 832,
@@ -563,8 +563,8 @@
     "question": "Which of the three segments—SME, LAM and KAM—has the biggest and lowest percentage increases in consumption paid in EUR between 2012 and 2013?",
     "predicted_sql": "WITH segment_stats AS ( SELECT T1.Segment, (SUM(CASE WHEN SUBSTR(T2.Date, 1, 4) = '2013' THEN T2.Consumption ELSE 0 END) - SUM(CASE WHEN SUBSTR(T2.Date, 1, 4) = '2012' THEN T2.Consumption ELSE 0 END)) * 100.0 / SUM(CASE WHEN SUBSTR(T2.Date, 1, 4) = '2012' THEN T2.Consumption ELSE 0 END) AS percentage_increase FROM customers AS T1 INNER JOIN yearmonth AS T2 ON T1.CustomerID = T2.CustomerID WHERE T1.Segment IN ('SME', 'LAM', 'KAM') AND T1.Currency = 'EUR' GROUP BY T1.Segment ) SELECT * FROM ( SELECT 'Highest Increase' AS result_type, Segment, percentage_increase FROM segment_stats ORDER BY percentage_increase DESC LIMIT 1 ) AS highest UNION ALL SELECT * FROM ( SELECT 'Lowest Increase' AS result_type, Segment, percentage_increase FROM segment_stats ORDER BY percentage_increase ASC LIMIT 1 ) AS lowest;",
     "gold_sql": "SELECT CAST((SUM(IIF(T1.Segment = 'SME' AND T2.Date LIKE '2013%', T2.Consumption, 0)) - SUM(IIF(T1.Segment = 'SME' AND T2.Date LIKE '2012%', T2.Consumption, 0))) AS FLOAT) * 100 / SUM(IIF(T1.Segment = 'SME' AND T2.Date LIKE '2012%', T2.Consumption, 0)), CAST(SUM(IIF(T1.Segment = 'LAM' AND T2.Date LIKE '2013%', T2.Consumption, 0)) - SUM(IIF(T1.Segment = 'LAM' AND T2.Date LIKE '2012%', T2.Consumption, 0)) AS FLOAT) * 100 / SUM(IIF(T1.Segment = 'LAM' AND T2.Date LIKE '2012%', T2.Consumption, 0)) , CAST(SUM(IIF(T1.Segment = 'KAM' AND T2.Date LIKE '2013%', T2.Consumption, 0)) - SUM(IIF(T1.Segment = 'KAM' AND T2.Date LIKE '2012%', T2.Consumption, 0)) AS FLOAT) * 100 / SUM(IIF(T1.Segment = 'KAM' AND T2.Date LIKE '2012%', T2.Consumption, 0)) FROM customers AS T1 INNER JOIN yearmonth AS T2 ON T1.CustomerID = T2.CustomerID",
-    "reason_1": "GOLD FALSE: Missing filter condition: Currency = 'EUR', wrong return format\nNote: Wrong evidence, Percentage of Increase should be (Increase or Decrease / consumption for 2012) * 100%",
-    "reason_2": "wrong"
+    "reason_1": "wrong",
+    "reason_2": "GOLD FALSE: Missing filter condition: Currency = 'EUR', wrong return format\nNote: Wrong evidence, Percentage of Increase should be (Increase or Decrease / consumption for 2012) * 100%"
   },
   {
     "question_id": 938,
@@ -581,8 +581,8 @@
     "question": "Write all the comments left by users who edited the post titled 'Why square the difference instead of taking the absolute value in standard deviation?'",
     "predicted_sql": "SELECT comments.text FROM comments INNER JOIN posthistory ON comments.userid = posthistory.userid INNER JOIN posts ON posthistory.postid = posts.id WHERE posts.title = 'Why square the difference instead of taking the absolute value in standard deviation?'",
     "gold_sql": "SELECT T2.Comment FROM posts AS T1 INNER JOIN postHistory AS T2 ON T1.Id = T2.PostId WHERE T1.Title = 'Why square the difference instead of taking the absolute value in standard deviation?'",
-    "reason_1": "GOLD FALSE: Wrong Join logic: should be posts -> posthistory -> comments",
-    "reason_2": "The question should be the summary of the edit post, not the text of the comments in the post."
+    "reason_1": "The question should be the summary of the edit post, not the text of the comments in the post.",
+    "reason_2": "GOLD FALSE: Wrong Join logic: should be posts -> posthistory -> comments"
   },
   {
     "question_id": 1527,
@@ -644,8 +644,8 @@
     "question": "What is the average score in writing for the schools that were opened after 1991 or closed before 2000? List the school names along with the score. Also, list the communication number of the schools if there is any.",
     "predicted_sql": "SELECT T1.School, T2.AvgScrWrite, T1.Phone FROM schools AS T1 INNER JOIN satscores AS T2 ON T1.CDSCode = T2.cds WHERE STRFTIME('%Y', T1.OpenDate) > '1991' OR STRFTIME('%Y', T1.ClosedDate) < '2000'",
     "gold_sql": "SELECT T2.School, T1.AvgScrWrite, T2.Phone FROM schools AS T2 LEFT JOIN satscores AS T1 ON T2.CDSCode = T1.cds WHERE strftime('%Y', T2.OpenDate) > '1991' OR strftime('%Y', T2.ClosedDate) < '2000'",
-    "reason_1": "some schools may not have satscores",
-    "reason_2": "GOLD FALSE: Using Left Join will include schools that lack records in the stascores table, which is not aligned with the intent"
+    "reason_1": "GOLD FALSE: Using Left Join will include schools that lack records in the stascores table, which is not aligned with the intent",
+    "reason_2": "some schools may not have satscores"
   },
   {
     "question_id": 1175,
@@ -653,7 +653,7 @@
     "question": "How old was the patient who had the highest hemoglobin count at the time of the examination, and what is the doctor's diagnosis?",
     "predicted_sql": "SELECT strftime('%Y', T1.`Examination Date`) - strftime('%Y', T3.Birthday) AS age, T1.Diagnosis FROM Examination AS T1 INNER JOIN Laboratory AS T2 ON T1.ID = T2.ID INNER JOIN Patient AS T3 ON T1.ID = T3.ID ORDER BY T2.HGB DESC LIMIT 1;",
     "gold_sql": "SELECT STRFTIME('%Y', T2.Date) - STRFTIME('%Y', T1.Birthday), T1.Diagnosis FROM Patient AS T1 INNER JOIN Laboratory AS T2 ON T1.ID = T2.ID ORDER BY T2.HGB DESC LIMIT 1",
-    "reason_1": "should use T2.Date",
-    "reason_2": "GOLD FALSE: Should use  SUBTRACT(year(`Examination Date`), year(Birthday))"
+    "reason_1": "GOLD FALSE: Should use  SUBTRACT(year(`Examination Date`), year(Birthday))",
+    "reason_2": "should use T2.Date"
   }
 ]
