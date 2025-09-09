@@ -315,7 +315,7 @@
     "question": "What is the display name of the user who acquired the highest amount of badges?",
     "predicted_sql": "SELECT T2.DisplayName FROM badges AS T1 JOIN users AS T2 ON T1.UserId = T2.Id GROUP BY T2.DisplayName ORDER BY COUNT(T1.Name) DESC LIMIT 1",
     "gold_sql": "SELECT T1.DisplayName FROM users AS T1 INNER JOIN badges AS T2 ON T1.Id = T2.UserId GROUP BY T1.DisplayName ORDER BY COUNT(T1.Id) DESC LIMIT 1",
-    "label": false,
+    "label": true,
     "reason": "GOLD FALSE",
     "evidence": "highest amount of badges refers to MAX(COUNT(Name));"
   },
@@ -425,8 +425,8 @@
     "question": "State the category of events were held at MU 215.",
     "predicted_sql": "SELECT type FROM event WHERE location = 'MU 215'",
     "gold_sql": "SELECT DISTINCT T2.category FROM event AS T1 INNER JOIN budget AS T2 ON T1.event_id = T2.link_to_event WHERE T1.location = 'MU 215'",
-    "label": false,
-    "reason": "Error SELECT",
+    "label": true,
+    "reason": "GOLD FALSE",
     "evidence": "'MU 215' is the location of event; "
   },
   {
@@ -935,7 +935,7 @@
     "question": "Name the card and artist with the most ruling information. Also state if the card is a promotional printing.",
     "predicted_sql": "SELECT T1.name, T1.artist, T1.isPromo FROM cards AS T1 INNER JOIN rulings AS T2 ON T1.uuid = T2.uuid GROUP BY T1.name, T1.artist, T1.isPromo ORDER BY COUNT(T2.uuid) DESC LIMIT 1",
     "gold_sql": "SELECT T1.name, T1.artist, T1.isPromo FROM cards AS T1 INNER JOIN rulings AS T2 ON T1.uuid = T2.uuid WHERE T1.isPromo = 1 AND T1.artist = (SELECT artist FROM cards WHERE isPromo = 1 GROUP BY artist HAVING COUNT(DISTINCT uuid) = (SELECT MAX(count_uuid) FROM ( SELECT COUNT(DISTINCT uuid) AS count_uuid FROM cards WHERE isPromo = 1 GROUP BY artist ))) LIMIT 1",
-    "label": false,
+    "label": true,
     "reason": "GOLD FALSE",
     "evidence": "with the most ruling information refers to Max(count(rulings.uuid)); the card is the promotional printing refers to isPromo = 1;"
   },
@@ -1025,8 +1025,8 @@
     "question": "Identify the type of expenses and their total value approved for 'October Meeting' event.",
     "predicted_sql": "SELECT T3.event_name, SUM(T2.cost) FROM budget AS T1 INNER JOIN expense AS T2 ON T1.budget_id = T2.link_to_budget INNER JOIN event AS T3 ON T1.link_to_event = T3.event_id WHERE T3.event_name = 'October Meeting' AND T2.approved = 'true'",
     "gold_sql": "SELECT T1.type, SUM(T3.cost) FROM event AS T1 INNER JOIN budget AS T2 ON T1.event_id = T2.link_to_event INNER JOIN expense AS T3 ON T2.budget_id = T3.link_to_budget WHERE T1.event_name = 'October Meeting'",
-    "label": true,
-    "reason": "",
+    "label": false,
+    "reason": "GOLD FALSE",
     "evidence": "total value refers to SUM(cost); 'October Meeting' is an event name;"
   },
   {
@@ -1425,8 +1425,8 @@
     "question": "How many owner and disponent dispositions are there from account number 1 to account number 10?",
     "predicted_sql": "SELECT COUNT(disp_id) FROM disp WHERE account_id BETWEEN 1 AND 10 AND type IN ('OWNER', 'DISPONENT')",
     "gold_sql": "SELECT SUM(type = 'OWNER') , SUM(type = 'DISPONENT') FROM disp WHERE account_id BETWEEN 1 AND 10",
-    "label": false,
-    "reason": "Error SELECT",
+    "label": true,
+    "reason": "ambiguous question",
     "evidence": ""
   },
   {
@@ -1435,8 +1435,8 @@
     "question": "Calculate the difference in view count from post posted by Mornington and view count from posts posted by Amos.",
     "predicted_sql": "SELECT SUM(CASE WHEN users.DisplayName = 'mornington' THEN posts.ViewCount ELSE 0 END) - SUM(CASE WHEN users.DisplayName = 'Amos' THEN posts.ViewCount ELSE 0 END) FROM posts JOIN users ON posts.OwnerUserId = users.Id WHERE users.DisplayName IN ('mornington', 'Amos')",
     "gold_sql": "SELECT SUM(IIF(T1.DisplayName = 'Mornington', T3.ViewCount, 0)) - SUM(IIF(T1.DisplayName = 'Amos', T3.ViewCount, 0)) AS diff FROM users AS T1 INNER JOIN postHistory AS T2 ON T1.Id = T2.UserId INNER JOIN posts AS T3 ON T3.Id = T2.PostId",
-    "label": true,
-    "reason": "GOLD FALSE",
+    "label": false,
+    "reason": "SQLite is case sensitive. GOLD FALSE",
     "evidence": "calculation = SUBTRACT(SUM(ViewCount where DisplayName = 'Mornington'), SUM(ViewCount where DisplayName = 'Amos'));"
   },
   {

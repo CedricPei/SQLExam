@@ -305,8 +305,8 @@
     "question": "What is the display name of the user who acquired the highest amount of badges?",
     "predicted_sql": "SELECT T2.DisplayName FROM badges AS T1 JOIN users AS T2 ON T1.UserId = T2.Id GROUP BY T2.DisplayName ORDER BY COUNT(T1.Name) DESC LIMIT 1",
     "gold_sql": "SELECT T1.DisplayName FROM users AS T1 INNER JOIN badges AS T2 ON T1.Id = T2.UserId GROUP BY T1.DisplayName ORDER BY COUNT(T1.Id) DESC LIMIT 1",
-    "label": false,
-    "reason": "DisplayName may not be unique",
+    "label": true,
+    "reason": "",
     "evidence": "highest amount of badges refers to MAX(COUNT(Name));"
   },
   {
@@ -495,8 +495,8 @@
     "question": "Which district has the most accounts with loan contracts finished with no problems?",
     "predicted_sql": "SELECT d.district_id FROM loan l JOIN account a ON l.account_id = a.account_id JOIN district d ON a.district_id = d.district_id WHERE l.status = 'A' GROUP BY d.district_id ORDER BY COUNT(l.loan_id) DESC LIMIT 1",
     "gold_sql": "SELECT T1.A2 FROM District AS T1 INNER JOIN Account AS T2 ON T1.District_id = T2.District_id INNER JOIN Loan AS T3 ON T2.Account_id = T3.Account_id WHERE T3.status = 'A' GROUP BY T1.District_id ORDER BY COUNT(T2.Account_id) DESC LIMIT 1",
-    "label": false,
-    "reason": "Pred counts loans, not accounts",
+    "label": true,
+    "reason": "",
     "evidence": "status = 'A' refers to loan contracts finished with no problems"
   },
   {
@@ -925,8 +925,8 @@
     "question": "Name the card and artist with the most ruling information. Also state if the card is a promotional printing.",
     "predicted_sql": "SELECT T1.name, T1.artist, T1.isPromo FROM cards AS T1 INNER JOIN rulings AS T2 ON T1.uuid = T2.uuid GROUP BY T1.name, T1.artist, T1.isPromo ORDER BY COUNT(T2.uuid) DESC LIMIT 1",
     "gold_sql": "SELECT T1.name, T1.artist, T1.isPromo FROM cards AS T1 INNER JOIN rulings AS T2 ON T1.uuid = T2.uuid WHERE T1.isPromo = 1 AND T1.artist = (SELECT artist FROM cards WHERE isPromo = 1 GROUP BY artist HAVING COUNT(DISTINCT uuid) = (SELECT MAX(count_uuid) FROM ( SELECT COUNT(DISTINCT uuid) AS count_uuid FROM cards WHERE isPromo = 1 GROUP BY artist ))) LIMIT 1",
-    "label": false,
-    "reason": "The predicted SQL finds the single card with the most rulings regardless of promo status.",
+    "label": true,
+    "reason": "",
     "evidence": "with the most ruling information refers to Max(count(rulings.uuid)); the card is the promotional printing refers to isPromo = 1;"
   },
   {
@@ -1425,8 +1425,8 @@
     "question": "How many owner and disponent dispositions are there from account number 1 to account number 10?",
     "predicted_sql": "SELECT COUNT(disp_id) FROM disp WHERE account_id BETWEEN 1 AND 10 AND type IN ('OWNER', 'DISPONENT')",
     "gold_sql": "SELECT SUM(type = 'OWNER') , SUM(type = 'DISPONENT') FROM disp WHERE account_id BETWEEN 1 AND 10",
-    "label": false,
-    "reason": "The question should be calculated separately rather than the sum of the two.",
+    "label": true,
+    "reason": "pred calculates the sum of the two and gold calculates separately",
     "evidence": ""
   },
   {

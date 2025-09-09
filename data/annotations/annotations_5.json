@@ -55,8 +55,8 @@
     "question": "Among the molecules with element Calcium, are they mostly carcinogenic or non carcinogenic?",
     "predicted_sql": "SELECT molecule.label FROM molecule INNER JOIN atom ON molecule.molecule_id = atom.molecule_id WHERE atom.element = 'ca' GROUP BY molecule.label ORDER BY COUNT(*) DESC LIMIT 1",
     "gold_sql": "SELECT T2.label FROM atom AS T1 INNER JOIN molecule AS T2 ON T1.molecule_id = T2.molecule_id WHERE T1.element = 'ca' GROUP BY T2.label ORDER BY COUNT(T2.label) DESC LIMIT 1",
-    "label": true,
-    "reason": "",
+    "label": false,
+    "reason": "ground truth false",
     "evidence": "calcium refers to element = 'ca'; label = '+' mean molecules are carcinogenic; label = '-' means molecules are non-carcinogenic; MAX(label)"
   },
   {
