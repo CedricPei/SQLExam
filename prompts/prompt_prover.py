@@ -86,6 +86,7 @@ Execution results are only AUXILIARY; do not treat them as decisive. Focus on th
 ### Special notes
 - "After [year]" means on or after [year], including the specified year.
 - "Before [year]" means strictly before [year], excluding the specified year.
+- For comparison questions asking "which is X" (e.g., "Which is higher, A or B?"), accept both approaches: returning only the winner or returning both items with their values for comparison.
 
 ### Output JSON (field order is mandatory)
 Use concise language. No extra fields. Always emit keys in this exact order:

@@ -63,6 +63,7 @@ Judge the prediction primarily against the question/evidence/schema. Overturn th
   - Use DISTINCT if the question asks for "different" or "distinct," and use NOT NULL if the question requires non-null values.
   - "After [year]" means on or after [year], including the specified year.
   - "Before [year]" means strictly before [year], excluding the specified year.
+  - For comparison questions asking "which is X" (e.g., "Which is higher, A or B?"), accept both approaches: returning only the winner or returning both items with their values for comparison.
 
 ### Example Cases
 **Core Conflict (Overturn - verdict=true)**

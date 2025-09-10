@@ -20,7 +20,7 @@ Refuter = Refuter(model=reasoning_model, output_dir=output_dir)
 PartialEval = SQLEvaluationPipeline(model=instruct_model)
 
 if __name__ == "__main__":
-    with open("test.json", "r", encoding="utf-8") as f:
+    with open("sample.json", "r", encoding="utf-8") as f:
         questions = json.load(f)
     # questions = [q for q in questions if int(q["question_id"]) in {1501}]
     problem_ids = []
