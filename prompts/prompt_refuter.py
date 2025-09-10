@@ -132,6 +132,11 @@ When the question allows multiple reasonable interpretations, leading to differe
     Acceptable Pred: SELECT product_name FROM sales GROUP BY product_name HAVING SUM(units_sold) > 10;
     Why: The question can be understood as checking individual sales or grouping by product.
 
+    Q: "Which product is the most expensive?"
+    Acceptable Pred: SELECT name FROM products ORDER BY price DESC LIMIT 1;
+    Acceptable Gold: SELECT name FROM products WHERE price = (SELECT MAX(price) FROM products);
+    Why: The question/evidence does not specify to consider duplicates; both are reasonable.
+
     Schema: flights(flight_id, airline, flight_number, aircraft_id), aircraft(aircraft_id, tail_number, model)
     Q: "What is the number for flight 'BA123'?"
     Acceptable Gold: SELECT a.tail_number FROM flights f JOIN aircraft a ON a.aircraft_id = f.aircraft_id WHERE f.flight_number = 'BA123';

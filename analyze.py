@@ -4,61 +4,28 @@ import sys
 import numpy as np
 from sklearn.metrics import cohen_kappa_score
 
-def merge_results_by_question_id(model_name):
-    preferred_dir = os.path.join("output", model_name)
-    model_dir = preferred_dir if os.path.isdir(preferred_dir) else model_name
-    refuter_file = os.path.join(model_dir, "refuter_output.json")
-    prover_file = os.path.join(model_dir, "prover_output.json")
+def _resolve_model_dir(model_name: str) -> str:
+    candidates = [
+        os.path.join("output", model_name),
+        os.path.join("output", model_name.upper()),
+        os.path.join("output", model_name.lower()),
+    ]
+    for path in candidates:
+        if os.path.isdir(path):
+            return path
+    return candidates[0]
+
+
+def _load_eval_results(model_dir: str) -> list:
     eval_file = os.path.join(model_dir, "eval_results.json")
-    
-    with open(refuter_file, 'r', encoding='utf-8') as f:
-        refuter_data = json.load(f)
-    with open(prover_file, 'r', encoding='utf-8') as f:
-        prover_data = json.load(f)
+    if not os.path.exists(eval_file):
+        raise FileNotFoundError(f"eval_results.json not found in {model_dir}")
     with open(eval_file, 'r', encoding='utf-8') as f:
-        eval_data = json.load(f)
-    
-    refuter_dict = {item['question_id']: item['result'] for item in refuter_data}
-    prover_dict = {item['question_id']: item['result'] for item in prover_data}
-    eval_dict = {item['question_id']: item for item in eval_data}
-    
-    all_question_ids = set(refuter_dict.keys()) | set(prover_dict.keys()) | set(eval_dict.keys())
-    
-    merged_results = []
-    for question_id in sorted(all_question_ids):
-        merged_item = {"question_id": question_id}
-        
-        if question_id in eval_dict:
-            eval_item = eval_dict[question_id]
-            merged_item.update({
-                "question": eval_item.get("question"),
-                "evidence": eval_item.get("evidence"),
-                "gold_sql": eval_item.get("gold_sql"),
-                "predicted_sql": eval_item.get("predicted_sql"),
-                "score": eval_item.get("score"),
-                "label": eval_item.get("label")
-            })
-        
-                
-        if question_id in prover_dict:
-            merged_item["prover_details"] = prover_dict[question_id]
-
-        if question_id in refuter_dict:
-            merged_item["refuter_details"] = refuter_dict[question_id]
-
-        merged_results.append(merged_item)
-    
-    os.makedirs(model_dir, exist_ok=True)
-    results_file = os.path.join(model_dir, f"{model_name}_results.json")
-    with open(results_file, 'w', encoding='utf-8') as f:
-        json.dump(merged_results, f, ensure_ascii=False, indent=2)
+        return json.load(f)
 
 def analyze_results(model_name):
-    preferred_dir = os.path.join("output", model_name)
-    model_dir = preferred_dir if os.path.isdir(preferred_dir) else model_name
-    results_file = os.path.join(model_dir, f"{model_name}_results.json")
-    with open(results_file, 'r', encoding='utf-8') as f:
-        data = json.load(f)
+    model_dir = _resolve_model_dir(model_name)
+    data = _load_eval_results(model_dir)
     
     def is_true_label(item):
         label = item.get("label")
@@ -97,11 +64,6 @@ def analyze_results(model_name):
     precision = tp / (tp + fp) if (tp + fp) > 0 else 0
     recall = tp / (tp + fn) if (tp + fn) > 0 else 0
     f1_score = 2 * (precision * recall) / (precision + recall) if (precision + recall) > 0 else 0
-    
-    preferred_dir = os.path.join("output", model_name)
-    model_dir = preferred_dir if os.path.isdir(preferred_dir) else model_name
-    os.makedirs(model_dir, exist_ok=True)
-    
     label_true_score_0_file = os.path.join(model_dir, f"{model_name}_label_true_score_0.json")
     label_false_score_1_file = os.path.join(model_dir, f"{model_name}_label_false_score_1.json")
     
@@ -151,5 +113,4 @@ if __name__ == "__main__":
         sys.exit(1)
     
     model_name = sys.argv[1]
-    merge_results_by_question_id(model_name)
     analyze_results(model_name)

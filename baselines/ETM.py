@@ -1,7 +1,8 @@
 import sqlite3
 from copy import deepcopy as dc
-import os, sys
-BASE_DIR = os.path.dirname(__file__)
+import os, sys, json
+from tqdm import tqdm
+BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 sys.path.insert(0, os.path.join(BASE_DIR, 'ETM.zip'))
 from treeMatch import preprocess, parseTree, compareTrees
 from ETM_utils.process_sql import get_schema
@@ -10,7 +11,8 @@ def ETM(question, pred_sql) -> bool:
     ALLRULES = [100,101,102,103,104,105,106,107,108,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26]
 
     db_id = question["db_id"]
-    db = f"dev_databases/{db_id}/{db_id}.sqlite"
+    project_root = os.path.abspath(os.path.join(BASE_DIR, '..'))
+    db = os.path.join(project_root, 'dev_databases', db_id, f'{db_id}.sqlite')
     schema = get_schema(db)
     gold = preprocess(question["gold_sql"], schema)
     pred = preprocess(pred_sql, schema)
@@ -38,3 +40,39 @@ def ETM(question, pred_sql) -> bool:
         treecomp = False
 
     return True if treecomp else False
+
+def main():
+    base = os.path.abspath(os.path.join(BASE_DIR, '..'))
+    path = os.path.join(base, 'test.json')
+    if not os.path.exists(path):
+        print('test.json not found in project root')
+        return
+    with open(path, 'r', encoding='utf-8') as f:
+        questions = json.load(f)
+    results = []
+    for q in tqdm(questions):
+        try:
+            pred_sql = q.get('predicted_sql') or ''
+            score = 1.0 if ETM(q, pred_sql) else 0.0
+        except Exception:
+            score = 0.0
+
+        results.append({
+            "question_id": q.get("question_id"),
+            "question": q.get("question"),
+            "evidence": q.get("evidence"),
+            "gold_sql": q.get("gold_sql"),
+            "predicted_sql": pred_sql,
+            "label": q.get("label"),
+            "score": score,
+        })
+
+    out_dir = os.path.join(base, 'output', 'ETM')
+    os.makedirs(out_dir, exist_ok=True)
+    out_file = os.path.join(out_dir, 'eval_results.json')
+    with open(out_file, 'w', encoding='utf-8') as f:
+        json.dump(results, f, ensure_ascii=False, indent=2)
+
+
+if __name__ == '__main__':
+    main()
