@@ -7,8 +7,8 @@ from ..utils import extract_json_from_response
 
 load_dotenv()
 
-class RubricDesigner:
-    def __init__(self, question_obj: dict, constraints: list, output_dir: str = "rubric_outputs", model: str = "deepseek-chat"):
+class Translator:
+    def __init__(self, question_obj: dict, constraints: list, output_dir: str = "translator_outputs", model: str = "deepseek-chat"):
         self.model = model
         self.schema = question_obj["schema"]
         self.question_id = question_obj["question_id"]

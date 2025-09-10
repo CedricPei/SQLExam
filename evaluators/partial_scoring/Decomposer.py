@@ -2,13 +2,13 @@ import os
 import json
 import openai
 from dotenv import load_dotenv
-from prompts.prompt_decomposer import system_prompt_decomposer as system_prompt_constraint_extractor, user_prompt_decomposer as user_prompt_constraint_extractor
+from prompts.prompt_decomposer import system_prompt_decomposer, user_prompt_decomposer
 from ..utils import extract_json_from_response
 
 load_dotenv()
 
-class ConstraintExtractor:
-    def __init__(self, question_obj: dict, output_dir: str = "constraint_extractor_outputs", model: str = "deepseek-chat"):
+class Decomposer:
+    def __init__(self, question_obj: dict, output_dir: str = "decomposer_outputs", model: str = "deepseek-chat"):
         self.model = model
         self.schema = question_obj["schema"]
         self.question_id = question_obj["question_id"]
@@ -19,7 +19,7 @@ class ConstraintExtractor:
         os.makedirs(self.output_dir, exist_ok=True)
 
     def call(self) -> list:
-        user_content = user_prompt_constraint_extractor.format(
+        user_content = user_prompt_decomposer.format(
             schema=self.schema,
             question=self.question, 
             evidence=self.evidence,
@@ -29,7 +29,7 @@ class ConstraintExtractor:
         response = client.chat.completions.create(
             model=self.model,
             messages=[
-                {"role": "system", "content": system_prompt_constraint_extractor},
+                {"role": "system", "content": system_prompt_decomposer},
                 {"role": "user", "content": user_content}
             ],
             temperature=0

@@ -3,11 +3,11 @@ import os
 import openai
 from dotenv import load_dotenv
 from prompts.prompt_grader import system_prompt_grader, user_prompt_grader
-from utils import extract_json_from_response
+from ..utils import extract_json_from_response
 
 load_dotenv()
 
-class RubricGrader:
+class Grader:
     def __init__(self, question_obj: dict, rubric_questions: list, output_dir: str = "grader_outputs", model: str = "deepseek-chat"):
         self.client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"), base_url=os.getenv("OPENAI_BASE_URL"))
         self.model = model
