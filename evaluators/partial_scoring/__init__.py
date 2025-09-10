@@ -1,11 +1,11 @@
-from .ConstraintExtractor import ConstraintExtractor
-from .RubricDesigner import RubricDesigner
-from .RubricGrader import RubricGrader
+from .Decomposer import Decomposer
+from .Translator import Translator
+from .Grader import Grader
 
 __all__ = [
-    "ConstraintExtractor",
-    "RubricDesigner",
-    "RubricGrader",
+    "Decomposer",
+    "Translator",
+    "Grader",
 ]
 
 

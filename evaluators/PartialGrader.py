@@ -1,7 +1,7 @@
 import sqlparse
 from typing import Dict, Any
 from .utils import get_db_info
-from .partial_scoring import ConstraintExtractor, RubricDesigner, RubricGrader
+from .partial_scoring import Decomposer, Translator, Grader
 
 class PartialScoringPipeline:
     def __init__(self, model: str = "deepseek-chat"):
@@ -19,13 +19,13 @@ class PartialScoringPipeline:
                 "schema": get_db_info(question["db_id"], question["gold_sql"])
             }
             
-            constraint_extractor = ConstraintExtractor(question_obj, model=self.model)
+            constraint_extractor = Decomposer(question_obj, model=self.model)
             constraints = constraint_extractor.call()
             
-            rubric_designer = RubricDesigner(question_obj, constraints, model=self.model)
+            rubric_designer = Translator(question_obj, constraints, model=self.model)
             designed_rubric = rubric_designer.call()
             
-            rubric_grader = RubricGrader(question_obj, designed_rubric, model=self.model)
+            rubric_grader = Grader(question_obj, designed_rubric, model=self.model)
             grading_results = rubric_grader.call(pred_sql)
             
             usefulness_score = self._calculate_usefulness_score(grading_results, designed_rubric)
