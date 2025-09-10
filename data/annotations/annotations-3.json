@@ -106,7 +106,7 @@
     "predicted_sql": "SELECT T2.name FROM set_translations AS T1 INNER JOIN cards AS T2 ON T1.setCode = T2.setCode WHERE T1.translation = 'Hauptset Zehnte Edition'",
     "gold_sql": "SELECT DISTINCT T1.name FROM cards AS T1 INNER JOIN set_translations AS T2 ON T2.setCode = T1.setCode WHERE T2.translation = 'Hauptset Zehnte Edition'",
     "label": true,
-    "reason": "The strongest player should only return one result, which should be limit 1.",
+    "reason": "",
     "evidence": "card set \"Hauptset Zehnte Edition\" refers to translation = 'Hauptset Zehnte Edition'"
   },
   {
@@ -115,7 +115,7 @@
     "question": "What is the category of event which was taken place in 2020-03-24T12:00:00?",
     "predicted_sql": "SELECT type FROM event WHERE event_date = '2020-03-24T12:00:00'",
     "gold_sql": "SELECT T2.category FROM event AS T1 INNER JOIN budget AS T2 ON T1.event_id = T2.link_to_event WHERE T1.event_date = '2020-03-24T12:00:00'",
-    "label": false,
+    "label": true,
     "reason": "GOLD FALSE. Check that the type of the event is indeed type, not category in the budget table. The category in budget is the type of budget.",
     "evidence": "taken place in 2020-03-24T12:00:00 refers to event_date = '2020-03-24T12:00:00'"
   },
@@ -155,7 +155,7 @@
     "question": "What is the type of card \"Benalish Knight\"?",
     "predicted_sql": "SELECT type FROM cards WHERE name = 'Benalish Knight'",
     "gold_sql": "SELECT DISTINCT T1.type FROM cards AS T1 INNER JOIN foreign_data AS T2 ON T1.uuid = T2.uuid WHERE T1.name = 'Benalish Knight'",
-    "label": false,
+    "label": true,
     "reason": "GOLD FALSE. Predicted SQL is correct. gold sql filters foreign_data, which is completely unnecessary and cannot meet the requirements of the question under certain conditions.",
     "evidence": "Benalish Knight' is the name of card;"
   },
@@ -445,7 +445,7 @@
     "question": "Where can the introduction of the races held on Circuit de Barcelona-Catalunya be found?",
     "predicted_sql": "SELECT races.url FROM races INNER JOIN circuits ON races.circuitid = circuits.circuitid WHERE circuits.name = 'Circuit de Barcelona-Catalunya'",
     "gold_sql": "SELECT DISTINCT T1.url FROM circuits AS T1 INNER JOIN races AS T2 ON T2.circuitID = T1.circuitId WHERE T1.name = 'Circuit de Barcelona-Catalunya'",
-    "label": false,
+    "label": true,
     "reason": "GOLD FALSE. Gold SQL returns circuits.url, but the question requires races.url",
     "evidence": "introduction of races refers to url; Circuit de Barcelona-Catalunya is a name of circuit;"
   },
@@ -555,7 +555,7 @@
     "question": "In posts with 1 comment, how many of the comments have 0 score?",
     "predicted_sql": "SELECT COUNT(*) FROM comments WHERE PostId IN (SELECT Id FROM posts WHERE CommentCount = 1) AND Score = 0",
     "gold_sql": "SELECT COUNT(T1.id) FROM comments AS T1 INNER JOIN posts AS T2 ON T1.PostId = T2.Id WHERE T2.CommentCount = 1 AND T2.Score = 0",
-    "label": false,
+    "label": true,
     "reason": "GOLD FALSE. gold sql calculates the number of posts with a score of 0, but the question requires the number of comments with a score of 0",
     "evidence": "in posts with 1 comment refers to CommentCount = 1;"
   },
@@ -835,7 +835,7 @@
     "question": "Which customer paid the most in 2012/8/25?",
     "predicted_sql": "SELECT \"transactions_1k\".\"CustomerID\" FROM \"transactions_1k\" WHERE \"transactions_1k\".\"Date\" = '2012-08-25' GROUP BY \"transactions_1k\".\"CustomerID\" ORDER BY SUM(\"transactions_1k\".\"Amount\" * \"transactions_1k\".\"Price\") DESC LIMIT 1",
     "gold_sql": "SELECT CustomerID FROM transactions_1k WHERE Date = '2012-08-25' GROUP BY CustomerID ORDER BY SUM(Price) DESC LIMIT 1",
-    "label": false,
+    "label": true,
     "reason": "GOLD FALSE. the gold SQL treats Price as the total payment per transaction and sums it directly.However, \"price\" refers to the unit price rather than the total amount.",
     "evidence": "'2012/8/25' can be represented by '2012-08-25'"
   },
@@ -985,7 +985,7 @@
     "question": "Please provide the ids of top three powerful pairs of Kingdom Foil and Kingdom Cards sorted by Kingdom Foil id in alphabetical order.",
     "predicted_sql": "SELECT \"cards\".\"id\" FROM \"cards\" WHERE NOT \"cards\".\"cardKingdomFoilId\" IS NULL AND NOT \"cards\".\"cardKingdomId\" IS NULL ORDER BY \"cards\".\"cardKingdomFoilId\" ASC LIMIT 3",
     "gold_sql": "SELECT cardKingdomFoilId, cardKingdomId FROM cards WHERE cardKingdomFoilId IS NOT NULL AND cardKingdomId IS NOT NULL ORDER BY cardKingdomFoilId LIMIT 3",
-    "label": false,
+    "label": true,
     "reason": "GOLD FALSE. Predicted TRUE. The question requires returning cards.id.",
     "evidence": "poweful refers to cardKingdomFoilId is not null AND cardKingdomId is not null"
   },
@@ -1025,8 +1025,8 @@
     "question": "What is the grade span offered in the school with the highest longitude?",
     "predicted_sql": "SELECT GSoffered FROM schools ORDER BY ABS(Longitude) DESC LIMIT 1",
     "gold_sql": "SELECT GSoffered FROM schools WHERE ABS(longitude) = (SELECT MAX(ABS(longitude)) FROM schools)",
-    "label": false,
-    "reason": "If there are the same longitude schools, using LIMIT 1 might not be strict.",
+    "label": true,
+    "reason": "",
     "evidence": ""
   },
   {
@@ -1035,8 +1035,8 @@
     "question": "Name the tallest superhero.",
     "predicted_sql": "SELECT superhero_name FROM superhero ORDER BY height_cm DESC LIMIT 1",
     "gold_sql": "SELECT superhero_name FROM superhero WHERE height_cm = (SELECT MAX(height_cm) FROM superhero)",
-    "label": false,
-    "reason": "There are multiple Superheroes with the same maximum height, and using LIMIT 1 is not strict.",
+    "label": true,
+    "reason": "",
     "evidence": "tallest superhero refers to MAX(height_cm);"
   },
   {
@@ -1045,8 +1045,8 @@
     "question": "Who is the dumbest superhero?",
     "predicted_sql": "SELECT T1.superhero_name FROM superhero AS T1 INNER JOIN hero_attribute AS T2 ON T1.id = T2.hero_id INNER JOIN attribute AS T3 ON T2.attribute_id = T3.id WHERE T3.attribute_name = 'Intelligence' AND T2.attribute_value IS NOT NULL ORDER BY T2.attribute_value ASC LIMIT 1",
     "gold_sql": "SELECT T1.superhero_name FROM superhero AS T1 INNER JOIN hero_attribute AS T2 ON T1.id = T2.hero_id INNER JOIN attribute AS T3 ON T2.attribute_id = T3.id WHERE T3.attribute_name = 'Intelligence' AND T2.attribute_value = (SELECT MIN(T4.attribute_value) FROM hero_attribute AS T4 INNER JOIN attribute AS T5 ON T4.attribute_id = T5.id WHERE T5.attribute_name = 'Intelligence')",
-    "label": false,
-    "reason": "There are multiple dumbest Superheroes, and using LIMIT 1 is not strict.",
+    "label": true,
+    "reason": "",
     "evidence": "the dumbest superhero refers to MIN(attribute_value) where attribute_name = 'Intelligence'"
   },
   {
@@ -1165,8 +1165,8 @@
     "question": "Name the account numbers of female clients who are oldest and have lowest average salary?",
     "predicted_sql": "SELECT account.account_id FROM account INNER JOIN disp ON account.account_id = disp.account_id INNER JOIN client ON disp.client_id = client.client_id INNER JOIN district ON client.district_id = district.district_id WHERE client.gender = 'F' AND client.birth_date IS NOT NULL AND district.A11 IS NOT NULL ORDER BY client.birth_date ASC, district.A11 ASC LIMIT 1",
     "gold_sql": "SELECT T3.account_id FROM client AS T1 INNER JOIN district AS T2 ON T1.district_id = T2.district_id INNER JOIN account AS T3 ON T2.district_id = T3.district_id WHERE T1.gender = 'F' AND T1.birth_date = (SELECT MIN(birth_date) FROM client WHERE gender = 'F') AND T2.A11 = (SELECT MIN(T2.A11) FROM client AS T1 INNER JOIN district AS T2 ON T1.district_id = T2.district_id WHERE T1.gender = 'F' AND T1.birth_date = (SELECT MIN(birth_date) FROM client WHERE gender = 'F'))",
-    "label": false,
-    "reason": "When not a single piece of data meets the conditions, using LIMIT 1 is not rigorous",
+    "label": true,
+    "reason": "",
     "evidence": "Female refers to 'F' in the gender; A11 contains information about average salary"
   },
   {
@@ -1185,7 +1185,7 @@
     "question": "How many adults who obtained the badge Supporter?",
     "predicted_sql": "SELECT COUNT(DISTINCT u.Id) FROM badges b JOIN users u ON b.UserId = u.Id WHERE b.Name = 'Supporter' AND u.Age BETWEEN 19 AND 65",
     "gold_sql": "SELECT COUNT(T1.Id) FROM users AS T1 INNER JOIN badges AS T2 ON T1.Id = T2.UserId WHERE T2.Name = 'Supporter' AND T1.Age BETWEEN 19 AND 65",
-    "label": false,
+    "label": true,
     "reason": "GOLD FALSE. Predicted SQL TRUE. Gold sql does not use DISTINCT and may return a larger value.",
     "evidence": "Supporter is the Name of badge; adult refers to Age BETWEEN 19 AND 65"
   },
@@ -1375,7 +1375,7 @@
     "question": "Consider the average difference between K-12 enrollment and 15-17 enrollment of schools that are locally funded, list the names and DOC type of schools which has a difference above this average.",
     "predicted_sql": "SELECT T2.School, T2.DOCType FROM frpm AS T1 INNER JOIN schools AS T2 ON T1.CDSCode = T2.CDSCode WHERE T2.FundingType = 'Locally funded' AND T1.`Enrollment (K-12)` - T1.`Enrollment (Ages 5-17)` > ( SELECT AVG(T1.`Enrollment (K-12)` - T1.`Enrollment (Ages 5-17)`) FROM frpm AS T1 INNER JOIN schools AS T2 ON T1.CDSCode = T2.CDSCode WHERE T2.FundingType = 'Locally funded' )",
     "gold_sql": "SELECT T2.School, T2.DOC FROM frpm AS T1 INNER JOIN schools AS T2 ON T1.CDSCode = T2.CDSCode WHERE T2.FundingType = 'Locally funded' AND (T1.`Enrollment (K-12)` - T1.`Enrollment (Ages 5-17)`) > (SELECT AVG(T3.`Enrollment (K-12)` - T3.`Enrollment (Ages 5-17)`) FROM frpm AS T3 INNER JOIN schools AS T4 ON T3.CDSCode = T4.CDSCode WHERE T4.FundingType = 'Locally funded')",
-    "label": false,
+    "label": true,
     "reason": "GOLD FALSE, Predicted TRUE. Gold sql does not return DOCType but DOCid.",
     "evidence": "Difference between K-12 enrollment and 15-17 enrollment can be computed by `Enrollment (K-12)` - `Enrollment (Ages 5-17)`"
   },
@@ -1395,7 +1395,7 @@
     "question": "Find and list the names of sets which doesn't have Japanese translation but have Korean translation.",
     "predicted_sql": "SELECT T1.name FROM sets AS T1 WHERE EXISTS (SELECT 1 FROM set_translations AS T2 WHERE T1.code = T2.setCode AND T2.language = 'Korean') AND NOT EXISTS (SELECT 1 FROM set_translations AS T3 WHERE T1.code = T3.setCode AND T3.language LIKE '%Japanese%')",
     "gold_sql": "SELECT name FROM sets WHERE code IN ( SELECT setCode FROM set_translations WHERE language = 'Korean' AND language NOT LIKE '%Japanese%' )",
-    "label": false,
+    "label": true,
     "reason": "GOLD FALSE, Predicted SQL TRUE. The filtering conditions of Gold sql can only filter out sets that are in Korean, but not sets that are not in Japanese.",
     "evidence": "names of sets refers to name; doesn't have Japanese translation refers to language not like '%Japanese%'; have Korean translation refers to language = 'Korean'"
   },
@@ -1445,7 +1445,7 @@
     "question": "Does bond id TR001_1_8 have both element of chlorine and carbon?",
     "predicted_sql": "SELECT CASE WHEN COUNT(DISTINCT CASE WHEN T2.element IN ('cl', 'c') THEN T2.element END) = 2 THEN 'yes' ELSE 'no' END AS has_both FROM connected AS T1 INNER JOIN atom AS T2 ON T1.atom_id = T2.atom_id  WHERE T1.bond_id = 'TR001_1_8'",
     "gold_sql": "SELECT T2.bond_id, T2.atom_id2, T1.element AS flag_have_CaCl FROM atom AS T1 INNER JOIN connected AS T2 ON T2.atom_id = T1.atom_id WHERE T2.bond_id = 'TR001_1_8' AND (T1.element = 'c1' OR T1.element = 'c')",
-    "label": false,
+    "label": true,
     "reason": "GOLD FALSE.Predicted  TRUE. Gold sql does not meet the condition of \"both element of chlorine and carbon\", but only meets one condition.",
     "evidence": "chlorine refers to element = 'cl'; carbon refers to element = 'c'"
   }

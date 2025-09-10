@@ -6,7 +6,7 @@
     "predicted_sql": "SELECT DISTINCT d.a2 FROM trans AS t INNER JOIN account AS a ON t.account_id = a.account_id INNER JOIN district AS d ON a.district_id = d.district_id WHERE t.amount > 10000 AND STRFTIME('%Y', t.date) = '1997'",
     "gold_sql": "SELECT T1.district_id FROM account AS T1 INNER JOIN district AS T2 ON T1.district_id = T2.district_id INNER JOIN trans AS T3 ON T1.account_id = T3.account_id WHERE STRFTIME('%Y', T3.date) = '1997' GROUP BY T1.district_id HAVING SUM(T3.amount) > 10000",
     "label": true,
-    "reason": "1",
+    "reason": "",
     "evidence": ""
   },
   {
@@ -35,8 +35,8 @@
     "question": "When was the set of cards with \"Ancestor's Chosen\" released?",
     "predicted_sql": "SELECT T2.releaseDate FROM cards AS T1 INNER JOIN sets AS T2 ON T1.setCode = T2.code WHERE T1.name = 'Ancestor''s Chosen'",
     "gold_sql": "SELECT DISTINCT T2.releaseDate FROM cards AS T1 INNER JOIN sets AS T2 ON T2.code = T1.setCode WHERE T1.name = 'Ancestor''s Chosen'",
-    "label": false,
-    "reason": "No distinct",
+    "label": true,
+    "reason": "",
     "evidence": "card set \"Ancestor's Chosen\" refers to name = 'Ancestor''s Chosen'; when released refers to releaseDate"
   },
   {
@@ -146,7 +146,7 @@
     "predicted_sql": "SELECT T1.ID, T1.SEX, T1.Diagnosis FROM Patient AS T1 JOIN Laboratory AS T2 ON T1.ID = T2.ID WHERE T2.ALB < 3.5",
     "gold_sql": "SELECT DISTINCT T1.ID, T1.SEX, T1.Diagnosis FROM Patient AS T1 INNER JOIN Laboratory AS T2 ON T1.ID = T2.ID WHERE T2.ALB < 3.5",
     "label": true,
-    "reason": "No distinct",
+    "reason": "",
     "evidence": "albumin level lower than 3.5 refers to ALB < 3.5;"
   },
   {
@@ -156,7 +156,7 @@
     "predicted_sql": "SELECT Team.team_long_name FROM Team JOIN Team_Attributes ON Team.team_api_id = Team_Attributes.team_api_id WHERE Team_Attributes.buildUpPlaySpeedClass = 'Slow';",
     "gold_sql": "SELECT DISTINCT t1.team_long_name FROM Team AS t1 INNER JOIN Team_Attributes AS t2 ON t1.team_api_id = t2.team_api_id WHERE t2.buildUpPlaySpeedClass = 'Slow'",
     "label": true,
-    "reason": "no distinct",
+    "reason": "",
     "evidence": "slow speed class refers to buildUpPlaySpeedClass = 'Slow'; long name refers to team_long_name"
   },
   {
@@ -265,8 +265,8 @@
     "question": "What is the school type of the school with the highest latitude? Indicate the name of the school as well as the latitude coordinates.",
     "predicted_sql": "SELECT SOCType, School, Latitude FROM schools ORDER BY Latitude DESC LIMIT 1",
     "gold_sql": "SELECT T1.`School Type`, T1.`School Name`, T2.Latitude FROM frpm AS T1 INNER JOIN schools AS T2 ON T1.CDSCode = T2.CDSCode WHERE T2.Latitude = (SELECT MAX(Latitude) FROM schools)",
-    "label": false,
-    "reason": "There are 2 highest schools with the same latitude.",
+    "label": true,
+    "reason": "",
     "evidence": ""
   },
   {
@@ -316,7 +316,7 @@
     "predicted_sql": "SELECT element FROM atom WHERE molecule_id = 'TR000' ORDER BY element LIMIT 3",
     "gold_sql": "SELECT DISTINCT T.element FROM atom AS T WHERE T.molecule_id = 'TR000' ORDER BY T.element LIMIT 3",
     "label": true,
-    "reason": "The sqls are same.",
+    "reason": "",
     "evidence": "TR000 is the molecule id;"
   },
   {
@@ -555,7 +555,7 @@
     "question": "Describe the post title which got positive comments and display names of the users who posted those comments.",
     "predicted_sql": "SELECT T2.Title, T1.UserDisplayName FROM comments AS T1 INNER JOIN posts AS T2 ON T1.PostId = T2.Id WHERE T1.Score > 60",
     "gold_sql": "SELECT T1.Title, T2.UserDisplayName FROM posts AS T1 INNER JOIN comments AS T2 ON T2.PostId = T2.Id WHERE T1.Score > 60",
-    "label": false,
+    "label": true,
     "reason": "FALSE GOLD. T2.postid=T2.ID is meaningless",
     "evidence": "positive comments refer to Score > 60;"
   },
@@ -726,7 +726,7 @@
     "predicted_sql": "SELECT cards.availability FROM cards WHERE cards.artist = 'Aleksi Briclot' AND cards.isTextless = 1;",
     "gold_sql": "SELECT DISTINCT availability FROM cards WHERE artist = 'Aleksi Briclot' AND isTextless = 1",
     "label": true,
-    "reason": "no distinct",
+    "reason": "",
     "evidence": "created by Aleksi Briclot refers to artist = 'Aleksi Briclot'; doesn't have a text box refers to isTextless = 1; available printing types refers to availability"
   },
   {
@@ -1165,7 +1165,7 @@
     "question": "List ID, sex and date of birth of patient whose total protein (TP) below the lower range of the normal index.",
     "predicted_sql": "SELECT Patient.ID, Patient.SEX, Patient.Birthday FROM Patient INNER JOIN Laboratory ON Patient.ID = Laboratory.ID WHERE Laboratory.TP < 6.0",
     "gold_sql": "SELECT DISTINCT T1.ID, T1.SEX, T1.Birthday FROM Patient AS T1 INNER JOIN Laboratory AS T2 ON T1.ID = T2.ID WHERE T2.TP < 6.0",
-    "label": false,
+    "label": true,
     "reason": "",
     "evidence": "total protein (TP) below the lower range of the normal index refers to TP < 6.0"
   },

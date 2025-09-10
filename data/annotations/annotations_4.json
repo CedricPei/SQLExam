@@ -695,8 +695,8 @@
     "question": "What is the event that has the highest attendance of the students from the Student_Club?",
     "predicted_sql": "SELECT event.event_name FROM attendance INNER JOIN member ON attendance.link_to_member = member.member_id INNER JOIN event ON attendance.link_to_event = event.event_id GROUP BY attendance.link_to_event, event.event_name ORDER BY COUNT(member.member_id) DESC LIMIT 1",
     "gold_sql": "SELECT T1.event_name FROM event AS T1 INNER JOIN attendance AS T2 ON T1.event_id = T2.link_to_event GROUP BY T1.event_name HAVING COUNT(T2.link_to_event) = (SELECT MAX(attendance_count) FROM (SELECT COUNT(link_to_event) AS attendance_count FROM attendance GROUP BY link_to_event) AS subquery)",
-    "label": false,
-    "reason": "Using LIMIT 1 cann't handle cases where more than one event should return",
+    "label": true,
+    "reason": "",
     "evidence": "event with highest attendance refers to MAX(COUNT(link_to_event))"
   },
   {
@@ -1275,8 +1275,8 @@
     "question": "Of all the carcinogenic molecules, which one has the most double bonds?",
     "predicted_sql": "SELECT m.molecule_id FROM molecule m JOIN bond b ON m.molecule_id = b.molecule_id JOIN connected c ON b.bond_id = c.bond_id WHERE m.label = '+' AND b.bond_type = '=' GROUP BY m.molecule_id ORDER BY COUNT(b.bond_id) DESC LIMIT 1",
     "gold_sql": "SELECT T.molecule_id FROM (SELECT T3.molecule_id, COUNT(T1.bond_type) AS bond_count FROM bond AS T1 INNER JOIN molecule AS T3 ON T1.molecule_id = T3.molecule_id WHERE T3.label = '+' AND T1.bond_type = '=' GROUP BY T3.molecule_id HAVING bond_count = (SELECT MAX(bond_count) FROM (SELECT T3.molecule_id, COUNT(T1.bond_type) AS bond_count FROM bond AS T1 INNER JOIN molecule AS T3 ON T1.molecule_id = T3.molecule_id WHERE T3.label = '+' AND T1.bond_type = '=' GROUP BY T3.molecule_id) AS subquery) ORDER BY bond_count DESC) AS T",
-    "label": false,
-    "reason": "Using LIMIT 1 will limit only 1 result of all possible results",
+    "label": true,
+    "reason": "",
     "evidence": "label = '+' mean molecules are carcinogenic; double bond refers to bond_type = ' = ';"
   },
   {
@@ -1325,8 +1325,8 @@
     "question": "What is the molecule of atom id \"TR000_2\" and atom id 2 \"TR000_4\"?",
     "predicted_sql": "SELECT molecule_id FROM atom WHERE atom_id IN ('TR000_2', 'TR000_4')",
     "gold_sql": "SELECT T1.molecule_id FROM bond AS T1 INNER JOIN connected AS T2 ON T1.bond_id = T2.bond_id WHERE T2.atom_id = 'TR000_2' AND T2.atom_id2 = 'TR000_4'",
-    "label": false,
-    "reason": "Wrong filter condition",
+    "label": true,
+    "reason": "Ambiguous question caused by 'AND' operator.",
     "evidence": ""
   },
   {
@@ -1395,8 +1395,8 @@
     "question": "For the patient who has the highest Ig A within the normal range, what is his or her diagnosis?",
     "predicted_sql": "SELECT Patient.Diagnosis FROM Patient JOIN Laboratory ON Patient.ID = Laboratory.ID WHERE Laboratory.IGA BETWEEN 80 AND 500 ORDER BY Laboratory.IGA DESC LIMIT 1",
     "gold_sql": "SELECT T1.Diagnosis FROM Patient AS T1 INNER JOIN Laboratory AS T2 ON T1.ID = T2.ID WHERE T2.IGA = (SELECT MAX(IGA) FROM Laboratory WHERE IGA BETWEEN 80 AND 500)",
-    "label": false,
-    "reason": "Using LIMIT 1 will exclude other valid results",
+    "label": true,
+    "reason": "",
     "evidence": "highest Ig A within the normal range refers to MAX(IGA BETWEEN 80 AND 500);"
   },
   {

@@ -205,8 +205,8 @@
     "question": "How many atoms with iodine and with sulfur type elements are there in single bond molecules?",
     "predicted_sql": "SELECT COUNT(DISTINCT CASE WHEN a.element = 'i' THEN a.atom_id END) + COUNT(DISTINCT CASE WHEN a.element = 's' THEN a.atom_id END) AS total_iodine_sulfur_atoms FROM atom a JOIN connected c ON a.atom_id = c.atom_id OR a.atom_id = c.atom_id2 JOIN bond b ON c.bond_id = b.bond_id WHERE b.bond_type = '-'",
     "gold_sql": "SELECT COUNT(DISTINCT CASE WHEN T1.element = 'i' THEN T1.atom_id ELSE NULL END) AS iodine_nums , COUNT(DISTINCT CASE WHEN T1.element = 's' THEN T1.atom_id ELSE NULL END) AS sulfur_nums FROM atom AS T1 INNER JOIN connected AS T2 ON T1.atom_id = T2.atom_id INNER JOIN bond AS T3 ON T2.bond_id = T3.bond_id WHERE T3.bond_type = '-'",
-    "label": true,
-    "reason": "",
+    "label": false,
+    "reason": "Pred treats 'AND' in the question as summation of two conditions",
     "evidence": "with iodine element refer to element = 'i'; with sulfur element refers to element = 's'; single type bond refers to bond_type = '-'; Should consider the distinct atoms when counting;"
   },
   {
@@ -225,7 +225,7 @@
     "question": "What is the sum that client number 4's account has following transaction 851? Who owns this account, a man or a woman?",
     "predicted_sql": "SELECT SUM(trans.balance) AS sum_balance, client.gender FROM trans INNER JOIN disp ON trans.account_id = disp.account_id INNER JOIN client ON disp.client_id = client.client_id WHERE disp.client_id = 4 AND trans.trans_id > 851",
     "gold_sql": "SELECT T4.balance, T1.gender FROM client AS T1 INNER JOIN disp AS T2 ON T1.client_id = T2.client_id INNER JOIN account AS T3 ON T2.account_id =T3.account_id INNER JOIN trans AS T4 ON T3.account_id = T4.account_id WHERE T1.client_id = 4 AND T4.trans_id = 851",
-    "label": true,
+    "label": false,
     "reason": "trans.trans_id > 851;  no GROUP BY",
     "evidence": ""
   },
@@ -306,7 +306,7 @@
     "predicted_sql": "SELECT COUNT(T1.id) FROM cards AS T1 INNER JOIN foreign_data AS T2 ON T1.uuid = T2.uuid WHERE T1.artist = 'Volkan Baǵa' AND T2.language = 'French'",
     "gold_sql": "SELECT COUNT(T3.id) FROM ( SELECT T1.id FROM cards AS T1 INNER JOIN foreign_data AS T2 ON T2.uuid = T1.uuid WHERE T1.artist = 'Volkan Baǵa' AND T2.language = 'French' GROUP BY T1.id ) AS T3",
     "label": false,
-    "reason": "no group by",
+    "reason": "Group by is needed to answer the question.",
     "evidence": "Volkan BaÇµa refers to artist = 'Volkan Baǵa'; foreign language is in French refers to language = 'French'"
   },
   {
@@ -495,8 +495,8 @@
     "question": "How old was the patient who had the highest hemoglobin count at the time of the examination, and what is the doctor's diagnosis?",
     "predicted_sql": "SELECT strftime('%Y', T1.`Examination Date`) - strftime('%Y', T3.Birthday) AS age, T1.Diagnosis FROM Examination AS T1 INNER JOIN Laboratory AS T2 ON T1.ID = T2.ID INNER JOIN Patient AS T3 ON T1.ID = T3.ID ORDER BY T2.HGB DESC LIMIT 1;",
     "gold_sql": "SELECT STRFTIME('%Y', T2.Date) - STRFTIME('%Y', T1.Birthday), T1.Diagnosis FROM Patient AS T1 INNER JOIN Laboratory AS T2 ON T1.ID = T2.ID ORDER BY T2.HGB DESC LIMIT 1",
-    "label": false,
-    "reason": "should use T2.Date",
+    "label": true,
+    "reason": "GOLD FALSE",
     "evidence": "How old the patient refers to SUBTRACT(year(`Examination Date`), year(Birthday)); the highest hemoglobin count refers to MAX(HGB)"
   },
   {
@@ -705,7 +705,7 @@
     "question": "Which gas station has the highest amount of revenue?",
     "predicted_sql": "SELECT gasstationid FROM transactions_1k GROUP BY gasstationid ORDER BY SUM(amount * price) DESC LIMIT 1",
     "gold_sql": "SELECT GasStationID FROM transactions_1k GROUP BY GasStationID ORDER BY SUM(Price) DESC LIMIT 1",
-    "label": false,
+    "label": true,
     "reason": "gold sql false",
     "evidence": ""
   },
@@ -766,7 +766,7 @@
     "predicted_sql": "SELECT T1.County, T1.School, T1.ClosedDate FROM schools T1 WHERE T1.StatusType = 'Closed' AND T1.County = (SELECT T2.County FROM schools T2 WHERE T2.StatusType = 'Closed' GROUP BY T2.County ORDER BY COUNT(*) DESC LIMIT 1)",
     "gold_sql": "SELECT DISTINCT County, School, ClosedDate FROM schools WHERE County = ( SELECT County FROM schools WHERE StatusType = 'Closed' GROUP BY County ORDER BY COUNT(School) DESC LIMIT 1 ) AND StatusType = 'Closed' AND school IS NOT NULL",
     "label": false,
-    "reason": "should use distinct",
+    "reason": "should use distinct because question asks for different counties",
     "evidence": "Closure date and closed date are synonyms; 'Closed' was mentioned in schools.StatusType."
   },
   {
