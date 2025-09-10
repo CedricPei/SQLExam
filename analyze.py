@@ -60,7 +60,6 @@ def analyze_results(model_name):
     with open(results_file, 'r', encoding='utf-8') as f:
         data = json.load(f)
     
-    # 处理JSON中的布尔值（可能是字符串或布尔类型）
     def is_true_label(item):
         label = item.get("label")
         return label is True or label == "true" or label == "True"

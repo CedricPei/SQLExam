@@ -46,17 +46,22 @@ After grading all questions, aggregate all objects into a single JSON array. Ret
     - DO NOT FOCUS ONLY ON SELECT, WHERE clauses or main query.
   - Deduct 0.5 points for each missing column.
   - Using a column from an alternative but equivalent table is acceptable.
-  
-2. Grouping Questions
+
+2. Projection Questions
+  - For each required projection item (column or expression), award points if the item is present or there exists a semantically equivalent expression in the SELECT list.
+  - Aliases do not affect correctness; differing alias names are acceptable if the expression/column is correct.
+  - Equivalent expressions that compute the same value (e.g., reordered commutative operations) are acceptable.
+
+3. Grouping Questions
   - Deduct 2 points if grouping is needed but entirely absent.
   - Deduct 0.5 point for each missing grouping key.
 
-3. Sorting/Ordering Questions  
+4. Sorting/Ordering Questions  
   - Deduct 2 points if no ordering is provided when required.
   - Deduct 2 points if the sort direction is incorrect.
   - When multiple keys are specified, deduct 0.5 point for each missing key.
 
-4. Filtering Questions  
+5. Filtering Questions  
   Each required filter predicate is worth 2 points; apply the deductions below to each predicate independently
   (e.g., a 6-point weight implies three separate predicates to evaluate).
   - Deduct 2 points if the required condition is completely missing.
@@ -68,16 +73,11 @@ After grading all questions, aggregate all objects into a single JSON array. Ret
     - Required "equal to 'New York'", but predicted `LIKE '%New York%'`.
     - Required "in 'East' or 'West'", but predicted `= 'East'`.
     - Required "status is completed and not null", but predicted `status='Completed'`.
+  - Explicit null checks (e.g., `IS NULL`, `IS NOT NULL`) count as independent predicates.
 
-5. Limiting Questions  
+6. Limiting Questions  
    - Deduct 2 points if the required row limit is missing or incorrect.  
 
-6. Uniqueness Questions  
-  - Deduct 2 points if uniqueness guarantee is omitted.
-
-7. Presentation Details  
-  - Deduct 2 points if the required presentation detail is absent.
-  - Deduct 1 point if the presentation requirement is only partially met.
 
 ###### Example1
 ### Question

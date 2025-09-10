@@ -1,5 +1,5 @@
-system_prompt_constraint_extractor = """
-You are an **Constraint Extractor** in an LLM-based SQL-evaluation pipeline.
+system_prompt_decomposer = """
+You are a **Decomposer** in an LLM-based SQL-evaluation pipeline. Your primary role is to split a complete SQL query (GOLD_SQL) into independently meaningful semantic parts.
 
 ### Inputs
 - `SCHEMA`: database schema (text)
@@ -11,12 +11,12 @@ You are an **Constraint Extractor** in an LLM-based SQL-evaluation pipeline.
 1. For every atomic requirement listed in the checklist, output one JSON object containing exactly: {{ "question_id", "answer" }}.
     - `question_id`: the numbering string from the checklist (e.g. "2.3").  
     - `answer`: concrete value(s) you extract (JSON array).  
-    - If the requirement does not apply to the question, set `"answer": "NA"`.
+    - If the requirement does not apply to the query, set `"answer": "NA"`.
 
 2. Aggregate all objects into a single JSON array and enclose it in a markdown code block that begins with ```json.
 
 ### Rules
-- Prioritize the question and schema; use GOLD_SQL only as a supplementary reference, ignoring any elements it includes but are not necessary.
+- Prioritize GOLD_SQL as the source of truth; use QUESTION/SCHEMA/BACKGROUND only to clarify names or context.
 - **IMPORTANT** Always write the full table names in your answer, not shorthand such as `T1` or `c`.
 - When extracting predicates from GOLD_SQL, use the exact original text. Do not combine or use your own words.
 - One object per atomic requirement; no missing question_ids.  
@@ -25,7 +25,7 @@ You are an **Constraint Extractor** in an LLM-based SQL-evaluation pipeline.
 """.strip()
 
 
-user_prompt_constraint_extractor = """
+user_prompt_decomposer = """
 ######  Instructions
 For each checklist item below, output **one** JSON object with exactly:
 - "question_id": the item's identifier (e.g., "2").
@@ -33,8 +33,8 @@ For each checklist item below, output **one** JSON object with exactly:
     - If the requirement does not apply, set "answer": "NA".
     - Do NOT use table aliases in your answer—always write full table names.
 
-**IMPORTANT** Extract only information that the user has explicitly required or is mandatory for answering the question.
-**IMPORTANT** Treat GOLD_SQL AS REFERENCE ONLY, ignore any operation it contains that the user did not request (e.g., extra aliases or formatting).
+**IMPORTANT** Extract the semantics that are explicitly present in GOLD_SQL (do not invent operations that are not in GOLD_SQL).
+**IMPORTANT** Treat GOLD_SQL as the primary source; use QUESTION/SCHEMA/BACKGROUND only to resolve names or clarify intent.
 
 **CRITICAL FOR COMPLEX QUERIES** 
 If the SQL query contains multiple independent SELECT structures, analyze EACH independent SELECT structure separately and combine all requirements. 
@@ -46,55 +46,43 @@ If the SQL query contains multiple independent SELECT structures, analyze EACH i
 After completing all items, aggregate the objects into a **single JSON array** and enclose it in a markdown code block that begins with ```json.  
 
 ######  CHECKLIST BEGIN
-1. List NECESSARY tables the answer MUST reference and that MUST appear in the provided schema.
+1. List tables referenced by GOLD_SQL that appear in the provided schema.
 
-2. List each NECESSARY and special join that is STRICTLY REQUIRED to answer the question.
+2. List each special join used by GOLD_SQL.
     - Only include joins other than INNER JOIN / JOIN (e.g., LEFT, RIGHT, FULL, CROSS, NATURAL, SELF, OUTER).
     - Provide the pair and join type in the form "A LEFT JOIN B".
     - Do NOT include ON-clause details.
 
-3. List all NECESSARY columns that appear in the provided schema.
+3. List all columns referenced by GOLD_SQL that appear in the provided schema.
     - **IMPORTANT** DO NOT output derived columns like `COUNT(order_id)` or bare column names.
     - Express each column in fully-qualified `table.column` form.
     - Exclude columns for table connections; include only columns meaningful to answer the question.
     - If all columns of one table are required, use `table.*`.
 
-4. List NECESSARY functions that the query MUST call ONLY in the SELECT clause.
-    - **IMPORTANT** IGNORE any functions that appear in WHERE, ORDER BY, GROUP BY, or HAVING clauses.
-    - Include aggregate, window, and string functions.
-    - COUNT, SUM, AVG, MAX, MIN, RANK(), DENSE_RANK(), SUBSTR
-    - If a function is embedded in an arithmetic or concatenation expression, record the entire expression.
-    - Example: ["COUNT(customer_id)", "SUM(amount)/COUNT(order_id)", "RANK() OVER (ORDER BY sales DESC)"]
+4. List the SELECT projection items in GOLD_SQL.
+    - Include raw columns, expressions, and aliases exactly as they appear between `SELECT` and `FROM`.
+    - Use fully-qualified names inside expressions (e.g., `table.column`).
+    - If an item has an alias, keep the alias (e.g., `... AS alias`).
+    - Example: ["employees.name", "SUM(assignments.hours_worked)/COUNT(DISTINCT assignments.project_id) AS hours_per_project"]
 
-5. List each NECESSARY `GROUP BY` clause STRICTLY REQUIRED to answer the question.
+5. List each `GROUP BY` clause used by GOLD_SQL.
     - If GROUP BY contains multiple fields, list them all.
     - Example: ["GROUP BY customer_id, order_year"]
 
-6. List NECESSARY group-level filters in `HAVING` clause STRICTLY REQUIRED to answer the question.
+6. List group-level filters in the `HAVING` clause used by GOLD_SQL.
     - Use the exact HAVING clause text from GOLD_SQL. Do not combine or split predicates.
     - **CRITICAL**: If multiple predicates are joined by `AND` or `OR`, output each predicate as a separate element while preserving the connector and order.
     - Example: ["HAVING SUM(bonuses.amount) > 20000", "AND COUNT(*) >= 3"]
 
-7. List NECESSARY row-level filters or limits STRICTLY REQUIRED to answer the question.
+7. List row-level filters or limits used by GOLD_SQL.
     - **ONLY** Consider `ON`, `WHERE`, `ORDER BY LIMIT`, `LIMIT`, `FETCH FIRST`, `OFFSET`, `NULLS FIRST`, `NULLS LAST` clauses.
+    - Include explicit null checks (e.g., `IS NULL`, `IS NOT NULL`) and constraints such as `NOT NULL` checks expressed in predicates.
     - NEVER include `HAVING` or `GROUP BY` clauses here - they belong to points 5 and 6 respectively.
     - If ORDER BY and LIMIT appear together, record as `ORDER BY LIMIT`; if LIMIT appears alone, record only `LIMIT`.
     - **CRITICAL** Break composite predicates into individual field-level conditions; each element should reference exactly one column/field.
     - Ignore conditions for table connections and predicates inside window functions like `ORDER BY` in `RANK()`.
     - For sub-query predicates such as `EXISTS`, `NOT EXISTS` or `IN`, only include conditions inside.
-    - Example: ["WHERE orders.total_amount > 100", "AND orders.status = 'paid'", "ORDER BY orders.order_date DESC LIMIT 1"]
-
-8. List columns the user REQUIRES to have unique values.
-    - **IMPORTANT** ONLY focus on keywords like "unique" or "distinct" in the question.
-    - Answer in concise natural language.
-    - Example: ["user requires email to be unique"]
-    
-9. List EXPLICITLY or IMPLICITLY REQUIRED output format details.
-    - **IMPORTANT** ONLY focus on the clause between `SELECT` and `FROM`.
-    - Consider clear formatting instructions, such as rounding to a specific decimal place.
-    - Identify implied formatting, like representing ratios or percentages as floats.
-    - Answer in concise natural language.
-    - Example: ["ratio should be represented as float", "output should contain 2 decimal places"]
+    - Example: ["WHERE orders.total_amount > 100", "AND orders.status = 'paid'", "AND customers.email IS NOT NULL", "ORDER BY orders.order_date DESC LIMIT 1"]
 
 ###### CHECKLIST END
 
@@ -169,7 +157,10 @@ ORDER BY hours_per_project DESC;
   }},
   {{
     "question_id": "4",
-    "answer": ["SUM(assignments.hours_worked)/COUNT(DISTINCT assignments.project_id)"]
+    "answer": [
+      "employees.name",
+      "SUM(assignments.hours_worked)/COUNT(DISTINCT assignments.project_id) AS hours_per_project"
+    ]
   }},
   {{
     "question_id": "5",
@@ -191,14 +182,7 @@ ORDER BY hours_per_project DESC;
       "ORDER BY hours_per_project DESC"
     ]
   }},
-  {{
-    "question_id": "8",
-    "answer": "NA"
-  }},
-  {{
-    "question_id": "9",
-    "answer": "NA"
-  }}
+ 
 ]
 ```
 
@@ -258,7 +242,10 @@ LIMIT 3;
   }},
   {{
     "question_id": "4",
-    "answer": ["COUNT(*)"]
+    "answer": [
+      "actors.name",
+      "COUNT(*) AS movie_count"
+    ]
   }},
   {{
     "question_id": "5",
@@ -275,14 +262,7 @@ LIMIT 3;
       "ORDER BY movie_count DESC LIMIT 3"
     ]
   }},
-  {{
-    "question_id": "8",
-    "answer": "NA"
-  }},
-  {{
-    "question_id": "9",
-    "answer": "NA"
-  }}
+ 
 ]
 ```
 
@@ -301,3 +281,5 @@ LIMIT 3;
 
 ### ANSWER:
 """.strip()
+
+

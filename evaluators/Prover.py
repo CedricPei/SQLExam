@@ -3,7 +3,7 @@ import json
 import openai
 from dotenv import load_dotenv
 from typing import Dict, Any
-from helper import get_db_info, extract_json_from_response, append_to_json_file
+from .utils import get_db_info, extract_json_from_response, append_to_json_file
 from prompts.prompt_prover import system_prompt_prover, user_prompt_prover
 
 load_dotenv()

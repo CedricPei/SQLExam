@@ -1,11 +1,9 @@
 import sqlparse
 from typing import Dict, Any
-from helper import get_db_info
-from ConstraintExtractor import ConstraintExtractor
-from RubricDesigner import RubricDesigner
-from RubricGrader import RubricGrader
+from .utils import get_db_info
+from .partial_scoring import ConstraintExtractor, RubricDesigner, RubricGrader
 
-class SQLEvaluationPipeline:
+class PartialScoringPipeline:
     def __init__(self, model: str = "deepseek-chat"):
         self.model = model
         self.results = []
@@ -34,9 +32,11 @@ class SQLEvaluationPipeline:
             return usefulness_score
             
         except Exception as e:
-            print("Error in evaluation pipeline", e)
+            print("Error in partial scoring pipeline", e)
 
     def _calculate_usefulness_score(self, grading_results, rubric_questions):
         total_score = sum(float(r["score"]) for r in grading_results)
         total_weight = sum(float(q["weight"]) for q in rubric_questions)
         return round(total_score / total_weight, 4) if total_weight > 0 else 0.0
+
+

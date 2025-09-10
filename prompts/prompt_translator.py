@@ -1,4 +1,4 @@
-system_prompt_rubric_designer = """
+system_prompt_translator = """
 You are **SQL Rubric Designer**, a component that designs evaluation rubrics for SQL constraints.
 Your task is to convert the constraint descriptions into clear, evaluable natural language questions with assigned weights, focusing on semantic meaning rather than syntactic form.
 
@@ -30,7 +30,7 @@ Your task is to convert the constraint descriptions into clear, evaluable natura
 - Return ONLY the JSON array, do not wrap it in any object or add any keys
 """
 
-user_prompt_rubric_designer = """
+user_prompt_translator = """
 ###### Instructions
 Design evaluation rubrics by translating constraint descriptions into natural language questions. Each constraint should become a clear question that can be used to assess whether a generated SQL query meets the requirement.
 
@@ -50,8 +50,8 @@ Return ONLY the JSON array directly, do not wrap it in any object or add any key
   - Award 1 point for each required join that employs a special join type other than a basic INNER JOIN.
 3. Required columns
   - Each required column is worth 0.5 point; the combined score for this category is capped at 3 points.
-4. Required functions
-  - Award 2 points for each function used. If multiple functions appear within a single expression, treat the entire expression as one item and assign 2 points in total.
+4. SELECT projection items
+  - Award 2 points for each projection item (column or expression). If multiple functions/columns appear within one expression, treat the entire expression as one item worth 2 points. Aliases do not change the weight.
 5. GROUP BY
   - The first required grouping key is worth 2 points
   - Each additional grouping key earns 0.5 point; the total for this category is capped at 3 points.
@@ -64,11 +64,8 @@ Return ONLY the JSON array directly, do not wrap it in any object or add any key
   - Each condition connected by AND is a separate field requirement.
   - For ORDER BY: first field gets 2 points, each additional field gets 0.5 points; if LIMIT is present with ORDER BY, add 1 point.
   - Focus on operators (>, <, =, !=, etc.) to determine the number of independent FIELD requirements.
+  - Include explicit null checks such as "is null" and "is not null" as independent field requirements.
   - Ignore conditions only for table connections.
-8. Uniqueness requirements
-  - Each uniqueness requirement earns 2 points.
-9. Output-format requirements
-  - Each formatting requirement earns 2 points.
 
 ###### EXAMPLE 1
 ### QUESTION
@@ -113,7 +110,7 @@ LIMIT 1;
 ### CONSTRAINT DESCRIPTIONS
 1. The SQL query must reference the tables: [actors, movies, roles].
 2. The SQL query must include columns: [actors.name, actors.id, movies.director].
-3. The SQL query must apply the function: COUNT(*) in the SELECT clause.
+3. The SQL query must project: [actors.name, COUNT(*) AS movie_count].
 4. The SQL query must group results by: GROUP BY actors.id.
 5. The SQL query must satisfy the requirement: WHERE movies.director = 'Christopher Nolan'.
 6. The SQL query must satisfy the requirement: ORDER BY movie_count DESC LIMIT 1.
@@ -131,9 +128,9 @@ LIMIT 1;
     "weight": 1.5
   }},
   {{
-    "question": "Does the query count how many movies each actor has appeared in?",
-    "explanation": "2 points is given for correctly computing appearances.",
-    "weight": 2
+    "question": "Does the query project the actor's name and also include the total number of movies each actor has appeared in?",
+    "explanation": "Award 2 points for projecting the name; award 2 points for projecting the total appearances as one expression, totaling 4 points for this constraint if both items are present.",
+    "weight": 4
   }},
   {{
     "question": "Does the query group the results by actor ID to count appearances correctly?",
@@ -196,7 +193,7 @@ LIMIT 5;
 ### CONSTRAINT DESCRIPTIONS
 1. The SQL query must reference the tables: [employees, bonuses].
 2. The SQL query must include the columns: [employees.first_name, employees.last_name, employees.department, employees.city, employees.employment_type, employees.id, bonuses.year, bonuses.amount].
-3. The SQL query must apply the function: SUM(bonuses.amount) in the SELECT clause.
+3. The SQL query must project: [employees.first_name, employees.last_name, SUM(bonuses.amount) AS total_bonus].
 4. The SQL query must group results by: GROUP BY employees.id
 5. The SQL query must satisfy the requirement: WHERE employees.department = 'Finance' AND employees.city = 'New York' AND employees.employment_type = 'Full-Time' AND bonuses.year = 2024.
 6. The SQL query must satisfy the requirement: HAVING SUM(bonuses.amount) > 20000
@@ -215,9 +212,9 @@ LIMIT 5;
     "weight": 3
   }},
   {{
-    "question": "Does the query show each employee's total bonus by summing the bonus amounts?",
-    "explanation": "Applying a summation function earns 2 points in the functions category.",
-    "weight": 2
+    "question": "Does the query project the employee's first and last names, and also include the total bonus for each employee?",
+    "explanation": "Award 2 points for projecting the two name columns (2 items), and 2 points for projecting the total bonus as a single expression.",
+    "weight": 4
   }},
   {{
     "question": "Does the query group the results by the employee identifier so that bonuses are totalled per employee?",
@@ -276,9 +273,9 @@ rubric_templates = {
       "description": "The SQL query must include columns: {answer}."
   },
 
-  # 4. required functions
+  # 4. SELECT projection items
   "4": {
-      "description": "The SQL query must apply the function: {answer} in the SELECT clause."
+      "description": "The SQL query must project: {answer}."
   },
 
   # 5. required GROUP BY clauses
@@ -295,14 +292,4 @@ rubric_templates = {
   "7": { 
       "description": "The SQL query must satisfy the requirement: {answer}."
   },
-
-  # 8. uniqueness requirements
-  "8": {
-      "description": "The SQL query must ensure uniqueness for {answer}."
-  },
-
-  # 9. output‑format requirements
-  "9": {
-      "description": "The result set must meet the output-format requirement: {answer}."
-  }
 }

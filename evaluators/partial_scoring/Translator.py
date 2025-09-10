@@ -2,8 +2,8 @@ import os
 import json
 import openai
 from dotenv import load_dotenv
-from prompts.prompt_rubric_designer import system_prompt_rubric_designer, user_prompt_rubric_designer, rubric_templates
-from helper import extract_json_from_response
+from prompts.prompt_translator import system_prompt_translator, user_prompt_translator, rubric_templates
+from ..utils import extract_json_from_response
 
 load_dotenv()
 
@@ -21,26 +21,21 @@ class RubricDesigner:
 
     def call(self) -> list:
         constraint_descriptions = self.build_constraint_description(self.constraints)
-        # print(constraint_descriptions)
-        user_content = user_prompt_rubric_designer.format(
+        user_content = user_prompt_translator.format(
             schema=self.schema,
             question=self.question,
             background=self.evidence,
             gold_sql=self.gold_sql,
             constraint_descriptions=constraint_descriptions
         )
-        # print(user_content)
-        
+
         client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"), base_url=os.getenv("OPENAI_BASE_URL"))
         response = client.chat.completions.create(
             model=self.model,
             messages=[
-                {"role": "system", "content": system_prompt_rubric_designer},
+                {"role": "system", "content": system_prompt_translator},
                 {"role": "user", "content": user_content}
             ],
-            # response_format={
-            #     'type': 'json_object'
-            # }
             temperature=0
         )
         response_content = response.choices[0].message.content
@@ -82,4 +77,6 @@ class RubricDesigner:
                     description = template_info["description"].format(answer=answer)
                     lines.append(f"{idx}. {description}")
                     idx += 1
-        return "\n".join(lines) 
+        return "\n".join(lines)
+
+

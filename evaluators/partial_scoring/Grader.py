@@ -2,8 +2,8 @@ import json
 import os
 import openai
 from dotenv import load_dotenv
-from prompts.prompt_rubric_grader import system_prompt_grader, user_prompt_grader
-from helper import extract_json_from_response
+from prompts.prompt_grader import system_prompt_grader, user_prompt_grader
+from utils import extract_json_from_response
 
 load_dotenv()
 
@@ -34,9 +34,6 @@ class RubricGrader:
                 {"role": "system", "content": system_prompt_grader},
                 {"role": "user", "content": user_prompt}
             ],
-            # response_format={
-            #     'type': 'json_object'
-            # },
             temperature=0
         )
         response_content = response.choices[0].message.content
@@ -55,3 +52,5 @@ class RubricGrader:
         with open(filename, "w", encoding="utf-8") as f:
             json.dump(grading_results, f, ensure_ascii=False, indent=2)            
         return grading_results
+
+

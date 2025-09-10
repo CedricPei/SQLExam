@@ -2,8 +2,8 @@ import os
 import json
 import openai
 from dotenv import load_dotenv
-from prompts.prompt_constraint_extractor import system_prompt_constraint_extractor, user_prompt_constraint_extractor
-from helper import extract_json_from_response
+from prompts.prompt_decomposer import system_prompt_decomposer as system_prompt_constraint_extractor, user_prompt_decomposer as user_prompt_constraint_extractor
+from ..utils import extract_json_from_response
 
 load_dotenv()
 
@@ -25,7 +25,6 @@ class ConstraintExtractor:
             evidence=self.evidence,
             gold_sql=self.gold_sql
         )
-        # print(user_content)
         client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"), base_url=os.getenv("OPENAI_BASE_URL"))
         response = client.chat.completions.create(
             model=self.model,
@@ -33,9 +32,6 @@ class ConstraintExtractor:
                 {"role": "system", "content": system_prompt_constraint_extractor},
                 {"role": "user", "content": user_content}
             ],
-            # response_format={
-            #     'type': 'json_object'
-            # }
             temperature=0
         )
         response_content = response.choices[0].message.content
@@ -55,3 +51,5 @@ class ConstraintExtractor:
             json.dump(constraints, f, ensure_ascii=False, indent=2)
 
         return constraints
+
+

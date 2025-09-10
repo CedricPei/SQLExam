@@ -1,10 +1,10 @@
 import json
 import os
-from Pipe import SQLEvaluationPipeline
-from helper import execute_sql, write_result_to_file, run_with_timeout, compare_result
+from evaluators.PartialGrader import PartialScoringPipeline
+from evaluators.utils import execute_sql, write_result_to_file, run_with_timeout, compare_result
 from tqdm import tqdm
-from Prover import Prover
-from Refuter import Refuter
+from evaluators.Prover import Prover
+from evaluators.Refuter import Refuter
 
 # "deepseek-r1-distill-qwen-32b"
 
@@ -17,7 +17,7 @@ os.makedirs(output_dir, exist_ok=True)
 
 Prover = Prover(model=reasoning_model, output_dir=output_dir)
 Refuter = Refuter(model=reasoning_model, output_dir=output_dir)
-PartialEval = SQLEvaluationPipeline(model=instruct_model)
+PartialEval = PartialScoringPipeline(model=instruct_model)
 
 if __name__ == "__main__":
     with open("sample.json", "r", encoding="utf-8") as f:
