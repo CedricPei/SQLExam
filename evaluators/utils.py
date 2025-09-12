@@ -5,6 +5,7 @@ import re
 import pandas as pd
 import numpy as np
 from pathlib import Path
+import threading
 from pandas.util import hash_pandas_object
 from typing import Dict, List, Callable, Any
 import multiprocessing as mp
@@ -74,11 +75,18 @@ def run_with_timeout(func: Callable[..., Any], *args, timeout: float = 2.0, **kw
     except Exception:
         return False
 
-def append_to_json_file(data, output_file):
-    existing_data = json.load(open(output_file, encoding="utf-8")) if os.path.exists(output_file) else []
-    existing_data.append(data)
-    with open(output_file, "w", encoding="utf-8") as f:
-        json.dump(existing_data, f, ensure_ascii=False, indent=2)
+def save_json(data, output_file, append=False):
+    if not hasattr(save_json, "_lock"):
+        save_json._lock = threading.Lock()  
+    with save_json._lock: 
+        if append:
+            existing_data = json.load(open(output_file, encoding="utf-8")) if os.path.exists(output_file) else []
+            existing_data.append(data)
+            with open(output_file, "w", encoding="utf-8") as f:
+                json.dump(existing_data, f, ensure_ascii=False, indent=2)
+        else:
+            with open(output_file, "w", encoding="utf-8") as f:
+                json.dump(data, f, ensure_ascii=False, indent=2)
 
 def write_result_to_file(question, pred_sql, score, prover_result, refuter_result, output_dir="output"):
     output_file = os.path.join(output_dir, "eval_results.json")
@@ -93,7 +101,7 @@ def write_result_to_file(question, pred_sql, score, prover_result, refuter_resul
         "prover_result": prover_result,
         "refuter_result": refuter_result
     }
-    append_to_json_file(result, output_file)
+    save_json(result, output_file, append=True)
 
 def get_db_info(db_id: str, sql: str | list[str]) -> str:
     all_tables = [row[0] for row in _execute_db_query(db_id, "SELECT name FROM sqlite_master WHERE type = 'table' AND name NOT LIKE 'sqlite_%' ORDER BY name;")]

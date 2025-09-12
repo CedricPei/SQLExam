@@ -3,7 +3,7 @@ import json
 import openai
 from dotenv import load_dotenv
 from prompts.prompt_decomposer import system_prompt_decomposer, user_prompt_decomposer
-from ..utils import extract_json_from_response
+from ..utils import extract_json_from_response, save_json
 
 load_dotenv()
 
@@ -47,8 +47,7 @@ class Decomposer:
             raise ValueError(f"Response is not valid JSON: {e}")
 
         filename = os.path.join(self.output_dir, f"{self.question_id}_constraints.json")
-        with open(filename, "w", encoding="utf-8") as f:
-            json.dump(constraints, f, ensure_ascii=False, indent=2)
+        save_json(constraints, filename, append=False)
 
         return constraints
 

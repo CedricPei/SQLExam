@@ -64,6 +64,11 @@ def analyze_results(model_name):
     precision = tp / (tp + fp) if (tp + fp) > 0 else 0
     recall = tp / (tp + fn) if (tp + fn) > 0 else 0
     f1_score = 2 * (precision * recall) / (precision + recall) if (precision + recall) > 0 else 0
+    mcc_den = (tp + fp) * (tp + fn) * (tn + fp) * (tn + fn)
+    if mcc_den > 0:
+        mcc = ((tp * tn) - (fp * fn)) / (mcc_den ** 0.5)
+    else:
+        mcc = 0
     label_true_score_0_file = os.path.join(model_dir, f"{model_name}_label_true_score_0.json")
     label_false_score_1_file = os.path.join(model_dir, f"{model_name}_label_false_score_1.json")
     
@@ -92,6 +97,7 @@ def analyze_results(model_name):
             "precision": precision,
             "recall": recall,
             "f1_score": f1_score,
+            "mcc": mcc,
             "cohen_kappa": kappa
         },
         "error_cases": {

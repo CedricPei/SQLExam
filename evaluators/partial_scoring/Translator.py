@@ -3,7 +3,7 @@ import json
 import openai
 from dotenv import load_dotenv
 from prompts.prompt_translator import system_prompt_translator, user_prompt_translator, rubric_templates
-from ..utils import extract_json_from_response
+from ..utils import extract_json_from_response, save_json
 
 load_dotenv()
 
@@ -52,8 +52,7 @@ class Translator:
 
         designed_rubric = [{"id": str(i), **question} for i, question in enumerate(designed_rubric, 1)]
         filename = os.path.join(self.output_dir, f"{self.question_id}_rubric.json")
-        with open(filename, "w", encoding="utf-8") as f:
-            json.dump(designed_rubric, f, ensure_ascii=False, indent=2)
+        save_json(designed_rubric, filename, append=False)
 
         return designed_rubric
 

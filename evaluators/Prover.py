@@ -3,7 +3,7 @@ import json
 import openai
 from dotenv import load_dotenv
 from typing import Dict, Any
-from .utils import get_db_info, extract_json_from_response, append_to_json_file
+from .utils import get_db_info, extract_json_from_response, save_json
 from prompts.prompt_prover import system_prompt_prover, user_prompt_prover
 
 load_dotenv()
@@ -48,7 +48,7 @@ class Prover:
                 "result": result
             }
             output_file = os.path.join(self.output_dir, "prover_output.json")
-            append_to_json_file(output_data, output_file)
+            save_json(output_data, output_file, append=True)
 
             return result.get("verdict", False), result.get("reason", "")
 

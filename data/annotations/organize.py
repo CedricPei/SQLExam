@@ -125,16 +125,10 @@ def save_results(test_cases: List[Dict], argue_cases: List[Dict], lack_cases: Li
             }
             argue_data.append(argue_record)
     
-    with open('argue.json', 'w', encoding='utf-8') as f:
-        json.dump(argue_data, f, ensure_ascii=False, indent=2)
-    
     lack_data = []
     for case in lack_cases:
         for item in case['items']:
             lack_data.append(item)
-    
-    with open('lack.json', 'w', encoding='utf-8') as f:
-        json.dump(lack_data, f, ensure_ascii=False, indent=2)
     
     return len(test_data), len(argue_data), len(lack_data)
 

@@ -3,7 +3,7 @@ import os
 import openai
 from dotenv import load_dotenv
 from prompts.prompt_grader import system_prompt_grader, user_prompt_grader
-from ..utils import extract_json_from_response
+from ..utils import extract_json_from_response, save_json
 
 load_dotenv()
 
@@ -49,8 +49,7 @@ class Grader:
             raise ValueError(f"Response is not valid JSON: {e}")
 
         filename = os.path.join(self.output_dir, f"{self.question_id}_grading.json")
-        with open(filename, "w", encoding="utf-8") as f:
-            json.dump(grading_results, f, ensure_ascii=False, indent=2)            
+        save_json(grading_results, filename, append=False)            
         return grading_results
 
 
