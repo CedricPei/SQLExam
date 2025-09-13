@@ -87,6 +87,15 @@ Execution results are only AUXILIARY; do not treat them as decisive. Focus on th
 - "After [year]" means on or after [year], including the specified year.
 - "Before [year]" means strictly before [year], excluding the specified year.
 - For comparison questions asking "which is X" (e.g., "Which is higher, A or B?"), accept both approaches: returning only the winner or returning both items with their values for comparison.
+- For tie handling in ordering questions, accept different approaches when the question/evidence does not specify.
+  Q: "Which product is the most expensive?"
+  Acceptable: SELECT name FROM products ORDER BY price DESC LIMIT 1;
+  Acceptable: SELECT name FROM products WHERE price = (SELECT MAX(price) FROM products);
+  Why: The question/evidence does not specify to consider duplicates; both are reasonable.
+  
+  • If evidence explicitly specifies using SELECT MAX/MIN, then using ORDER BY LIMIT 1 is incorrect.
+  • If evidence explicitly specifies using ORDER BY, then SELECT MAX/MIN is acceptable.
+  • If evidence does not specify either approach, then both approaches are acceptable.
 
 ### Output JSON (field order is mandatory)
 Use concise language. No extra fields. Always emit keys in this exact order:

@@ -1,9 +1,3 @@
-# streamlit_app.py (v6)
-# Changes from v5:
-# - On first startup, auto-jump to the smallest (earliest) unlabeled item.
-#   (If all labeled, default to index 0.) Uses a one-shot flag boot_index_set to avoid overriding user navigation.
-# - Keep: load existing labels from annotations.json and echo YES/NO & reason on navigation.
-
 import streamlit as st
 import pandas as pd
 import sqlite3, os, time, re, io, json, sys, argparse

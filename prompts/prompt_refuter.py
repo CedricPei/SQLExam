@@ -64,6 +64,22 @@ Judge the prediction primarily against the question/evidence/schema. Overturn th
   - "After [year]" means on or after [year], including the specified year.
   - "Before [year]" means strictly before [year], excluding the specified year.
   - For comparison questions asking "which is X" (e.g., "Which is higher, A or B?"), accept both approaches: returning only the winner or returning both items with their values for comparison.
+  
+  - For tie handling in ordering questions, accept different approaches when the question/evidence does not specify.
+    Q: "Which product is the most expensive?"
+    Acceptable Pred: SELECT name FROM products ORDER BY price DESC LIMIT 1;
+    Acceptable Gold: SELECT name FROM products WHERE price = (SELECT MAX(price) FROM products);
+    Why: The question/evidence does not specify to consider duplicates; both are reasonable.
+    
+    • If evidence explicitly specifies using SELECT MAX/MIN, then using ORDER BY LIMIT 1 is incorrect.
+    • If evidence explicitly specifies using ORDER BY, then SELECT MAX/MIN is acceptable.
+    • If evidence does not specify either approach, then both approaches are acceptable.
+    
+  - ORDER BY with LIMIT can return NULL when the ordering column contains NULL values. Judge based on execution results: if NULL affects the result, consider it incorrect.
+    Q: "What is the highest salary?"
+    Acceptable: SELECT MAX(salary) FROM employees WHERE salary IS NOT NULL; (Result: 50000)
+    Unacceptable: SELECT salary FROM employees ORDER BY salary DESC LIMIT 1; (Result: NULL)
+    Why: NULL result due to improper NULL handling makes the query incorrect.
 
 ### Example Cases
 **Core Conflict (Overturn - verdict=true)**
@@ -132,11 +148,6 @@ When the question allows multiple reasonable interpretations, leading to differe
     Acceptable Pred: SELECT product_name FROM sales GROUP BY product_name HAVING SUM(units_sold) > 10;
     Why: The question can be understood as checking individual sales or grouping by product.
 
-    Q: "Which product is the most expensive?"
-    Acceptable Pred: SELECT name FROM products ORDER BY price DESC LIMIT 1;
-    Acceptable Gold: SELECT name FROM products WHERE price = (SELECT MAX(price) FROM products);
-    Why: The question/evidence does not specify to consider duplicates; both are reasonable.
-
     Schema: flights(flight_id, airline, flight_number, aircraft_id), aircraft(aircraft_id, tail_number, model)
     Q: "What is the number for flight 'BA123'?"
     Acceptable Gold: SELECT a.tail_number FROM flights f JOIN aircraft a ON a.aircraft_id = f.aircraft_id WHERE f.flight_number = 'BA123';
@@ -147,7 +158,7 @@ When the question allows multiple reasonable interpretations, leading to differe
     Q: "What is the status for order 12345?"
     Acceptable Gold: SELECT o.status FROM orders o WHERE o.order_id = 12345;
     Acceptable Pred: SELECT s.status FROM orders o JOIN shipments s ON s.shipment_id = o.shipment_id WHERE o.order_id = 12345;
-    Why: “Status” could mean the orders's status or the shipment's status
+    Why: "Status" could mean the orders's status or the shipment's status
 
 **Gold Fault (Uphold - verdict=false)**
 Avoid labeling as gold fault unless absolutely necessary
