@@ -427,6 +427,7 @@ def _save_label(is_yes: bool) -> None:
         "gold_sql": item["gold_sql"],
         "label": bool(is_yes),
         "reason": (st.session_state.get("reason_text") or "").strip(),
+        "evidence": item.get("evidence", ""),
     }
     st.session_state["labels"][str(item["question_id"])] = rec
     try:
