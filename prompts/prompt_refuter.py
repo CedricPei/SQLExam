@@ -161,7 +161,7 @@ When the question allows multiple reasonable interpretations, leading to differe
     Why: "Status" could mean the orders's status or the shipment's status
 
 **Gold Fault (Uphold - verdict=false)**
-Avoid labeling as gold fault unless absolutely necessary
+Avoid labeling as gold fault unless absolutely certain.
   Example:
     Q: "City of user with id=5"
     Unacceptable Gold: SELECT city FROM users WHERE id=6;
