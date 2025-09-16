@@ -1,6 +1,7 @@
 import os
 import sys
 import json
+import argparse
 import numpy as np
 import pandas as pd
 from tqdm import tqdm
@@ -71,11 +72,17 @@ def EX(question: dict, pred_sql: str, rtol: float = 1e-5, atol: float = 1e-8) ->
 
 def main():
     base = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-    test_path = os.path.join(base, 'test.json')
-    if not os.path.exists(test_path):
-        print('test.json not found in project root')
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-i', '--input', dest='input_path', default=None)
+    args = parser.parse_args()
+
+    input_path = args.input_path if args.input_path else os.path.join(base, 'test.json')
+    if not os.path.exists(input_path):
+        print(f'Input file not found: {input_path}')
         return
-    with open(test_path, 'r', encoding='utf-8') as f:
+
+    with open(input_path, 'r', encoding='utf-8') as f:
         questions = json.load(f)
 
     results = []

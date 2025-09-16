@@ -1,6 +1,7 @@
 import sqlite3
 from copy import deepcopy as dc
 import os, sys, json
+import argparse
 from tqdm import tqdm
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 sys.path.insert(0, os.path.join(BASE_DIR, 'ETM.zip'))
@@ -43,9 +44,14 @@ def ETM(question, pred_sql) -> bool:
 
 def main():
     base = os.path.abspath(os.path.join(BASE_DIR, '..'))
-    path = os.path.join(base, 'test.json')
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-i', '--input', dest='input_path', default=None)
+    args = parser.parse_args()
+
+    path = args.input_path if args.input_path else os.path.join(base, 'test.json')
     if not os.path.exists(path):
-        print('test.json not found in project root')
+        print(f'Input file not found: {path}')
         return
     with open(path, 'r', encoding='utf-8') as f:
         questions = json.load(f)
