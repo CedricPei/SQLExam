@@ -2,8 +2,8 @@ import os
 import sys
 import json
 import argparse
-import numpy as np
-import pandas as pd
+import re
+import sqlite3
 from tqdm import tqdm
 
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
@@ -11,70 +11,50 @@ PROJECT_ROOT = os.path.abspath(os.path.join(BASE_DIR, '..'))
 if PROJECT_ROOT not in sys.path:
     sys.path.insert(0, PROJECT_ROOT)
 
-from evaluators.utils import execute_sql, run_with_timeout
+from evaluators.utils import run_with_timeout, save_json
 
 
-def _equal_ex(pred_df: pd.DataFrame, gold_df: pd.DataFrame, rtol: float, atol: float) -> bool:
-    if pred_df.shape[1] != gold_df.shape[1]:
-        return False
-
-    def norm(v):
-        if v is None or (isinstance(v, float) and np.isnan(v)):
-            return None
-        if isinstance(v, (int, float, np.integer, np.floating)):
-            return float(v)
-        if isinstance(v, str):
-            s = v.strip()
-            try:
-                return float(s)
-            except Exception:
-                return s.casefold()
-        return v
-
-    f = lambda s: s.map(norm)
-    P = pred_df.apply(f, axis=0)
-    G = gold_df.apply(f, axis=0)
-    cols = list(P.columns)
-    P = P.sort_values(by=cols, kind="mergesort").reset_index(drop=True)
-    G = G.sort_values(by=cols, kind="mergesort").reset_index(drop=True)
-
-    if P.shape[0] != G.shape[0]:
-        return False
-
-    for c in range(P.shape[1]):
-        a = P.iloc[:, c].tolist()
-        b = G.iloc[:, c].tolist()
-        for x, y in zip(a, b):
-            if x is None or y is None:
-                if not (x is None and y is None):
-                    return False
-            elif isinstance(x, (int, float)) and isinstance(y, (int, float)):
-                if not np.isclose(float(x), float(y), rtol=rtol, atol=atol, equal_nan=False):
-                    return False
-            elif x != y:
-                return False
-    return True
+def _resolve_db_path(db_id: str) -> str:
+    return os.path.join(PROJECT_ROOT, 'dev_databases', db_id, f'{db_id}.sqlite')
 
 
-def EX(question: dict, pred_sql: str, rtol: float = 1e-5, atol: float = 1e-8) -> bool:
+def _sqlite_fetchall(db_id: str, sql: str):
+    db_path = _resolve_db_path(db_id)
+    with sqlite3.connect(db_path) as conn:
+        cur = conn.cursor()
+        cur.execute(sql)
+        rows = cur.fetchall()
+    return rows
+
+
+def _rows_equal(pred_rows, gold_rows) -> bool:
+    try:
+        return set(pred_rows) == set(gold_rows)
+    except Exception:
+        pred_rows = [tuple(r) for r in pred_rows]
+        gold_rows = [tuple(r) for r in gold_rows]
+        return set(pred_rows) == set(gold_rows)
+
+
+def EX(question: dict, pred_sql: str) -> bool:
     db_id = question["db_id"]
     gold_sql = question["gold_sql"]
 
-    gold_df = run_with_timeout(execute_sql, db_id, gold_sql, timeout=45)
-    pred_df = run_with_timeout(execute_sql, db_id, pred_sql, timeout=45)
-    if gold_df is False or pred_df is False:
+    gold_rows = run_with_timeout(_sqlite_fetchall, db_id, gold_sql, timeout=45)
+    pred_rows = run_with_timeout(_sqlite_fetchall, db_id, pred_sql, timeout=45)
+
+    if gold_rows is False or pred_rows is False:
         return False
 
-    if gold_df.shape == (1, 1) and pred_df.shape == (1, 1):
-        return _equal_ex(pred_df, gold_df, rtol, atol)
-    return _equal_ex(pred_df, gold_df, rtol, atol)
+    return _rows_equal(pred_rows, gold_rows)
 
 
 def main():
     base = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 
     parser = argparse.ArgumentParser()
-    parser.add_argument('-i', '--input', dest='input_path', default=None)
+    parser.add_argument('--input', dest='input_path', default=None)
+    parser.add_argument('--skip-file', type=str, default=None)
     args = parser.parse_args()
 
     input_path = args.input_path if args.input_path else os.path.join(base, 'test.json')
@@ -85,31 +65,36 @@ def main():
     with open(input_path, 'r', encoding='utf-8') as f:
         questions = json.load(f)
 
-    results = []
-    for q in tqdm(questions):
+    skip_ids = set()
+    if args.skip_file and os.path.exists(args.skip_file):
         try:
-            pred_sql = q.get('predicted_sql') or ''
-            score = 1.0 if EX(q, pred_sql) else 0.0
+            with open(args.skip_file, 'r', encoding='utf-8') as sf:
+                data = json.load(sf)
+                skip_ids = set(str(x) for x in data)
         except Exception:
-            score = 0.0
-        results.append({
+            pass
+
+    input_stem = re.sub(r'(-result)$', '', os.path.splitext(os.path.basename(input_path))[0])
+    out_dir = os.path.join(base, 'output', f'EX-{input_stem}-eval')
+    os.makedirs(out_dir, exist_ok=True)
+    out_file = os.path.join(out_dir, 'eval_results.json')
+
+    for q in tqdm(questions):
+        if skip_ids and str(q.get('question_id')) in skip_ids:
+            continue
+        pred_sql = q.get('predicted_sql') or ''
+        score = 1.0 if EX(q, pred_sql) else 0.0
+        out_row = {
             "question_id": q.get("question_id"),
             "question": q.get("question"),
             "evidence": q.get("evidence"),
             "gold_sql": q.get("gold_sql"),
             "predicted_sql": pred_sql,
-            "label": q.get("label"),
             "score": score,
-        })
-
-    out_dir = os.path.join(base, 'output', 'EX')
-    os.makedirs(out_dir, exist_ok=True)
-    out_file = os.path.join(out_dir, 'eval_results.json')
-    with open(out_file, 'w', encoding='utf-8') as f:
-        json.dump(results, f, ensure_ascii=False, indent=2)
+        }
+        out_row.update({k: q[k] for k in ("label", "difficulty") if k in q})
+        save_json(out_row, out_file, append=True)
 
 
 if __name__ == '__main__':
     main()
-
-

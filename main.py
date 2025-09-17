@@ -1,6 +1,7 @@
 import json
 import os
 import argparse
+import re
 from concurrent.futures import ThreadPoolExecutor
 from typing import Dict, Any, List, Optional
 from evaluators.PartialGrader import PartialScoringPipeline
@@ -9,16 +10,7 @@ from tqdm import tqdm
 from evaluators.Prover import Prover
 from evaluators.Refuter import Refuter
 
-reasoning_model = "o3"
-instruct_model = "deepseek-chat"
-partial = False
-
-output_dir = f"output/{reasoning_model}"
-os.makedirs(output_dir, exist_ok=True)
-
-Prover = Prover(model=reasoning_model, output_dir=output_dir)
-Refuter = Refuter(model=reasoning_model, output_dir=output_dir)
-PartialEval = PartialScoringPipeline(model=instruct_model)
+ 
 
 def _process_question(question):
     pred_sql = question["predicted_sql"]
@@ -31,22 +23,28 @@ def _process_question(question):
     score = 0.0
     refuter_verdict = None
     prover_verdict = None
+    qid = str(question.get("question_id"))
 
-    if not isinstance(pred_res, bool) and not isinstance(gold_res, bool):
-        if compare_result(pred_res, gold_res):
-            refuter_verdict = Refuter.call(question, pred_sql)
+    if isinstance(pred_res, bool) or isinstance(gold_res, bool):
+        return qid
+
+    if compare_result(pred_res, gold_res):
+        refuter_verdict = Refuter.call(question, pred_sql)
+        if refuter_verdict is None:
+            return qid
+        score = 1.0 if not refuter_verdict else 0.0
+    elif pred_res is not None:
+        prover_verdict, prover_reason = Prover.call(question, pred_sql, pred_res)
+        if prover_verdict is None:
+            return qid
+        if prover_verdict:
+            refuter_verdict = Refuter.call(question, pred_sql, pred_res, gold_res, prover_reason)
+            if refuter_verdict is None:
+                return qid
             score = 1.0 if not refuter_verdict else 0.0
-        elif pred_res is not None:
-            prover_verdict, prover_reason = Prover.call(question, pred_sql, pred_res)
-            if prover_verdict:
-                refuter_verdict = Refuter.call(question, pred_sql, pred_res, gold_res, prover_reason)
-                score = 1.0 if not refuter_verdict else 0.0
 
         if score != 1.0 and partial:
             score = PartialEval.eval(question, pred_sql)
-    else:
-        qid = question.get("question_id")
-        return str(qid)
 
     write_result_to_file(question, pred_sql, score, prover_verdict, refuter_verdict, output_dir)
     return None
@@ -54,15 +52,33 @@ def _process_question(question):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--num-threads", type=int, default=1)
+    parser.add_argument("--threads", type=int, default=1)
     parser.add_argument("--input", type=str, default="sample.json")
+    parser.add_argument("--problem", action="store_true")
     args = parser.parse_args()
+    reasoning_model = "o3"
+    instruct_model = "deepseek-chat"
+    partial = False
+
+    input_stem = re.sub(r"(-result)$", "", os.path.splitext(os.path.basename(args.input))[0])
+    output_dir = f"output/{reasoning_model}-{input_stem}-eval"
+    os.makedirs(output_dir, exist_ok=True)
+
+    Prover = Prover(model=reasoning_model, output_dir=output_dir)
+    Refuter = Refuter(model=reasoning_model, output_dir=output_dir)
+    PartialEval = PartialScoringPipeline(model=instruct_model)
+
+    problem_ids: List[str] = []
+    num_threads = max(1, int(args.threads))
+    problems_file_path = os.path.join(output_dir, "problem_question_ids.json")
 
     with open(args.input, "r", encoding="utf-8") as f:
         questions = json.load(f)
 
-    problem_ids: List[str] = []
-    num_threads = max(1, int(args.num_threads))
+    if args.problem and os.path.exists(problems_file_path):
+        with open(problems_file_path, "r", encoding="utf-8") as pf:
+            existing_problem_ids = set(json.load(pf))
+        questions = [q for q in questions if str(q.get("question_id")) in existing_problem_ids]
 
     def worker(idx):
         local_problems = []
@@ -81,5 +97,8 @@ if __name__ == "__main__":
         for f in futures:
             problem_ids.extend(f.result())
 
-    with open(os.path.join(output_dir, "problem_question_ids.json"), "w", encoding="utf-8") as f:
-        json.dump(problem_ids, f, ensure_ascii=False, indent=2)
+    if len(problem_ids) > 0:
+        with open(problems_file_path, "w", encoding="utf-8") as f:
+            json.dump(problem_ids, f, ensure_ascii=False, indent=2)
+    elif os.path.exists(problems_file_path):
+        os.remove(problems_file_path)

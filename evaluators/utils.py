@@ -96,11 +96,11 @@ def write_result_to_file(question, pred_sql, score, prover_result, refuter_resul
         "evidence": question["evidence"],
         "gold_sql": question["gold_sql"],
         "predicted_sql": pred_sql, 
-        "label": question["label"],
         "score": score,
         "prover_result": prover_result,
         "refuter_result": refuter_result
     }
+    result.update({k: question[k] for k in ("label", "difficulty") if k in question})
     save_json(result, output_file, append=True)
 
 def get_db_info(db_id: str, sql: str | list[str]) -> str:

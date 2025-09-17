@@ -65,8 +65,8 @@ class Refuter:
             output_file = os.path.join(self.output_dir, "refuter_output.json")
             save_json(output_data, output_file, append=True)
 
-            return result.get("verdict", False)
+            return result.get("verdict", None)
 
         except Exception as e:
             print(f"Refuter error: {e}")
-            return False
+            return None

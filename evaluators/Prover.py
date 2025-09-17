@@ -50,8 +50,8 @@ class Prover:
             output_file = os.path.join(self.output_dir, "prover_output.json")
             save_json(output_data, output_file, append=True)
 
-            return result.get("verdict", False), result.get("reason", "")
+            return result.get("verdict", None), result.get("reason", "")
 
         except Exception as e:
             print(f"Prover error: {e}")
-            return False, f"Error: {e}"
+            return None, f"Error: {e}"
