@@ -37,7 +37,7 @@ class Prover:
                     {"role": "system", "content": system_prompt_prover},
                     {"role": "user", "content": user_content}
                 ],
-                temperature=0
+                # temperature=0
             )
 
             result = json.loads(extract_json_from_response(response.choices[0].message.content))

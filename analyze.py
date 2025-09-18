@@ -24,7 +24,7 @@ def _load_eval_results(model_dir: str) -> list:
     with open(eval_file, 'r', encoding='utf-8') as f:
         return json.load(f)
 
-def analyze_results_for_dir(model_dir: str, mode: str, model_name: str | None = None, write_files: bool = True):
+def analyze_results_for_dir(model_dir: str, mode: str, model_name: str = None, write_files: bool = True):
     data = _load_eval_results(model_dir)
     model_name = model_name or os.path.basename(model_dir)
     
@@ -74,7 +74,7 @@ def analyze_results_for_dir(model_dir: str, mode: str, model_name: str | None = 
                 mcc = 0
             stats = {
                 "total_items": total_items,
-                "accuracy": accuracy,
+                "accuracy": round(accuracy, 4),
                 "confusion_matrix": {
                     "tp": tp,
                     "tn": tn,
@@ -82,11 +82,11 @@ def analyze_results_for_dir(model_dir: str, mode: str, model_name: str | None = 
                     "fn": fn
                 },
                 "performance_metrics": {
-                    "precision": precision,
-                    "recall": recall,
-                    "f1_score": f1_score,
-                    "mcc": mcc,
-                    "cohen_kappa": kappa
+                    "precision": round(precision, 4),
+                    "recall": round(recall, 4),
+                    "f1_score": round(f1_score, 4),
+                    "mcc": round(mcc, 4),
+                    "cohen_kappa": round(kappa, 4)
                 }
             }
             if write_files:
@@ -99,7 +99,7 @@ def analyze_results_for_dir(model_dir: str, mode: str, model_name: str | None = 
         if n == 0:
             return {"count": 0, "score_rate": 0}
         score_rate = sum(1 for x in items if x.get("score") == 1.0) / n
-        return {"count": n, "score_rate": score_rate}
+        return {"count": n, "score_rate": round(score_rate, 4)}
 
     if mode == "d":
         buckets = {}
@@ -108,7 +108,7 @@ def analyze_results_for_dir(model_dir: str, mode: str, model_name: str | None = 
             buckets.setdefault(diff, []).append(item)
         by_diff = {diff: _simple_summary(items) for diff, items in buckets.items()}
         overall_rate = (score_1_count / total_items) if total_items else 0
-        by_diff["overall"] = {"count": total_items, "score_rate": overall_rate}
+        by_diff["overall"] = {"count": total_items, "score_rate": round(overall_rate, 4)}
         if write_files:
             by_diff_file = os.path.join(stats_dir, f"{model_name}_statistics_by_difficulty.json")
             with open(by_diff_file, 'w', encoding='utf-8') as f:
@@ -132,6 +132,7 @@ def analyze_results_all(mode: str):
             res = analyze_results_for_dir(model_dir, mode, model_name=name, write_files=False)
             results[name] = res
         except Exception:
+            print(f"Error processing {name}")
             continue
     out_file = os.path.join(out_root, f"statistics_by_{'difficulty' if mode=='d' else 'label'}.json")
     with open(out_file, 'w', encoding='utf-8') as f:

@@ -71,14 +71,32 @@ if __name__ == "__main__":
     problem_ids: List[str] = []
     num_threads = max(1, int(args.threads))
     problems_file_path = os.path.join(output_dir, "problem_question_ids.json")
+    existing_results_path = os.path.join(output_dir, "eval_results.json")
 
     with open(args.input, "r", encoding="utf-8") as f:
         questions = json.load(f)
+
+    existing_ids = set()
+    if os.path.exists(existing_results_path):
+        try:
+            with open(existing_results_path, "r", encoding="utf-8") as ef:
+                existing_data = json.load(ef)
+                for item in existing_data:
+                    qid = str(item.get("question_id"))
+                    if qid:
+                        existing_ids.add(qid)
+        except Exception:
+            existing_ids = set()
 
     if args.problem and os.path.exists(problems_file_path):
         with open(problems_file_path, "r", encoding="utf-8") as pf:
             existing_problem_ids = set(json.load(pf))
         questions = [q for q in questions if str(q.get("question_id")) in existing_problem_ids]
+
+    total_input = len(questions)
+    questions = [q for q in questions if str(q.get("question_id")) not in existing_ids]
+    to_process = len(questions)
+    print(f"Input total: {total_input}, To process: {to_process}")
 
     def worker(idx):
         local_problems = []
