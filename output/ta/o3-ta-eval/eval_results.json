@@ -4706,5 +4706,401 @@
     "prover_result": false,
     "refuter_result": null,
     "difficulty": "moderate"
+  },
+  {
+    "question_id": 26,
+    "question": "State the names and full communication address of high schools in Monterey which has more than 800 free or reduced price meals for ages 15-17?",
+    "evidence": "Full communication address should include Street, City, State and zip code if any.",
+    "gold_sql": "SELECT T1.`School Name`, T2.Street, T2.City, T2.State, T2.Zip FROM frpm AS T1 INNER JOIN schools AS T2 ON T1.CDSCode = T2.CDSCode WHERE T2.County = 'Monterey' AND T1.`Free Meal Count (Ages 5-17)` > 800 AND T1.`School Type` = 'High Schools (Public)'",
+    "predicted_sql": "SELECT schools.School, schools.Street, schools.City, schools.State, schools.Zip FROM schools INNER JOIN frpm ON schools.CDSCode = frpm.CDSCode WHERE schools.County = 'Monterey' AND schools.SOCType = 'High Schools' AND frpm.`Free or Reduced Price Meals` > 800;",
+    "score": 0.0,
+    "difficulty": "moderate"
+  },
+  {
+    "question_id": 28,
+    "question": "Consider the average difference between K-12 enrollment and 15-17 enrollment of schools that are locally funded, list the names and DOC type of schools which has a difference above this average.",
+    "evidence": "Difference between K-12 enrollment and 15-17 enrollment can be computed by `Enrollment (K-12)` - `Enrollment (Ages 5-17)`",
+    "gold_sql": "SELECT T2.School, T2.DOC FROM frpm AS T1 INNER JOIN schools AS T2 ON T1.CDSCode = T2.CDSCode WHERE T2.FundingType = 'Locally funded' AND (T1.`Enrollment (K-12)` - T1.`Enrollment (Ages 5-17)`) > (SELECT AVG(T3.`Enrollment (K-12)` - T3.`Enrollment (Ages 5-17)`) FROM frpm AS T3 INNER JOIN schools AS T4 ON T3.CDSCode = T4.CDSCode WHERE T4.FundingType = 'Locally funded')",
+    "predicted_sql": "SELECT schools.School, schools.DOCType FROM schools INNER JOIN frpm ON schools.CDSCode = frpm.CDSCode WHERE schools.FundingType = 'Locally funded' HAVING (frpm.`Enrollment (K-12)` - frpm.`Enrollment (Ages 5-17)`) > (     SELECT AVG(frpm.`Enrollment (K-12)` - frpm.`Enrollment (Ages 5-17)`)     FROM schools     INNER JOIN frpm ON schools.CDSCode = frpm.CDSCode     WHERE schools.FundingType = 'Locally funded' );",
+    "score": 0.0,
+    "difficulty": "challenging"
+  },
+  {
+    "question_id": 47,
+    "question": "What is the monthly average number of schools that opened in Alameda County under the jurisdiction of the Elementary School District in 1980?",
+    "evidence": "Elementary School District refers to DOC = 52; Monthly average number of schools that opened in 1980 = count(schools that opened in 1980) / 12",
+    "gold_sql": "SELECT CAST(COUNT(School) AS REAL) / 12 FROM schools WHERE DOC = 52 AND County = 'Alameda' AND strftime('%Y', OpenDate) = '1980'",
+    "predicted_sql": "SELECT ROUND(COUNT(*) / 12.0, 2) AS monthly_average FROM schools WHERE schools.County = 'Alameda County'   AND schools.DOC = '52'   AND EXTRACT(YEAR FROM schools.OpenDate) = 1980;",
+    "score": 0.0,
+    "difficulty": "moderate"
+  },
+  {
+    "question_id": 85,
+    "question": "What is the Percent (%) Eligible Free (K-12) in the school administered by an administrator whose first name is Alusine. List the district code of the school.",
+    "evidence": "Percent (%) Eligible Free (K-12) = `Free Meal Count (K-12)` / `Enrollment (K-12)` * 100%",
+    "gold_sql": "SELECT T1.`Free Meal Count (K-12)` * 100 / T1.`Enrollment (K-12)`, T1.`District Code` FROM frpm AS T1 INNER JOIN schools AS T2 ON T1.CDSCode = T2.CDSCode WHERE T2.AdmFName1 = 'Alusine'",
+    "predicted_sql": "SELECT (schools.District, (frpm.`Free Meal Count (K-12)` / frpm.`Enrollment (K-12)` * 100) AS Percent_Eligible_Free FROM schools INNER JOIN frpm ON schools.CDSCode = frpm.CDSCode WHERE schools.AdmFName1 = 'Alusine';",
+    "score": 0.0,
+    "difficulty": "moderate"
+  },
+  {
+    "question_id": 168,
+    "question": "What percentage of clients who opened their accounts in the district with an average salary of over 10000 are women?",
+    "evidence": "Female refers to gender = 'F'; Woman and female are closed; Average salary can be found in A11",
+    "gold_sql": "SELECT CAST(SUM(T2.gender = 'F') AS REAL) * 100 / COUNT(T2.client_id) FROM district AS T1 INNER JOIN client AS T2 ON T1.district_id = T2.district_id WHERE T1.A11 > 10000",
+    "predicted_sql": "SELECT ROUND(CAST(COUNT(DISTINCT df2.client_id) AS REAL) * 100 / COUNT(DISTINCT df1.client_id), 2) AS percentage FROM account INNER JOIN disp ON account.account_id = disp.account_id INNER JOIN client ON disp.client_id = client.client_id INNER JOIN district ON account.district_id = district.district_id WHERE district.A11 > 10000 AND client.gender = 'F';",
+    "score": 0.0,
+    "difficulty": "moderate"
+  },
+  {
+    "question_id": 173,
+    "question": "How often does account number 3 request an account statement to be released? What was the aim of debiting 3539 in total?",
+    "evidence": "k_symbol refers to the purpose of payments",
+    "gold_sql": "SELECT T1.frequency, T2.k_symbol FROM account AS T1 INNER JOIN (SELECT account_id, k_symbol, SUM(amount) AS total_amount FROM `order` GROUP BY account_id, k_symbol) AS T2 ON T1.account_id = T2.account_id WHERE T1.account_id = 3 AND T2.total_amount = 3539",
+    "predicted_sql": "SELECT account.frequency FROM account WHERE account.account_id = 3;  SELECT trans.k_symbol FROM trans WHERE trans.amount = 3539;",
+    "score": 0.0,
+    "difficulty": "challenging"
+  },
+  {
+    "question_id": 557,
+    "question": "Among the posts with a score of over 5, what is the percentage of them being owned by an elder user?",
+    "evidence": "score of over 5 refers to Score > 5; elder user refers to Age > 65; percentage = Divide (Count(Id where Age>65), Count(Id)) * 100",
+    "gold_sql": "SELECT CAST(SUM(IIF(T2.Age > 65, 1, 0)) AS REAL) * 100 / COUNT(T1.Id) FROM posts AS T1 INNER JOIN users AS T2 ON T1.OwnerUserId = T2.Id WHERE T1.Score > 5",
+    "predicted_sql": "SELECT CAST(COUNT(df2.Id) AS REAL) * 100 / COUNT(df1.Id) FROM posts AS df1 INNER JOIN users ON df1.OwnerUserId = users.Id WHERE df1.Score > 20 AND users.Age > 65;",
+    "score": 0.0,
+    "difficulty": "moderate"
+  },
+  {
+    "question_id": 639,
+    "question": "Based on posts posted by Community, calculate the percentage of posts that use the R language.",
+    "evidence": "DIVIDE(COUNT(PostId WHERE TagName = 'r')), (COUNT(PostId WHERE DisplayName = 'Community')) as percentage; R language refers to tagname = 'r'",
+    "gold_sql": "SELECT CAST(SUM(IIF(T3.TagName = 'r', 1, 0)) AS REAL) * 100 / COUNT(T1.Id) FROM users AS T1 INNER JOIN postHistory AS T2 ON T1.Id = T2.UserId INNER JOIN tags AS T3 ON T3.ExcerptPostId = T2.PostId WHERE T1.DisplayName = 'Community'",
+    "predicted_sql": "SELECT CAST(COUNT(posts.Id) * 100.0 / (SELECT COUNT(posts.Id) FROM posts INNER JOIN users ON posts.OwnerUserId = users.Id WHERE users.DisplayName = 'Community') AS percentage FROM posts INNER JOIN users ON posts.OwnerUserId = users.Id INNER JOIN tags ON tags.Id = posts.Id WHERE users.DisplayName = 'Community' AND tags.TagName = 'r';",
+    "score": 0.0,
+    "difficulty": "challenging"
+  },
+  {
+    "question_id": 683,
+    "question": "What is the percentage of posts whose owners had a reputation of over 1000 in 2011?",
+    "evidence": "percentage = DIVIDE(COUNT(Id where YEAR(CreationDate) = 2011 and Reputation > 1000), COUNT(Id) ) * 100;",
+    "gold_sql": "SELECT CAST(SUM(IIF(STRFTIME('%Y', T2.CreaionDate) = '2011' AND T1.Reputation > 1000, 1, 0)) AS REAL) * 100 / COUNT(T1.Id) FROM users AS T1 INNER JOIN posts AS T2 ON T1.Id = T2.OwnerUserId",
+    "predicted_sql": "SELECT CAST(COUNT(posts.Id) FILTER (WHERE EXTRACT(YEAR FROM users.CreationDate) = 2011 AND users.Reputation > 1000) AS REAL) * 100 / COUNT(posts.Id) AS percentage FROM posts INNER JOIN users ON posts.OwnerUserId = users.Id;",
+    "score": 0.0,
+    "difficulty": "moderate"
+  },
+  {
+    "question_id": 884,
+    "question": "List the names of all races that occurred in the earliest recorded year and month.",
+    "evidence": "earliest recorded year and month refers to year = year(min(date)) and month = month(min(date));",
+    "gold_sql": "SELECT name FROM races WHERE STRFTIME('%Y', date) = ( SELECT STRFTIME('%Y', date) FROM races ORDER BY date ASC LIMIT 1 ) AND STRFTIME('%m', date) = ( SELECT STRFTIME('%m', date) FROM races ORDER BY date ASC LIMIT 1 )",
+    "predicted_sql": "SELECT races.name FROM races WHERE races.date = (SELECT MIN(races.date) FROM races) UNION ALL SELECT races.name FROM races WHERE YEAR(races.date) = YEAR((SELECT MIN(races.date) FROM races)) AND MONTH(races.date) = MONTH((SELECT MIN(races.date) FROM races));",
+    "score": 0.0,
+    "difficulty": "moderate"
+  },
+  {
+    "question_id": 898,
+    "question": "How old is the youngest Japanese driver? What is his name?",
+    "evidence": "date of birth refers to drivers.dob; The larger the birthday value, the younger the person is, and vice versa; Japanese refers to nationality = 'Japanese'; age = YEAR(CURRENT_TIMESTAMP) - YEAR(dob);",
+    "gold_sql": "SELECT STRFTIME('%Y', CURRENT_TIMESTAMP) - STRFTIME('%Y', dob), forename , surname FROM drivers WHERE nationality = 'Japanese' ORDER BY dob DESC LIMIT 1",
+    "predicted_sql": "SELECT drivers.forename, drivers.surname, (2022 - EXTRACT(YEAR FROM drivers.dob) + 1) as age FROM drivers WHERE drivers.nationality = 'Japanese' ORDER BY drivers.dob DESC LIMIT 1;",
+    "score": 0.0,
+    "difficulty": "simple"
+  },
+  {
+    "question_id": 901,
+    "question": "Name the races along with its circuit name and location for f1 races hosted in September 2005.",
+    "evidence": "in September 2005 refers to MONTH(date) = 9 and YEAR(date) = 2005",
+    "gold_sql": "SELECT DISTINCT T2.name, T1.name, T1.location FROM circuits AS T1 INNER JOIN races AS T2 ON T2.circuitID = T1.circuitId WHERE T2.year = 2005 AND STRFTIME('%m', T2.date) = '09'",
+    "predicted_sql": "SELECT races.name, circuits.name, circuits.location FROM races INNER JOIN circuits ON races.circuitId = circuits.circuitId WHERE EXTRACT(YEAR FROM races.date) = 2005 AND EXTRACT(MONTH FROM races.date) = 9",
+    "score": 0.0,
+    "difficulty": "simple"
+  },
+  {
+    "question_id": 909,
+    "question": "Among all European Grand Prix races, what is the percentage of the races were hosted in Germany?",
+    "evidence": "European Grand Prix races refers to races.name = 'European Grand Prix';percentage = divide(COUNT(races where country = Germany and name = 'Europearn Grand Prix'),COUNT(races where name = 'Europearn Grand Prix'))*100",
+    "gold_sql": "SELECT CAST(COUNT(CASE WHEN T1.country = 'Germany' THEN T2.circuitID END) AS REAL) * 100 / COUNT(T2.circuitId) FROM circuits AS T1 INNER JOIN races AS T2 ON T2.circuitID = T1.circuitId WHERE T2.name = 'European Grand Prix'",
+    "predicted_sql": "SELECT CAST(COUNT(*) * 100.0 / (SELECT COUNT(*) FROM races WHERE name = 'European Grand Prix') AS REAL) FROM races WHERE name = 'European Grand Prix' AND country = 'Germany';",
+    "score": 0.0,
+    "difficulty": "moderate"
+  },
+  {
+    "question_id": 954,
+    "question": "Please calculate the race completion percentage of Japanese drivers from 2007 to 2009.",
+    "evidence": "from 2007 to 2009 refers to year between 2007 and 2009; race completion refers to time is not null; percentage = Divide(COUNT(DriverID where time is not null and year between 2007 and 2009),Count (DriverID where year between 2007 and 2009))*100; ",
+    "gold_sql": "SELECT CAST(SUM(IIF(T1.time IS NOT NULL, 1, 0)) AS REAL) * 100 / COUNT(T1.raceId) FROM results AS T1 INNER JOIN races AS T2 on T1.raceId = T2.raceId INNER JOIN drivers AS T3 on T1.driverId = T3.driverId WHERE T3.nationality = 'Japanese' AND T2.year BETWEEN 2007 AND 2009",
+    "predicted_sql": "SELECT CAST(COUNT(df2.driverId) * 100.0 / COUNT(df1.driverId)) AS completion_percentage FROM races JOIN drivers ON races.driverId = drivers.driverId JOIN results ON races.raceId = results.raceId AND drivers.driverId = results.driverId WHERE races.year BETWEEN 2007 AND 2009 AND drivers.nationality = 'Japanese' AND results.time IS NOT NULL",
+    "score": 0.0,
+    "difficulty": "challenging"
+  },
+  {
+    "question_id": 962,
+    "question": "From 2000 to 2005, what percentage of drivers who were born before 1985 and the lap numbers were over 50?",
+    "evidence": "born before 1985 refers to year(dob)<1985; in 2000 to 2005 refers to year between 2000 and 2005; percentage = Divide(COUNT(driverId where year (dob) <1985 and laps >50),COUNT(DriverID where year between 2000 and 2005) *100;",
+    "gold_sql": "SELECT CAST(SUM(IIF(STRFTIME('%Y', T3.dob) < '1985' AND T1.laps > 50, 1, 0)) AS REAL) * 100 / COUNT(*) FROM results AS T1 INNER JOIN races AS T2 on T1.raceId = T2.raceId INNER JOIN drivers AS T3 on T1.driverId = T3.driverId WHERE T2.year BETWEEN 2000 AND 2005",
+    "predicted_sql": "SELECT CAST(COUNT(df2.driverId) * 100.0 / COUNT(df1.driverId)) AS percentage FROM (     SELECT drivers.driverId, results.laps, races.year     FROM drivers     INNER JOIN results ON drivers.driverId = results.driverId     INNER JOIN races ON results.raceId = races.raceId     WHERE races.year BETWEEN 2000 AND 2005 ) AS df1 LEFT JOIN (     SELECT drivers.driverId, results.laps     FROM drivers     INNER JOIN results ON drivers.driverId = results.driverId     WHERE drivers.dob < '1985-01-01' AND results.laps > 50 ) AS df2 ON df1.driverId = df2.driverId;",
+    "score": 0.0,
+    "difficulty": "challenging"
+  },
+  {
+    "question_id": 972,
+    "question": "Which drivers who were born in 1971 and has the fastest lap time on the race? Give id and code of these drivers.",
+    "evidence": "born in 1971 refers to year(dob) = 1971; has the fastest lap time refers to fastestLapTime has values",
+    "gold_sql": "SELECT T2.driverId, T2.code FROM results AS T1 INNER JOIN drivers AS T2 on T1.driverId = T2.driverId WHERE STRFTIME('%Y', T2.dob) = '1971' AND T1.fastestLapTime IS NOT NULL",
+    "predicted_sql": "SELECT drivers.driverId, drivers.code FROM drivers JOIN results ON drivers.driverId = results.driverId WHERE EXTRACT(YEAR FROM drivers.dob) = 1971 AND results.fastestLapTime IS NOT NULL",
+    "score": 0.0,
+    "difficulty": "moderate"
+  },
+  {
+    "question_id": 1031,
+    "question": "At present, calculate for the player's age who have a sprint speed of no less than 97 between 2013 to 2015.",
+    "evidence": "players age at present = SUBTRACT((DATETIME(), birthday)); sprint speed of no less than 97 refers to sprint_speed > = 97; between 2013 to 2015 refers to YEAR(date) > = '2013' AND YEAR(date) < = '2015'; ",
+    "gold_sql": "SELECT DISTINCT DATETIME() - T2.birthday age FROM Player_Attributes AS t1 INNER JOIN Player AS t2 ON t1.player_api_id = t2.player_api_id WHERE STRFTIME('%Y',t1.`date`) >= '2013' AND STRFTIME('%Y',t1.`date`) <= '2015' AND t1.sprint_speed >= 97",
+    "predicted_sql": "SELECT DATEDIFF(YEAR, Player.birthday, GETDATE()) as age FROM Player_Attributes INNER JOIN Player ON Player_Attributes.player_api_id = Player.player_api_id WHERE Player_Attributes.sprint_speed >= 97 AND Player_Attributes.date >= '2013-01-01 00:00:00' AND Player_Attributes.date <= '2015-12-31 00:00:00';",
+    "score": 0.0,
+    "difficulty": "challenging"
+  },
+  {
+    "question_id": 1037,
+    "question": "Calculate the percentage of players who prefer left foot, who were born between 1987 and 1992.",
+    "evidence": "players who prefer left foot refers to preferred_foot = 'left'; percentage of players who prefer left foot = DIVIDE(MULTIPLY((SUM(preferred_foot = 'left'), 100)), COUNT(player_fifa_api_id)); born between 1987 and 1992 refers to YEAR(birthday) BETWEEN '1987' AND '1992';",
+    "gold_sql": "SELECT CAST(COUNT(CASE WHEN t2.preferred_foot = 'left' THEN t1.id ELSE NULL END) AS REAL) * 100 / COUNT(t1.id) percent FROM Player AS t1 INNER JOIN Player_Attributes AS t2 ON t1.player_api_id = t2.player_api_id WHERE SUBSTR(t1.birthday, 1, 4) BETWEEN '1987' AND '1992'",
+    "predicted_sql": "SELECT CAST(COUNT(CASE WHEN Player.preferred_foot = 'left' THEN 1 END) * 100.0 / COUNT(*) FROM Player WHERE Player.birthday >= '1987-01-01 00:00:00' AND Player.birthday <= '1992-12-31 00:00:00';",
+    "score": 0.0,
+    "difficulty": "challenging"
+  },
+  {
+    "question_id": 1156,
+    "question": "State the ID and age of patient with positive degree of coagulation.",
+    "evidence": "age refers to SUBTRACT(year(current_timestamp), year(Birthday)); positive degree of coagulation refers to RVVT = '+';",
+    "gold_sql": "SELECT DISTINCT T1.ID, STRFTIME('%Y', CURRENT_TIMESTAMP) - STRFTIME('%Y', T1.Birthday) FROM Patient AS T1 INNER JOIN Examination AS T2 ON T1.ID = T2.ID WHERE T2.RVVT = '+'",
+    "predicted_sql": "SELECT Patient.ID, CAST(YEAR(CURRENT_TIMESTAMP) - YEAR(Patient.Birthday) AS INTEGER) AS age FROM Patient INNER JOIN Examination ON Patient.ID = Examination.ID WHERE Examination.RVVT = '+'",
+    "score": 0.0,
+    "difficulty": "moderate"
+  },
+  {
+    "question_id": 1162,
+    "question": "How many female patients who came at the hospital in 1997 was immediately followed at the outpatient clinic?",
+    "evidence": "female refers to sex = 'F'; came at the hospital in 1997 refers to year(Description) = '1997'; immediately followed at the outpatient clinic refers to Admission = '-'",
+    "gold_sql": "SELECT COUNT(*) FROM Patient WHERE STRFTIME('%Y', Description) = '1997' AND SEX = 'F' AND Admission = '-'",
+    "predicted_sql": "SELECT COUNT(*) FROM Patient WHERE Patient.SEX = 'F' AND YEAR(Patient.Description) = '1997' AND Patient.Admission = '-'",
+    "score": 0.0,
+    "difficulty": "moderate"
+  },
+  {
+    "question_id": 1164,
+    "question": "How many of the patients with the most serious thrombosis cases examined in 1997 are women?",
+    "evidence": "the most serious thrombosis refers to Thrombosis = '1' (the most severe one); women refers to sex = 'F'",
+    "gold_sql": "SELECT  COUNT(*) FROM Patient AS T1 INNER JOIN Examination AS T2 ON T1.ID = T2.ID WHERE T1.SEX = 'F' AND STRFTIME('%Y', T2.`Examination Date`) = '1997' AND T2.Thrombosis = 1",
+    "predicted_sql": "SELECT COUNT(*) FROM Examination INNER JOIN Patient ON Examination.ID = Patient.ID WHERE Examination.Thrombosis = 1 AND YEAR(Examination.`Examination Date`) = 1997 AND Patient.SEX = 'F';",
+    "score": 0.0,
+    "difficulty": "moderate"
+  },
+  {
+    "question_id": 1168,
+    "question": "The oldest SJS patient's medical laboratory work was completed on what date, and what age was the patient when they initially arrived at the hospital?",
+    "evidence": "The larger the birthday value, the younger the person is, and vice versa; 'SJS' refers to diagnosis; (SUBTRACT(year(`First Date`)), year(Birthday)); age of the patients when they initially arrived at the hospital refers to year(Birthday)",
+    "gold_sql": "SELECT T1.Date, STRFTIME('%Y', T2.`First Date`) - STRFTIME('%Y', T2.Birthday),T2.Birthday FROM Laboratory AS T1 INNER JOIN Patient AS T2 ON T1.ID = T2.ID WHERE T2.Diagnosis = 'SJS' AND T2.Birthday IS NOT NULL ORDER BY T2.Birthday ASC LIMIT 1",
+    "predicted_sql": "SELECT Laboratory.Date, YEAR(Patient.Birthday) - YEAR(Laboratory.Date) as age FROM Laboratory INNER JOIN Examination ON Laboratory.ID = Examination.ID INNER JOIN Patient ON Laboratory.ID = Patient.ID WHERE Examination.Diagnosis = 'SJS' AND Patient.Diagnosis = 'SJS' HAVING Patient.Birthday = (SELECT MAX(Birthday) FROM Patient WHERE Diagnosis = 'SJS');",
+    "score": 0.0,
+    "difficulty": "challenging"
+  },
+  {
+    "question_id": 1171,
+    "question": "How many underage patients were examined during the course of the three-year period from 1990 to 1993?",
+    "evidence": "underage patients refers to year(Birthday) < 18; three-year period from 1990 to 1993 refers to year(`Examination Date`) between '1990' and '1993'",
+    "gold_sql": "SELECT COUNT(T1.ID) FROM Patient AS T1 INNER JOIN Examination AS T2 ON T1.ID = T2.ID WHERE STRFTIME('%Y', T2.`Examination Date`) BETWEEN '1990' AND '1993' AND STRFTIME('%Y', T2.`Examination Date`) - STRFTIME('%Y', T1.Birthday) < 18",
+    "predicted_sql": "SELECT COUNT(*) FROM Examination INNER JOIN Patient ON Examination.ID = Patient.ID WHERE Examination.`Examination Date` >= '1990-01-01' AND Examination.`Examination Date` <= '1993-12-31' AND YEAR(Patient.Birthday) < 18",
+    "score": 0.0,
+    "difficulty": "challenging"
+  },
+  {
+    "question_id": 1175,
+    "question": "How old was the patient who had the highest hemoglobin count at the time of the examination, and what is the doctor's diagnosis?",
+    "evidence": "How old the patient refers to SUBTRACT(year(`Examination Date`), year(Birthday)); the highest hemoglobin count refers to MAX(HGB)",
+    "gold_sql": "SELECT STRFTIME('%Y', T2.Date) - STRFTIME('%Y', T1.Birthday), T1.Diagnosis FROM Patient AS T1 INNER JOIN Laboratory AS T2 ON T1.ID = T2.ID ORDER BY T2.HGB DESC LIMIT 1",
+    "predicted_sql": "SELECT YEAR(Examination.`Examination Date`) - YEAR(Patient.Birthday) AS age, Examination.Diagnosis FROM Laboratory INNER JOIN Examination ON Laboratory.ID = Examination.ID INNER JOIN Patient ON Laboratory.ID = Patient.ID WHERE Laboratory.HGB = (SELECT MAX(Laboratory.HGB) FROM Laboratory);",
+    "score": 0.0,
+    "difficulty": "moderate"
+  },
+  {
+    "question_id": 1179,
+    "question": "For the patient who was diagnosed with SLE on 1994/2/19, what was his/her anti-Cardiolipin antibody concentration status on 1993/11/12?",
+    "evidence": "diagnosed with SLE refers to Diagnosis = 'SLE'; 1994/2/19 refers to Description = '1994-02-19'; anti-Cardiolipin refers to aCL IgM; 1993/11/12 refers to Examination Date = '1993/11/12'",
+    "gold_sql": "SELECT `aCL IgA`, `aCL IgG`, `aCL IgM` FROM Examination WHERE ID IN ( SELECT ID FROM Patient WHERE Diagnosis = 'SLE' AND Description = '1994-02-19' ) AND `Examination Date` = '1993-11-12'",
+    "predicted_sql": "SELECT Examination.aCL_IgM FROM Patient INNER JOIN Examination ON Patient.ID = Examination.ID WHERE Patient.Description = '1994-02-19' AND Patient.Diagnosis = 'SLE' AND Examination.Description = '1993-11-12';",
+    "score": 0.0,
+    "difficulty": "moderate"
+  },
+  {
+    "question_id": 1187,
+    "question": "How many patients who were examined between 1987/7/6 and 1996/1/31 had a GPT level greater than 30 and an ALB level less than 4? List them by their ID.",
+    "evidence": "examined between 1987/7/6 and 1996/1/31 refers to Date BETWEEN '1987-07-06' AND '1996-01-31'; GPT level greater than 30 refers to GPT > 30; ALB level less than 4 ALB < 4",
+    "gold_sql": "SELECT DISTINCT ID FROM Laboratory WHERE Date BETWEEN '1987-07-06' AND '1996-01-31' AND GPT > 30 AND ALB < 4",
+    "predicted_sql": "SELECT Patient.ID FROM Laboratory INNER JOIN Examination ON Laboratory.ID = Examination.ID WHERE Laboratory.Date BETWEEN '1987-07-06' AND '1996-01-31' AND Laboratory.GPT > 30 AND Laboratory.ALB < 4;",
+    "score": 0.0,
+    "difficulty": "moderate"
+  },
+  {
+    "question_id": 1192,
+    "question": "List all patients who were followed up at the outpatient clinic who underwent a laboratory test in October 1991 and had a total blood bilirubin level within the normal range.",
+    "evidence": "followed up at the outpatient clinic refers to Admission = '-'; laboratory test in April 1981 refers to Date like '1991-10%'; blood bilirubin level within the normal range refers to T-BIL < 2.0; ",
+    "gold_sql": "SELECT DISTINCT T1.ID FROM Patient AS T1 INNER JOIN Laboratory AS T2 ON T1.ID = T2.ID WHERE T1.Admission = '-' AND T2.`T-BIL` < 2.0 AND T2.Date LIKE '1991-10-%'",
+    "predicted_sql": "SELECT Patient.ID FROM Patient INNER JOIN Laboratory ON Patient.ID = Laboratory.ID WHERE Patient.Admission = '-' AND       Laboratory.Date LIKE '1991-10%' AND       Laboratory.T-BIL < 2.0;",
+    "score": 0.0,
+    "difficulty": "challenging"
+  },
+  {
+    "question_id": 1205,
+    "question": "Was the patient with the number 57266's uric acid within a normal range?",
+    "evidence": "uric acid within a normal range refers to UA > 8.0 and SEX = 'M'OR UA > 6.5 and SEX = 'F'",
+    "gold_sql": "SELECT CASE WHEN (T1.SEX = 'F' AND T2.UA > 6.5) OR (T1.SEX = 'M' AND T2.UA > 8.0) THEN true ELSE false END FROM Patient AS T1 INNER JOIN Laboratory AS T2 ON T1.ID = T2.ID WHERE T1.ID = 57266",
+    "predicted_sql": "SELECT Patient.SEX, Laboratory.UA FROM Patient INNER JOIN Laboratory ON Patient.ID = Laboratory.ID WHERE Patient.ID = 57266;  WITH patient_data AS (     SELECT Patient.SEX, Laboratory.UA     FROM Patient     INNER JOIN Laboratory ON Patient.ID = Laboratory.ID     WHERE Patient.ID = 57266 )  SELECT     CASE         WHEN SEX = 'M' AND UA > 8.0 THEN 'Yes'         WHEN SEX = 'F' AND UA > 6.5 THEN 'Yes'         ELSE 'No'     END AS within_normal_range FROM patient_data;",
+    "score": 0.0,
+    "difficulty": "moderate"
+  },
+  {
+    "question_id": 1225,
+    "question": "List and group all patients by sex for total bilirubin (T-BIL) level not within the normal range.",
+    "evidence": "List refers to GROUP_CONCAT(DISTINCT ID); total bilirubin (T-BIL) not within normal range refers to T-BIL > = 2.0",
+    "gold_sql": "SELECT T1.ID,T1.SEX FROM Patient AS T1 INNER JOIN Laboratory AS T2 ON T1.ID = T2.ID WHERE T2.`T-BIL` >= 2.0 GROUP BY T1.SEX,T1.ID",
+    "predicted_sql": "SELECT Patient.ID, Patient.SEX FROM Patient INNER JOIN Laboratory ON Patient.ID = Laboratory.ID WHERE Laboratory.T-BIL >= 2.0 GROUP BY Patient.SEX, Patient.ID;",
+    "score": 0.0,
+    "difficulty": "moderate"
+  },
+  {
+    "question_id": 1227,
+    "question": "What is the average age of the male patient with high cholesterol?",
+    "evidence": "average age = DIVIDE(SUM(SUBTRACT(YEAR(NOW()), YEAR(birthday))), COUNT(ID)); male patient refers to sex = 'M'; high cholesterol refers to `T-CHO` > = 250;",
+    "gold_sql": "SELECT AVG(STRFTIME('%Y', date('NOW')) - STRFTIME('%Y', T1.Birthday)) FROM Patient AS T1 INNER JOIN Laboratory AS T2 ON T1.ID = T2.ID WHERE T2.`T-CHO` >= 250 AND T1.SEX = 'M'",
+    "predicted_sql": "SELECT CAST(SUM(YEAR(NOW()) - YEAR(Patient.birthday)) AS REAL) / COUNT(Patient.ID) FROM Patient INNER JOIN Laboratory ON Patient.ID = Laboratory.ID WHERE Patient.SEX = 'M' AND Laboratory.T-CHO >= 250;",
+    "score": 0.0,
+    "difficulty": "moderate"
+  },
+  {
+    "question_id": 1229,
+    "question": "For all patients with triglyceride (TG) level beyond the normal range, how many are age more than 50 years?",
+    "evidence": "triglyceride (TG) level beyond the normal range refers to TG > = 200; more than 50 years of age = SUBTRACT(year(current_timestamp), year(Birthday)) > 50; Should consider DISTINCT in the final result;",
+    "gold_sql": "SELECT COUNT(DISTINCT T1.ID) FROM Patient AS T1 INNER JOIN Laboratory AS T2 ON T1.ID = T2.ID WHERE T2.TG >= 200 AND STRFTIME('%Y', CURRENT_TIMESTAMP) - STRFTIME('%Y', T1.Birthday) > 50",
+    "predicted_sql": "SELECT COUNT(*) FROM Patient INNER JOIN Laboratory ON Patient.ID = Laboratory.ID WHERE Laboratory.TG >= 200 AND (YEAR(CURDATE()) - YEAR(Patient.Birthday)) > 50;",
+    "score": 0.0,
+    "difficulty": "moderate"
+  },
+  {
+    "question_id": 1232,
+    "question": "Provide ID, sex and age of patient who has blood glucose (GLU) not within normal range but with total cholesterol(T-CHO) within normal range.",
+    "evidence": "age = SUBTRACT(year(current_timestamp), year(Birthday)); blood glucose (GLU) not within normal range refers to GLU > = 180; total cholesterol(T-CHO) within normal range refers to `T-CHO` < 250; ",
+    "gold_sql": "SELECT DISTINCT T1.ID, T1.SEX , STRFTIME('%Y', CURRENT_TIMESTAMP) - STRFTIME('%Y', T1.Birthday) FROM Patient AS T1 INNER JOIN Laboratory AS T2 ON T1.ID = T2.ID WHERE T2.GLU >= 180 AND T2.`T-CHO` < 250",
+    "predicted_sql": "SELECT Patient.ID, Patient.SEX, EXTRACT(YEAR FROM CURRENT_DATE) - EXTRACT(YEAR FROM Patient.Birthday) as age FROM Patient INNER JOIN Laboratory ON Patient.ID = Laboratory.ID WHERE Laboratory.GLU >= 180 AND Laboratory.T-CHO < 250;",
+    "score": 0.0,
+    "difficulty": "challenging"
+  },
+  {
+    "question_id": 1235,
+    "question": "What are the patient's diagnosis for those who has lower red blood blood cell? State their ID and age.",
+    "evidence": "patient's diagnosis refers to Diagnosis; lower red blood cell refers to RBC < 3.5; age = SUBTRACT(year(current_timestamp), year(Birthday)); ",
+    "gold_sql": "SELECT DISTINCT T1.Diagnosis, T1.ID , STRFTIME('%Y', CURRENT_TIMESTAMP) -STRFTIME('%Y', T1.Birthday) FROM Patient AS T1 INNER JOIN Laboratory AS T2 ON T1.ID = T2.ID WHERE T2.RBC < 3.5",
+    "predicted_sql": "SELECT Patient.ID, Patient.Diagnosis, CAST(YEAR(CURRENT_TIMESTAMP) - YEAR(Patient.Birthday) AS INTEGER) AS Age FROM Patient INNER JOIN Laboratory ON Patient.ID = Laboratory.ID WHERE Laboratory.RBC < 3.5;",
+    "score": 0.0,
+    "difficulty": "moderate"
+  },
+  {
+    "question_id": 1239,
+    "question": "Name the ID and age of patient with two or more laboratory examinations which show their hematoclit level exceeded the normal range.",
+    "evidence": "age = SUBTRACT(year(current_timestamp), year(Birthday)); patient with two or more laboratory examinations refers to COUNT(ID) > 2; hematoclit level exceeded the normal range refers to HCT > = 52;",
+    "gold_sql": "SELECT DISTINCT T1.ID, STRFTIME('%Y', CURRENT_TIMESTAMP) - STRFTIME('%Y', T1.Birthday) FROM Patient AS T1 INNER JOIN Laboratory AS T2 ON T1.ID = T2.ID WHERE T1.ID IN ( SELECT ID FROM Laboratory WHERE HCT >= 52 GROUP BY ID HAVING COUNT(ID) >= 2 )",
+    "predicted_sql": "SELECT Patient.ID, CAST(YEAR(CURRENT_TIMESTAMP) - YEAR(Patient.Birthday) AS INTEGER) AS age FROM Laboratory INNER JOIN Patient ON Laboratory.ID = Patient.ID WHERE Laboratory.HCT >= 52 GROUP BY Patient.ID HAVING COUNT(Laboratory.ID) > 2",
+    "score": 0.0,
+    "difficulty": "challenging"
+  },
+  {
+    "question_id": 1242,
+    "question": "For laboratory examinations take in 1984, list all patients below 50 years old with normal platelet level.",
+    "evidence": "laboratory examinations take in 1984 refers to YEAR(Date) = '1984'; below 50 years old = SUBTRACT(year(current_timestamp), year(Birthday)) < 50; normal platelet level refers to PLT between 100 and 400; ",
+    "gold_sql": "SELECT DISTINCT T1.ID FROM Patient AS T1 INNER JOIN Laboratory AS T2 ON T1.ID = T2.ID WHERE T2.PLT BETWEEN 100 AND 400 AND STRFTIME('%Y', T2.Date) - STRFTIME('%Y', T1.Birthday) < 50 AND STRFTIME('%Y', T2.Date) = '1984'",
+    "predicted_sql": "SELECT Patient.ID FROM Patient INNER JOIN Laboratory ON Patient.ID = Laboratory.ID WHERE Laboratory.Date LIKE '1984%' AND YEAR(CURDATE()) - YEAR(Patient.Birthday) < 50 AND Laboratory.PLT >= 100 AND Laboratory.PLT <= 400;",
+    "score": 0.0,
+    "difficulty": "challenging"
+  },
+  {
+    "question_id": 1252,
+    "question": "Among the patients with a normal Ig G level, how many of them have symptoms?",
+    "evidence": "normal Ig G level refers to IGG > 900 and IGG < 2000; have symptoms refers to Symptoms IS NOT NULL;",
+    "gold_sql": "SELECT COUNT(T1.ID) FROM Patient AS T1 INNER JOIN Laboratory AS T2 ON T1.ID = T2.ID INNER JOIN Examination AS T3 ON T3.ID = T2.ID WHERE T2.IGG BETWEEN 900 AND 2000 AND T3.Symptoms IS NOT NULL",
+    "predicted_sql": "SELECT COUNT(*) FROM Laboratory INNER JOIN Patient ON Laboratory.ID = Patient.ID WHERE Laboratory.IGG BETWEEN 900 AND 2000 AND Patient.Symptoms IS NOT NULL;",
+    "score": 0.0,
+    "difficulty": "moderate"
+  },
+  {
+    "question_id": 1257,
+    "question": "Among the patients whose creatinine level is abnormal, how many of them aren't 70 yet?",
+    "evidence": "creatinine level is abnormal refers to CRE >= 1.5; aren't 70 yet refers to SUBTRACT((YEAR(CURDATE()), YEAR(Birthday))) < 70; ",
+    "gold_sql": "SELECT COUNT(DISTINCT T1.ID) FROM Patient AS T1 INNER JOIN Laboratory AS T2 ON T1.ID = T2.ID WHERE T2.CRE >= 1.5 AND STRFTIME('%Y', Date('now')) - STRFTIME('%Y', T1.Birthday) < 70",
+    "predicted_sql": "SELECT COUNT(DISTINCT Patient.ID) FROM Patient INNER JOIN Laboratory ON Patient.ID = Laboratory.ID WHERE (Laboratory.CRP NOT IN ('-', '+') AND CAST(Laboratory.CRP AS FLOAT) >= 1.0) AND (YEAR(CURDATE()) - YEAR(Patient.Birthday) < 18);",
+    "score": 0.0,
+    "difficulty": "challenging"
+  },
+  {
+    "question_id": 1338,
+    "question": "Was each expense in October Meeting on October 8, 2019 approved?",
+    "evidence": "event_name = 'October Meeting' where event_date = '2019-10-08'; approved = True means expenses was approved; approved = False means expenses was not approved",
+    "gold_sql": "SELECT T3.approved FROM event AS T1 INNER JOIN budget AS T2 ON T1.event_id = T2.link_to_event INNER JOIN expense AS T3 ON T2.budget_id = T3.link_to_budget WHERE T1.event_name = 'October Meeting' AND T1.event_date LIKE '2019-10-08%'",
+    "predicted_sql": "SELECT expense.approved FROM event INNER JOIN expense ON event.event_id = expense.link_to_event WHERE event.event_name = 'October Meeting' AND event.event_date = '2019-10-08';",
+    "score": 0.0,
+    "difficulty": "moderate"
+  },
+  {
+    "question_id": 1340,
+    "question": "Calculate the difference of the total amount spent in all events by the Student_Club in year 2019 and 2020.",
+    "evidence": "The first 4 strings of the event_date values in the event table can represent year; The difference of the total amount spent = SUBTRACT(spent where YEAR(event_date) = 2019, spent where YEAR(event_date) = 2020)",
+    "gold_sql": "SELECT SUM(CASE WHEN SUBSTR(T1.event_date, 1, 4) = '2019' THEN T2.spent ELSE 0 END) - SUM(CASE WHEN SUBSTR(T1.event_date, 1, 4) = '2020' THEN T2.spent ELSE 0 END) AS num FROM event AS T1 INNER JOIN budget AS T2 ON T1.event_id = T2.link_to_event",
+    "predicted_sql": "SELECT (SUM(budget.spent) FILTER (WHERE EXTRACT(YEAR FROM event.event_date) = 2019)) - (SUM(budget.spent) FILTER (WHERE EXTRACT(YEAR FROM event.event_date) = 2020)) AS difference FROM budget JOIN event ON budget.link_to_event = event.event_id",
+    "score": 0.0,
+    "difficulty": "moderate"
+  },
+  {
+    "question_id": 1387,
+    "question": "Which student has been entrusted to manage the budget for the Yearly Kickoff?",
+    "evidence": "name of students means the full name; full name refers to first_name, last_name;'Yearly Kickoff' is an event name;",
+    "gold_sql": "SELECT T4.first_name, T4.last_name FROM event AS T1 INNER JOIN budget AS T2 ON T1.event_id = T2.link_to_event INNER JOIN expense AS T3 ON T2.budget_id = T3.link_to_budget INNER JOIN member AS T4 ON T3.link_to_member = T4.member_id WHERE T1.event_name = 'Yearly Kickoff'",
+    "predicted_sql": "SELECT member.first_name, member.last_name FROM budget INNER JOIN event ON budget.link_to_event = event.event_id INNER JOIN member ON budget.link_to_member = member.member_id WHERE event.event_name = 'Yearly Kickoff';",
+    "score": 0.0,
+    "difficulty": "moderate"
+  },
+  {
+    "question_id": 1390,
+    "question": "Based on the total cost for all event, what is the percentage of cost for Yearly Kickoff event?",
+    "evidence": "percentage = DIVIDE(SUM(cost where event_name = 'Yearly Kickoff'), SUM(cost)) * 100",
+    "gold_sql": "SELECT CAST(SUM(CASE WHEN T1.event_name = 'Yearly Kickoff' THEN T3.cost ELSE 0 END) AS REAL) * 100 / SUM(T3.cost) FROM event AS T1 INNER JOIN budget AS T2 ON T1.event_id = T2.link_to_event INNER JOIN expense AS T3 ON T2.budget_id = T3.link_to_budget",
+    "predicted_sql": "SELECT (CAST(SUM(CASE WHEN event.event_name = 'Yearly Kickoff' THEN expense.cost ELSE 0 END) AS REAL) / SUM(expense.cost)) * 100 FROM event INNER JOIN expense ON event.event_id = expense.link_to_event;",
+    "score": 0.0,
+    "difficulty": "moderate"
+  },
+  {
+    "question_id": 1401,
+    "question": "Indicate the cost of posters for 'September Speaker' event.",
+    "evidence": "'Posters' is the expense description; 'September Speaker' is an event name",
+    "gold_sql": "SELECT T3.cost FROM event AS T1 INNER JOIN budget AS T2 ON T1.event_id = T2.link_to_event INNER JOIN expense AS T3 ON T2.budget_id = T3.link_to_budget WHERE T1.event_name = 'September Speaker' AND T3.expense_description = 'Posters'",
+    "predicted_sql": "SELECT expense.cost FROM event INNER JOIN expense ON event.event_id = expense.link_to_event WHERE event.event_name = 'September Speaker' AND expense.expense_description = 'Posters';",
+    "score": 0.0,
+    "difficulty": "moderate"
+  },
+  {
+    "question_id": 1404,
+    "question": "Identify the type of expenses and their total value approved for 'October Meeting' event.",
+    "evidence": "total value refers to SUM(cost); 'October Meeting' is an event name;",
+    "gold_sql": "SELECT T1.type, SUM(T3.cost) FROM event AS T1 INNER JOIN budget AS T2 ON T1.event_id = T2.link_to_event INNER JOIN expense AS T3 ON T2.budget_id = T3.link_to_budget WHERE T1.event_name = 'October Meeting'",
+    "predicted_sql": "SELECT expense.expense_description, SUM(expense.cost) FROM expense INNER JOIN event ON expense.link_to_event = event.event_id WHERE event.event_name = 'October Meeting' AND expense.approved = 'true' GROUP BY expense.expense_description",
+    "score": 0.0,
+    "difficulty": "moderate"
+  },
+  {
+    "question_id": 1482,
+    "question": "Which of the three segments—SME, LAM and KAM—has the biggest and lowest percentage increases in consumption paid in EUR between 2012 and 2013?",
+    "evidence": "Increase or Decrease = consumption for 2013 - consumption for 2012; Percentage of Increase = (Increase or Decrease / consumption for 2013) * 100%; The first 4 strings of the Date values in the yearmonth table can represent year",
+    "gold_sql": "SELECT CAST((SUM(IIF(T1.Segment = 'SME' AND T2.Date LIKE '2013%', T2.Consumption, 0)) - SUM(IIF(T1.Segment = 'SME' AND T2.Date LIKE '2012%', T2.Consumption, 0))) AS FLOAT) * 100 / SUM(IIF(T1.Segment = 'SME' AND T2.Date LIKE '2012%', T2.Consumption, 0)), CAST(SUM(IIF(T1.Segment = 'LAM' AND T2.Date LIKE '2013%', T2.Consumption, 0)) - SUM(IIF(T1.Segment = 'LAM' AND T2.Date LIKE '2012%', T2.Consumption, 0)) AS FLOAT) * 100 / SUM(IIF(T1.Segment = 'LAM' AND T2.Date LIKE '2012%', T2.Consumption, 0)) , CAST(SUM(IIF(T1.Segment = 'KAM' AND T2.Date LIKE '2013%', T2.Consumption, 0)) - SUM(IIF(T1.Segment = 'KAM' AND T2.Date LIKE '2012%', T2.Consumption, 0)) AS FLOAT) * 100 / SUM(IIF(T1.Segment = 'KAM' AND T2.Date LIKE '2012%', T2.Consumption, 0)) FROM customers AS T1 INNER JOIN yearmonth AS T2 ON T1.CustomerID = T2.CustomerID",
+    "predicted_sql": "SELECT customers.Segment,        ((sum_2013 - sum_2012) * 100 / sum_2012) as percentage_increase FROM   (SELECT customers.Segment,           SUM(CASE WHEN substr(yearmonth.Date, 1, 4) = '2012' THEN yearmonth.Consumption ELSE 0 END) as sum_2012,           SUM(CASE WHEN substr(yearmonth.Date, 1, 4) = '2013' THEN yearmonth.Consumption ELSE 0 END) as sum_2013    FROM customers    INNER JOIN yearmonth ON customers.CustomerID = yearmonth.CustomerID    WHERE customers.Currency = 'EUR'      AND yearmonth.Date BETWEEN '201201' AND '201312'    GROUP BY customers.Segment) as tmp ORDER BY percentage_increase DESC;",
+    "score": 0.0,
+    "difficulty": "challenging"
   }
 ]

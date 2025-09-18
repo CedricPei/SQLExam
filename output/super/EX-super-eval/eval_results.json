@@ -4030,5 +4030,77 @@
     "predicted_sql": "SELECT T3.customerid, T3.date, T3.consumption FROM transactions_1k AS T1 INNER JOIN products AS T2 ON T1.productid = T2.productid INNER JOIN yearmonth AS T3 ON T3.customerid = T1.customerid WHERE T2.productid = 5 AND T1.price/T1.amount > 29 AND SUBSTR(T3.date, 0, 7) = '201208'",
     "score": 0.0,
     "difficulty": "moderate"
+  },
+  {
+    "question_id": 41,
+    "question": "List the names of virtual schools that are among the top 5 in their respective counties based on average reading scores.",
+    "evidence": "Exclusively virtual refers to Virtual = 'F'; respective counties means PARTITION BY County",
+    "gold_sql": "SELECT School FROM (SELECT T2.School,T1.AvgScrRead, RANK() OVER (PARTITION BY T2.County ORDER BY T1.AvgScrRead DESC) AS rnk FROM satscores AS T1 INNER JOIN schools AS T2 ON T1.cds = T2.CDSCode WHERE T2.Virtual = 'F' ) ranked_schools WHERE rnk <= 5",
+    "predicted_sql": "SELECT s.school, s.avgscrread FROM satscores AS s INNER JOIN schools AS sc ON s.cds = sc.cdscode WHERE sc.virtual = 'F' ORDER BY s.avgscrread DESC LIMIT 5;",
+    "score": 0.0,
+    "difficulty": "simple"
+  },
+  {
+    "question_id": 152,
+    "question": "What is the average number of crimes committed in 1995 in regions where the number exceeds 4000 and the region has accounts that are opened starting from the year 1997?",
+    "evidence": "A3 refers to region names; A15 stands for the average number of crimes commited in 1995.",
+    "gold_sql": "SELECT AVG(T1.A15) FROM district AS T1 INNER JOIN account AS T2 ON T1.district_id = T2.district_id WHERE STRFTIME('%Y', T2.date) >= '1997' AND T1.A15 > 4000",
+    "predicted_sql": "SELECT A3, AVG(A15) FROM district AS T1 INNER JOIN account AS T2 ON T1.district_id = T2.district_id WHERE A15 > 4000 AND DATE(T2.date) > = '1997-01-01' GROUP BY A3 HAVING AVG(A15) > 4000",
+    "score": 0.0,
+    "difficulty": "moderate"
+  },
+  {
+    "question_id": 358,
+    "question": "What is the border color of card \"Ancestor's Chosen\"?",
+    "evidence": "name of card  = 'Ancestor''s Chosen' ;",
+    "gold_sql": "SELECT DISTINCT borderColor FROM cards WHERE name = 'Ancestor''s Chosen'",
+    "predicted_sql": "SELECT bordercolor FROM cards WHERE name = 'Ancestor\\'s Chosen'",
+    "score": 0.0,
+    "difficulty": "simple"
+  },
+  {
+    "question_id": 1257,
+    "question": "Among the patients whose creatinine level is abnormal, how many of them aren't 70 yet?",
+    "evidence": "creatinine level is abnormal refers to CRE >= 1.5; aren't 70 yet refers to SUBTRACT((YEAR(CURDATE()), YEAR(Birthday))) < 70; ",
+    "gold_sql": "SELECT COUNT(DISTINCT T1.ID) FROM Patient AS T1 INNER JOIN Laboratory AS T2 ON T1.ID = T2.ID WHERE T2.CRE >= 1.5 AND STRFTIME('%Y', Date('now')) - STRFTIME('%Y', T1.Birthday) < 70",
+    "predicted_sql": "SELECT COUNT(DISTINCT P.id) FROM patient AS P INNER JOIN laboratory AS L ON P.id = L.id WHERE L.crp NOT IN ('+-', '-') AND L.crp >= 1.0 AND (YEAR(CURDATE()) - YEAR(P.birthday)) < 18",
+    "score": 0.0,
+    "difficulty": "challenging"
+  },
+  {
+    "question_id": 1338,
+    "question": "Was each expense in October Meeting on October 8, 2019 approved?",
+    "evidence": "event_name = 'October Meeting' where event_date = '2019-10-08'; approved = True means expenses was approved; approved = False means expenses was not approved",
+    "gold_sql": "SELECT T3.approved FROM event AS T1 INNER JOIN budget AS T2 ON T1.event_id = T2.link_to_event INNER JOIN expense AS T3 ON T2.budget_id = T3.link_to_budget WHERE T1.event_name = 'October Meeting' AND T1.event_date LIKE '2019-10-08%'",
+    "predicted_sql": "SELECT T2.approved FROM event AS T1 INNER JOIN expense AS T2 ON T1.event_id = T2.link_to_event WHERE T1.event_name = 'October Meeting' AND T1.event_date = '2019-10-08'",
+    "score": 0.0,
+    "difficulty": "moderate"
+  },
+  {
+    "question_id": 1371,
+    "question": "How many members attended the \"Women's Soccer\" event?",
+    "evidence": "'Women's Soccer' is the event name;",
+    "gold_sql": "SELECT COUNT(T2.link_to_member) FROM event AS T1 INNER JOIN attendance AS T2 ON T1.event_id = T2.link_to_event WHERE T1.event_name = 'Women''s Soccer'",
+    "predicted_sql": "SELECT COUNT(T2.link_to_member) FROM event AS T1 INNER JOIN attendance AS T2 ON T1.event_id = T2.link_to_event WHERE T1.event_name = 'Women's Soccer'",
+    "score": 0.0,
+    "difficulty": "simple"
+  },
+  {
+    "question_id": 1399,
+    "question": "Did Maya Mclean attend the 'Women's Soccer' event?",
+    "evidence": "Maya Mclean is the full name; full name refers to first_name, last_name; 'Women's Soccer' is an event_name",
+    "gold_sql": "SELECT CASE WHEN T3.event_name = 'Women''s Soccer' THEN 'YES' END AS result FROM member AS T1 INNER JOIN attendance AS T2 ON T1.member_id = T2.link_to_member INNER JOIN event AS T3 ON T2.link_to_event = T3.event_id WHERE T1.first_name = 'Maya' AND T1.last_name = 'Mclean'",
+    "predicted_sql": "SELECT CASE WHEN EXISTS ( SELECT 1 FROM attendance AS T1 INNER JOIN member AS T2 ON T1.link_to_member = T2.member_id INNER JOIN event AS T3 ON T1.link_to_event = T3.event_id WHERE T2.first_name = 'Maya' AND T2.last_name = 'Mclean' AND T3.event_name = 'Women's Soccer' ) THEN 'Yes' ELSE 'No' END AS AttendStatus",
+    "score": 0.0,
+    "difficulty": "moderate"
+  },
+  {
+    "question_id": 1481,
+    "question": "What is the difference in the annual average consumption of the customers with the least amount of consumption paid in CZK for 2013 between SME and LAM, LAM and KAM, and KAM and SME?",
+    "evidence": "annual average consumption of customer with the lowest consumption in each segment = total consumption per year / the number of customer with lowest consumption in each segment; Difference in annual average = SME's annual average - LAM's annual average; Difference in annual average = LAM's annual average - KAM's annual average; Year 2013 can be presented as Between 201301 And 201312; The first 4 strings of the Date values in the yearmonth table can represent year.",
+    "gold_sql": "SELECT CAST(SUM(IIF(T1.Segment = 'SME', T2.Consumption, 0)) AS REAL) / COUNT(T1.CustomerID) - CAST(SUM(IIF(T1.Segment = 'LAM', T2.Consumption, 0)) AS REAL) / COUNT(T1.CustomerID) , CAST(SUM(IIF(T1.Segment = 'LAM', T2.Consumption, 0)) AS REAL) / COUNT(T1.CustomerID) - CAST(SUM(IIF(T1.Segment = 'KAM', T2.Consumption, 0)) AS REAL) / COUNT(T1.CustomerID) , CAST(SUM(IIF(T1.Segment = 'KAM', T2.Consumption, 0)) AS REAL) / COUNT(T1.CustomerID) - CAST(SUM(IIF(T1.Segment = 'SME', T2.Consumption, 0)) AS REAL) / COUNT(T1.CustomerID) FROM customers AS T1 INNER JOIN yearmonth AS T2 ON T1.CustomerID = T2.CustomerID WHERE T1.Currency = 'CZK' AND T2.Consumption = ( SELECT MIN(Consumption) FROM yearmonth ) AND T2.Date BETWEEN 201301 AND 201312",
+    "predicted_sql": "SELECT (SME_avg.consumption - LAM_avg.consumption) as SME_LAM_diff, (LAM_avg.consumption - KAM_avg.consumption) as LAM_KAM_diff, (KAM_avg.consumption - SME_avg.consumption) as KAM_SME_diff FROM (SELECT AVG(yearmonth.consumption) as consumption FROM yearmonth INNER JOIN customers ON customers.customerid = yearmonth.customerid WHERE customers.currency = 'CZK' AND customers.segment = 'SME' AND substr(yearmonth.date,1,4) = '2013' ORDER BY yearmonth.consumption ASC LIMIT 1) as SME_avg, (SELECT AVG(yearmonth.consumption) as consumption FROM yearmonth INNER JOIN customers ON customers.customerid = yearmonth.customerid WHERE customers.currency = 'CZK' AND customers.segment = 'LAM' AND substr(yearmonth.date,1,4) = '2013",
+    "score": 0.0,
+    "difficulty": "challenging"
   }
 ]

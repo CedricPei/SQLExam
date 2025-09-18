@@ -15,7 +15,6 @@ def _resolve_method_dir(method_name: str) -> str:
 	for path in candidates:
 		if os.path.isdir(path):
 			return path
-	# default path even if not yet created
 	return os.path.join("output", method_name)
 
 
@@ -54,8 +53,6 @@ def analyze_results_for_dir(eval_dir: str, mode: str, name: str = None, write_fi
 
 			label_true_score_0 = [item for item in data if is_true_label(item) and item.get("score") == 0.0]
 			label_false_score_1 = [item for item in data if is_false_label(item) and item.get("score") == 1.0]
-			label_true_count = len([item for item in data if is_true_label(item)])
-			label_false_count = len([item for item in data if is_false_label(item)])
 			correct_predictions = len([item for item in data if 
 									  (is_true_label(item) and item.get("score") == 1.0) or 
 									  (is_false_label(item) and item.get("score") == 0.0)])
@@ -158,6 +155,10 @@ if __name__ == "__main__":
 	if args.method:
 		method_dir = _resolve_method_dir(args.method)
 		res = analyze_method(method_dir, mode=args.mode)
-		print(json.dumps(res, ensure_ascii=False, indent=2))
+		out_root = _resolve_method_dir(args.method)
+		os.makedirs(out_root, exist_ok=True)
+		out_file = os.path.join(out_root, f"statistics_by_{'difficulty' if args.mode=='d' else 'label'}.json")
+		with open(out_file, 'w', encoding='utf-8') as f:
+			json.dump(res, f, ensure_ascii=False, indent=2)
 	else:
 		analyze_results_all(mode=args.mode)

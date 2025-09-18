@@ -4075,5 +4075,23 @@
     "predicted_sql": "SELECT DISTINCT CASE WHEN sum(transactions_1k.price / transactions_1k.amount) > 29 THEN 'high' ELSE 'low' END FROM transactions_1k INNER JOIN yearmonth ON transactions_1k.`date` = yearmonth.`date` WHERE transactions_1k.productid = 5",
     "score": 0.0,
     "difficulty": "moderate"
+  },
+  {
+    "question_id": 683,
+    "question": "What is the percentage of posts whose owners had a reputation of over 1000 in 2011?",
+    "evidence": "percentage = DIVIDE(COUNT(Id where YEAR(CreationDate) = 2011 and Reputation > 1000), COUNT(Id) ) * 100;",
+    "gold_sql": "SELECT CAST(SUM(IIF(STRFTIME('%Y', T2.CreaionDate) = '2011' AND T1.Reputation > 1000, 1, 0)) AS REAL) * 100 / COUNT(T1.Id) FROM users AS T1 INNER JOIN posts AS T2 ON T1.Id = T2.OwnerUserId",
+    "predicted_sql": "SELECT cast(count(CASE WHEN users.reputation > 1000 THEN 1 ELSE NULL END) AS REAL) * 100 / count(users.id) FROM users INNER JOIN posts ON users.id = posts.owneruserid WHERE strftime('%Y', posts.creationdate) = '2011'",
+    "score": 0.0,
+    "difficulty": "moderate"
+  },
+  {
+    "question_id": 1251,
+    "question": "How many patients with an Ig G higher than normal?",
+    "evidence": "Ig G higher than normal refers to IGG >= 2000; Should consider DISTINCT in the final result;",
+    "gold_sql": "SELECT COUNT(DISTINCT T1.ID) FROM Patient AS T1 INNER JOIN Laboratory AS T2 ON T1.ID = T2.ID INNER JOIN Examination AS T3 ON T3.ID = T2.ID WHERE T2.IGG >= 2000",
+    "predicted_sql": "SELECT count(patient.id) FROM patient INNER JOIN examination ON patient.id = examination.id WHERE examination.symptoms = 'abortion' AND laboratory.igg < 900",
+    "score": 0.0,
+    "difficulty": "simple"
   }
 ]

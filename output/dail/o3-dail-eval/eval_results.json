@@ -4640,5 +4640,302 @@
     "prover_result": true,
     "refuter_result": true,
     "difficulty": "simple"
+  },
+  {
+    "question_id": 26,
+    "question": "State the names and full communication address of high schools in Monterey which has more than 800 free or reduced price meals for ages 15-17?",
+    "evidence": "Full communication address should include Street, City, State and zip code if any.",
+    "gold_sql": "SELECT T1.`School Name`, T2.Street, T2.City, T2.State, T2.Zip FROM frpm AS T1 INNER JOIN schools AS T2 ON T1.CDSCode = T2.CDSCode WHERE T2.County = 'Monterey' AND T1.`Free Meal Count (Ages 5-17)` > 800 AND T1.`School Type` = 'High Schools (Public)'",
+    "predicted_sql": "SELECT T1.`School Name`, T1.Street, T1.City, T1.Zip, T1.State FROM frpm AS T1 INNER JOIN schools AS T2 ON T1.CDSCode = T2.CDSCode WHERE T1.`FRPM Count (Ages 5-17)` > 800 AND T1.`County Name` = 'Monterey' AND T1.`School Type` = 'High School'",
+    "score": 0.0,
+    "difficulty": "moderate"
+  },
+  {
+    "question_id": 149,
+    "question": "Please list the account types that are not eligible for loans, and the average income of residents in the district where the account is located exceeds $8000 but is no more than $9000.",
+    "evidence": "A11 represents the average salary; Salary and income share the similar meanings; when the account type = 'OWNER', it's eligible for loans",
+    "gold_sql": "SELECT T3.type FROM district AS T1 INNER JOIN account AS T2 ON T1.district_id = T2.district_id INNER JOIN disp AS T3 ON T2.account_id = T3.account_id WHERE T3.type != 'OWNER' AND T1.A11 BETWEEN 8000 AND 9000",
+    "predicted_sql": "SELECT DISTINCT T1.type FROM account AS T1 INNER JOIN district AS T2 ON T1.district_id = T2.district_id LEFT JOIN loan AS T3 ON T1.account_id = T3.account_id WHERE T3.account_id IS NULL AND T2.A11 > 8000 AND T2.A11 <= 9000",
+    "score": 0.0,
+    "difficulty": "challenging"
+  },
+  {
+    "question_id": 152,
+    "question": "What is the average number of crimes committed in 1995 in regions where the number exceeds 4000 and the region has accounts that are opened starting from the year 1997?",
+    "evidence": "A3 refers to region names; A15 stands for the average number of crimes commited in 1995.",
+    "gold_sql": "SELECT AVG(T1.A15) FROM district AS T1 INNER JOIN account AS T2 ON T1.district_id = T2.district_id WHERE STRFTIME('%Y', T2.date) >= '1997' AND T1.A15 > 4000",
+    "predicted_sql": "SELECT T1.A3, AVG(T1.A15) FROM district AS T1 INNER JOIN account AS T2 ON T1.district_id = T2.district_id WHERE T1.A15 > 4000 AND YEAR(T2.date) >= 1997 GROUP BY T1.A3",
+    "score": 0.0,
+    "difficulty": "moderate"
+  },
+  {
+    "question_id": 194,
+    "question": "Provide the IDs and age of the client with high level credit card, which is eligible for loans.",
+    "evidence": "the credit card is high-level refers to card.type = 'gold'; eligible for loans refers to disp.type = 'OWNER'",
+    "gold_sql": "SELECT T1.client_id, STRFTIME('%Y', CURRENT_TIMESTAMP) - STRFTIME('%Y', T3.birth_date) FROM disp AS T1 INNER JOIN card AS T2 ON T2.disp_id = T1.disp_id INNER JOIN client AS T3 ON T1.client_id = T3.client_id WHERE T2.type = 'gold' AND T1.type = 'OWNER'",
+    "predicted_sql": "SELECT T1.client_id, DATE_PART('year', AGE(T1.birth_date)) AS age FROM client AS T1 INNER JOIN disp AS T2 ON T1.client_id = T2.client_id INNER JOIN card AS T3 ON T2.disp_id = T3.disp_id INNER JOIN loan AS T4 ON T2.account_id = T4.account_id WHERE T3.type = 'gold'",
+    "score": 0.0,
+    "difficulty": "moderate"
+  },
+  {
+    "question_id": 358,
+    "question": "What is the border color of card \"Ancestor's Chosen\"?",
+    "evidence": "name of card  = 'Ancestor''s Chosen' ;",
+    "gold_sql": "SELECT DISTINCT borderColor FROM cards WHERE name = 'Ancestor''s Chosen'",
+    "predicted_sql": "SELECT borderColor FROM cards WHERE name = 'Ancestor's Chosen'",
+    "score": 0.0,
+    "difficulty": "simple"
+  },
+  {
+    "question_id": 462,
+    "question": "What's the Italian name of the set of cards with \"Ancestor's Chosen\" is in?",
+    "evidence": "Italian is a language which refers to language = 'Italian'; with \"Ancestor's Chosen\" in the card set refers to name = 'Ancestor''s Chosen'",
+    "gold_sql": "SELECT translation FROM set_translations WHERE setCode IN ( SELECT setCode FROM cards WHERE name = 'Ancestor''s Chosen' ) AND language = 'Italian'",
+    "predicted_sql": "SELECT T3.translation FROM cards AS T1 INNER JOIN sets AS T2 ON T1.setCode = T2.code INNER JOIN set_translations AS T3 ON T2.code = T3.setCode WHERE T1.name = 'Ancestor's Chosen' AND T3.language = 'Italian'",
+    "score": 0.0,
+    "difficulty": "moderate"
+  },
+  {
+    "question_id": 469,
+    "question": "Did the set of cards with \"Angel of Mercy\" appear on Magic: The Gathering Online?",
+    "evidence": "card set \"Angel of Mercy\" refers to name = 'Angel of Mercy'; appear on Magic: The Gathering Online refers to mtgoCode is NOT NULL and vice versa",
+    "gold_sql": "SELECT IIF(T2.mtgoCode IS NOT NULL, 'YES', 'NO') FROM cards AS T1 INNER JOIN sets AS T2 ON T2.code = T1.setCode WHERE T1.name = 'Angel of Mercy'",
+    "predicted_sql": "SELECT T1.mtgoCode FROM cards AS T1 WHERE T1.name = 'Angel of Mercy' AND T1.mtgoCode IS NOT NULL",
+    "score": 0.0,
+    "difficulty": "moderate"
+  },
+  {
+    "question_id": 474,
+    "question": "Among the sets of cards that have an Italian translation, how many of them have a base set number of under 100?",
+    "evidence": "Italian translation refers to language = 'Italian'; have a translation means translation is not null; base set number of under 100 refers to baseSetSize < 10",
+    "gold_sql": "SELECT COUNT(T1.id) FROM sets AS T1 INNER JOIN set_translations AS T2 ON T2.setCode = T1.code WHERE T2.translation IS NOT NULL AND T1.baseSetSize < 100 AND T2.language = 'Italian'",
+    "predicted_sql": "SELECT COUNT(DISTINCT T2.setCode) FROM set_translations AS T1 INNER JOIN sets AS T2 ON T1.setCode = T2.code WHERE T1.language = 'Italian' AND T2.baseSetSize < 10",
+    "score": 0.0,
+    "difficulty": "moderate"
+  },
+  {
+    "question_id": 595,
+    "question": "Which user have only one post history per post and having at least 1000 views?",
+    "evidence": "having at least 1000 view refers to Views > = 1000; user refers to UserId",
+    "gold_sql": "SELECT T2.UserId FROM users AS T1 INNER JOIN postHistory AS T2 ON T1.Id = T2.UserId INNER JOIN posts AS T3 ON T2.PostId = T3.Id WHERE T3.ViewCount >= 1000 GROUP BY T2.UserId HAVING COUNT(DISTINCT T2.PostHistoryTypeId) = 1",
+    "predicted_sql": "SELECT UserId FROM postHistory GROUP BY UserId, PostId HAVING COUNT(Id) = 1 INTERSECT SELECT UserId FROM users WHERE Views >= 1000",
+    "score": 0.0,
+    "difficulty": "moderate"
+  },
+  {
+    "question_id": 717,
+    "question": "Please list all the superpowers of 3-D Man.",
+    "evidence": "3-D Man refers to superhero_name = '3-D Man'; superpowers refers to power_name",
+    "gold_sql": "SELECT T3.power_name FROM superhero AS T1 INNER JOIN hero_power AS T2 ON T1.id = T2.hero_id INNER JOIN superpower AS T3 ON T2.power_id = T3.id WHERE T1.superhero_name = '3-D Man'",
+    "predicted_sql": "SELECT T2.power_name FROM superhero AS T1 INNER JOIN hero_power AS T2 ON T1.id = T2.hero_id INNER JOIN superpower AS T3 ON T2.power_id = T3.id WHERE T1.superhero_name = '3-D Man'",
+    "score": 0.0,
+    "difficulty": "simple"
+  },
+  {
+    "question_id": 738,
+    "question": "Which superheroes have a durability attribute value of less than 50?",
+    "evidence": "durability of less than 50 refers to attribute_name = 'Durability' AND attribute_value < 50",
+    "gold_sql": "SELECT superhero_name FROM superhero AS T1 WHERE EXISTS (SELECT 1 FROM hero_attribute AS T2 INNER JOIN attribute AS T3 ON T2.attribute_id = T3.id WHERE T3.attribute_name = 'Durability' AND T2.attribute_value < 50 AND T1.id = T2.hero_id)",
+    "predicted_sql": "SELECT COUNT(DISTINCT superhero_id) FROM superhero INNER JOIN hero_attribute ON superhero.id = hero_attribute.hero_id INNER JOIN attribute ON hero_attribute.attribute_id = attribute.id WHERE attribute.attribute_name = 'Durability' AND hero_attribute.attribute_value < 50",
+    "score": 0.0,
+    "difficulty": "simple"
+  },
+  {
+    "question_id": 751,
+    "question": "List down at least five superpowers of male superheroes.",
+    "evidence": "male refers to gender = 'Male'; superpowers refers to power_name;",
+    "gold_sql": "SELECT T3.power_name FROM superhero AS T1 INNER JOIN hero_power AS T2 ON T1.id = T2.hero_id INNER JOIN superpower AS T3 ON T3.id = T2.power_id INNER JOIN gender AS T4 ON T4.id = T1.gender_id WHERE T4.gender = 'Male' LIMIT 5",
+    "predicted_sql": "SELECT T2.power_name FROM superhero AS T1 INNER JOIN hero_power AS T2 ON T1.id = T2.hero_id INNER JOIN gender AS T3 ON T1.gender_id = T3.id WHERE T3.gender = 'Male' LIMIT 5",
+    "score": 0.0,
+    "difficulty": "moderate"
+  },
+  {
+    "question_id": 788,
+    "question": "How many percent of female heroes were published by Marvel Comics?",
+    "evidence": "percent = MULTIPLY(DIVIDE(SUM(gender = 'Female' WHERE publisher_name = 'Marvel Comics'), COUNT(publisher_name = 'Marvel Comics')), 100); female heroes refers to gender = 'Female'; Marvel Comics refers to publisher_name = 'Marvel Comics';",
+    "gold_sql": "SELECT CAST(COUNT(CASE WHEN T3.gender = 'Female' AND T2.publisher_name = 'Marvel Comics' THEN 1 ELSE NULL END) AS REAL) / COUNT(CASE WHEN T2.publisher_name = 'Marvel Comics' THEN 1 ELSE NULL END) * 100 FROM superhero AS T1 INNER JOIN publisher AS T2 ON T1.publisher_id = T2.id INNER JOIN gender AS T3 ON T1.gender_id = T3.id",
+    "predicted_sql": "SELECT CAST(COUNT(CASE WHEN T2.gender = 'Female' THEN 1 ELSE NULL END) AS REAL) * 100 / COUNT(T1.publisher_name) FROM publisher AS T1 INNER JOIN superhero AS T2 ON T1.id = T2.publisher_id WHERE T1.publisher_name = 'Marvel Comics'",
+    "score": 0.0,
+    "difficulty": "challenging"
+  },
+  {
+    "question_id": 792,
+    "question": "What is Abomination's superpower?",
+    "evidence": "Abomination refers to superhero_name = 'Abomination'; superpower refers to power_name;",
+    "gold_sql": "SELECT T3.power_name FROM superhero AS T1 INNER JOIN hero_power AS T2 ON T1.id = T2.hero_id INNER JOIN superpower AS T3 ON T2.power_id = T3.id WHERE T1.superhero_name = 'Abomination'",
+    "predicted_sql": "SELECT T2.power_name FROM superhero AS T1 INNER JOIN hero_power AS T2 ON T1.id = T2.hero_id INNER JOIN superpower AS T3 ON T2.power_id = T3.id WHERE T1.superhero_name = 'Abomination'",
+    "score": 0.0,
+    "difficulty": "simple"
+  },
+  {
+    "question_id": 909,
+    "question": "Among all European Grand Prix races, what is the percentage of the races were hosted in Germany?",
+    "evidence": "European Grand Prix races refers to races.name = 'European Grand Prix';percentage = divide(COUNT(races where country = Germany and name = 'Europearn Grand Prix'),COUNT(races where name = 'Europearn Grand Prix'))*100",
+    "gold_sql": "SELECT CAST(COUNT(CASE WHEN T1.country = 'Germany' THEN T2.circuitID END) AS REAL) * 100 / COUNT(T2.circuitId) FROM circuits AS T1 INNER JOIN races AS T2 ON T2.circuitID = T1.circuitId WHERE T2.name = 'European Grand Prix'",
+    "predicted_sql": "SELECT CAST(SUM(CASE WHEN T1.country = 'Germany' THEN 1 ELSE 0 END) AS REAL) * 100 / COUNT(T1.raceId) FROM circuits AS T1 INNER JOIN races AS T2 ON T1.circuitId = T2.circuitId WHERE T2.name = 'European Grand Prix'",
+    "score": 0.0,
+    "difficulty": "moderate"
+  },
+  {
+    "question_id": 967,
+    "question": "State code numbers of top 3 yougest drivers. How many Netherlandic drivers among them?",
+    "evidence": "youngest driver refers to Max (year(dob)); Netherlandic and Dutch refer to the same country",
+    "gold_sql": "SELECT COUNT(*) FROM ( SELECT T1.nationality FROM drivers AS T1 ORDER BY JULIANDAY(T1.dob) DESC LIMIT 3) AS T3 WHERE T3.nationality = 'Dutch'",
+    "predicted_sql": "SELECT driverId, nationality FROM drivers ORDER BY dob DESC LIMIT 3; SELECT COUNT(driverId) FROM drivers WHERE nationality = 'Dutch' AND driverId IN (SELECT driverId FROM drivers ORDER BY dob DESC LIMIT 3);",
+    "score": 0.0,
+    "difficulty": "simple"
+  },
+  {
+    "question_id": 1084,
+    "question": "Among the players born before the year 1986, how many of them would remain in his position and defense while the team attacked?",
+    "evidence": "players born before the year 1986 refers to strftime('%Y', birthday)<'1986'; players who would remain in his position and defense while the team attacked refers to defensive_work_rate = 'high'; Should consider DISTINCT in the final result;",
+    "gold_sql": "SELECT COUNT(DISTINCT t1.player_name) FROM Player AS t1 INNER JOIN Player_Attributes AS t2 ON t1.player_api_id = t2.player_api_id WHERE STRFTIME('%Y',t1.birthday) < '1986' AND t2.defensive_work_rate = 'high'",
+    "predicted_sql": "SELECT COUNT(DISTINCT player_api_id) FROM Player_Attributes WHERE strftime('%Y', birthday) < '1986' AND defensive_work_rate = 'high'",
+    "score": 0.0,
+    "difficulty": "challenging"
+  },
+  {
+    "question_id": 1156,
+    "question": "State the ID and age of patient with positive degree of coagulation.",
+    "evidence": "age refers to SUBTRACT(year(current_timestamp), year(Birthday)); positive degree of coagulation refers to RVVT = '+';",
+    "gold_sql": "SELECT DISTINCT T1.ID, STRFTIME('%Y', CURRENT_TIMESTAMP) - STRFTIME('%Y', T1.Birthday) FROM Patient AS T1 INNER JOIN Examination AS T2 ON T1.ID = T2.ID WHERE T2.RVVT = '+'",
+    "predicted_sql": "SELECT ID, YEAR(CURRENT_TIMESTAMP) - YEAR(Birthday) AS age FROM Patient WHERE ID IN (SELECT ID FROM Examination WHERE RVVT = '+')",
+    "score": 0.0,
+    "difficulty": "moderate"
+  },
+  {
+    "question_id": 1232,
+    "question": "Provide ID, sex and age of patient who has blood glucose (GLU) not within normal range but with total cholesterol(T-CHO) within normal range.",
+    "evidence": "age = SUBTRACT(year(current_timestamp), year(Birthday)); blood glucose (GLU) not within normal range refers to GLU > = 180; total cholesterol(T-CHO) within normal range refers to `T-CHO` < 250; ",
+    "gold_sql": "SELECT DISTINCT T1.ID, T1.SEX , STRFTIME('%Y', CURRENT_TIMESTAMP) - STRFTIME('%Y', T1.Birthday) FROM Patient AS T1 INNER JOIN Laboratory AS T2 ON T1.ID = T2.ID WHERE T2.GLU >= 180 AND T2.`T-CHO` < 250",
+    "predicted_sql": "SELECT T1.ID, T1.SEX, YEAR(CURRENT_TIMESTAMP) - YEAR(T1.Birthday) AS age FROM Patient AS T1 INNER JOIN Laboratory AS T2 ON T1.ID = T2.ID WHERE T2.GLU >= 180 AND T2.`T-CHO` < 250",
+    "score": 0.0,
+    "difficulty": "challenging"
+  },
+  {
+    "question_id": 1239,
+    "question": "Name the ID and age of patient with two or more laboratory examinations which show their hematoclit level exceeded the normal range.",
+    "evidence": "age = SUBTRACT(year(current_timestamp), year(Birthday)); patient with two or more laboratory examinations refers to COUNT(ID) > 2; hematoclit level exceeded the normal range refers to HCT > = 52;",
+    "gold_sql": "SELECT DISTINCT T1.ID, STRFTIME('%Y', CURRENT_TIMESTAMP) - STRFTIME('%Y', T1.Birthday) FROM Patient AS T1 INNER JOIN Laboratory AS T2 ON T1.ID = T2.ID WHERE T1.ID IN ( SELECT ID FROM Laboratory WHERE HCT >= 52 GROUP BY ID HAVING COUNT(ID) >= 2 )",
+    "predicted_sql": "SELECT T1.ID, YEAR(CURRENT_TIMESTAMP) - YEAR(T1.Birthday) AS age FROM Patient AS T1 INNER JOIN Laboratory AS T2 ON T1.ID = T2.ID WHERE T2.HCT >= 52 GROUP BY T1.ID HAVING COUNT(T2.ID) >= 2",
+    "score": 0.0,
+    "difficulty": "challenging"
+  },
+  {
+    "question_id": 1257,
+    "question": "Among the patients whose creatinine level is abnormal, how many of them aren't 70 yet?",
+    "evidence": "creatinine level is abnormal refers to CRE >= 1.5; aren't 70 yet refers to SUBTRACT((YEAR(CURDATE()), YEAR(Birthday))) < 70; ",
+    "gold_sql": "SELECT COUNT(DISTINCT T1.ID) FROM Patient AS T1 INNER JOIN Laboratory AS T2 ON T1.ID = T2.ID WHERE T2.CRE >= 1.5 AND STRFTIME('%Y', Date('now')) - STRFTIME('%Y', T1.Birthday) < 70",
+    "predicted_sql": "SELECT COUNT(DISTINCT T1.ID) FROM Patient AS T1 INNER JOIN Laboratory AS T2 ON T1.ID = T2.ID WHERE T2.CRP NOT IN('+-', '-') AND T2.CRP >= 1.0 AND (YEAR(CURDATE()) - YEAR(T1.Birthday)) < 18",
+    "score": 0.0,
+    "difficulty": "challenging"
+  },
+  {
+    "question_id": 1317,
+    "question": "Among the students from the Student_Club who attended the event \"Women's Soccer\", how many of them want a T-shirt that's in medium size?",
+    "evidence": "Women's Soccer is an event name; T-shirt that is in medium size refers to t_shirt_size = 'Medium'",
+    "gold_sql": "SELECT COUNT(T1.event_id) FROM event AS T1 INNER JOIN attendance AS T2 ON T1.event_id = T2.link_to_event INNER JOIN member AS T3 ON T2.link_to_member = T3.member_id WHERE T1.event_name = 'Women''s Soccer' AND T3.t_shirt_size = 'Medium'",
+    "predicted_sql": "SELECT COUNT(T1.member_id) FROM member AS T1 INNER JOIN attendance AS T2 ON T1.member_id = T2.link_to_member INNER JOIN event AS T3 ON T2.link_to_event = T3.event_id WHERE T3.event_name = 'Women's Soccer' AND T1.t_shirt_size = 'Medium'",
+    "score": 0.0,
+    "difficulty": "moderate"
+  },
+  {
+    "question_id": 1322,
+    "question": "Among the events attended by more than 10 members of the Student_Club, how many of them are meetings?",
+    "evidence": "meetings events refers to type = 'Meeting'; attended by more than 10 members refers to COUNT(event_id) > 10",
+    "gold_sql": "SELECT COUNT(DISTINCT T1.event_id) FROM event AS T1 INNER JOIN attendance AS T2 ON T1.event_id = T2.link_to_event WHERE T1.type = 'Meeting' GROUP BY T1.event_id HAVING COUNT(T2.link_to_event) > 10",
+    "predicted_sql": "SELECT COUNT(*) FROM ( SELECT event_id FROM attendance GROUP BY event_id HAVING COUNT(link_to_member) > 10 ) T1 INNER JOIN event AS T2 ON T1.event_id = T2.event_id WHERE T2.type = 'Meeting'",
+    "score": 0.0,
+    "difficulty": "moderate"
+  },
+  {
+    "question_id": 1338,
+    "question": "Was each expense in October Meeting on October 8, 2019 approved?",
+    "evidence": "event_name = 'October Meeting' where event_date = '2019-10-08'; approved = True means expenses was approved; approved = False means expenses was not approved",
+    "gold_sql": "SELECT T3.approved FROM event AS T1 INNER JOIN budget AS T2 ON T1.event_id = T2.link_to_event INNER JOIN expense AS T3 ON T2.budget_id = T3.link_to_budget WHERE T1.event_name = 'October Meeting' AND T1.event_date LIKE '2019-10-08%'",
+    "predicted_sql": "SELECT T2.expense_description, T2.approved FROM event AS T1 INNER JOIN expense AS T2 ON T1.event_id = T2.link_to_event WHERE T1.event_name = 'October Meeting' AND T1.event_date = '2019-10-08'",
+    "score": 0.0,
+    "difficulty": "moderate"
+  },
+  {
+    "question_id": 1371,
+    "question": "How many members attended the \"Women's Soccer\" event?",
+    "evidence": "'Women's Soccer' is the event name;",
+    "gold_sql": "SELECT COUNT(T2.link_to_member) FROM event AS T1 INNER JOIN attendance AS T2 ON T1.event_id = T2.link_to_event WHERE T1.event_name = 'Women''s Soccer'",
+    "predicted_sql": "SELECT COUNT(T2.link_to_member) FROM event AS T1 INNER JOIN attendance AS T2 ON T1.event_id = T2.link_to_event WHERE T1.event_name = 'Women\\'s Soccer'",
+    "score": 0.0,
+    "difficulty": "simple"
+  },
+  {
+    "question_id": 1387,
+    "question": "Which student has been entrusted to manage the budget for the Yearly Kickoff?",
+    "evidence": "name of students means the full name; full name refers to first_name, last_name;'Yearly Kickoff' is an event name;",
+    "gold_sql": "SELECT T4.first_name, T4.last_name FROM event AS T1 INNER JOIN budget AS T2 ON T1.event_id = T2.link_to_event INNER JOIN expense AS T3 ON T2.budget_id = T3.link_to_budget INNER JOIN member AS T4 ON T3.link_to_member = T4.member_id WHERE T1.event_name = 'Yearly Kickoff'",
+    "predicted_sql": "SELECT T2.first_name, T2.last_name FROM budget AS T1 INNER JOIN member AS T2 ON T1.link_to_member = T2.member_id INNER JOIN event AS T3 ON T1.link_to_event = T3.event_id WHERE T3.event_name = 'Yearly Kickoff'",
+    "score": 0.0,
+    "difficulty": "moderate"
+  },
+  {
+    "question_id": 1390,
+    "question": "Based on the total cost for all event, what is the percentage of cost for Yearly Kickoff event?",
+    "evidence": "percentage = DIVIDE(SUM(cost where event_name = 'Yearly Kickoff'), SUM(cost)) * 100",
+    "gold_sql": "SELECT CAST(SUM(CASE WHEN T1.event_name = 'Yearly Kickoff' THEN T3.cost ELSE 0 END) AS REAL) * 100 / SUM(T3.cost) FROM event AS T1 INNER JOIN budget AS T2 ON T1.event_id = T2.link_to_event INNER JOIN expense AS T3 ON T2.budget_id = T3.link_to_budget",
+    "predicted_sql": "SELECT CAST(SUM(CASE WHEN T1.event_name = 'Yearly Kickoff' THEN T2.cost ELSE 0 END) AS REAL) * 100 / SUM(T2.cost) FROM event AS T1 INNER JOIN expense AS T2 ON T1.event_id = T2.link_to_event",
+    "score": 0.0,
+    "difficulty": "moderate"
+  },
+  {
+    "question_id": 1399,
+    "question": "Did Maya Mclean attend the 'Women's Soccer' event?",
+    "evidence": "Maya Mclean is the full name; full name refers to first_name, last_name; 'Women's Soccer' is an event_name",
+    "gold_sql": "SELECT CASE WHEN T3.event_name = 'Women''s Soccer' THEN 'YES' END AS result FROM member AS T1 INNER JOIN attendance AS T2 ON T1.member_id = T2.link_to_member INNER JOIN event AS T3 ON T2.link_to_event = T3.event_id WHERE T1.first_name = 'Maya' AND T1.last_name = 'Mclean'",
+    "predicted_sql": "SELECT CASE WHEN EXISTS ( SELECT 1 FROM \"attendance\" AS T1 INNER JOIN \"event\" AS T2 ON T1.link_to_event = T2.event_id INNER JOIN \"member\" AS T3 ON T1.link_to_member = T3.member_id WHERE T2.event_name = 'Women's Soccer' AND T3.first_name = 'Maya' AND T3.last_name = 'Mclean' ) THEN 'Yes' ELSE 'No' END AS \"Did Maya Mclean attend the 'Women's Soccer' event?\"",
+    "score": 0.0,
+    "difficulty": "moderate"
+  },
+  {
+    "question_id": 1401,
+    "question": "Indicate the cost of posters for 'September Speaker' event.",
+    "evidence": "'Posters' is the expense description; 'September Speaker' is an event name",
+    "gold_sql": "SELECT T3.cost FROM event AS T1 INNER JOIN budget AS T2 ON T1.event_id = T2.link_to_event INNER JOIN expense AS T3 ON T2.budget_id = T3.link_to_budget WHERE T1.event_name = 'September Speaker' AND T3.expense_description = 'Posters'",
+    "predicted_sql": "SELECT T2.cost FROM event AS T1 INNER JOIN expense AS T2 ON T1.event_id = T2.link_to_event WHERE T2.expense_description = 'Posters' AND T1.event_name = 'September Speaker'",
+    "score": 0.0,
+    "difficulty": "moderate"
+  },
+  {
+    "question_id": 1404,
+    "question": "Identify the type of expenses and their total value approved for 'October Meeting' event.",
+    "evidence": "total value refers to SUM(cost); 'October Meeting' is an event name;",
+    "gold_sql": "SELECT T1.type, SUM(T3.cost) FROM event AS T1 INNER JOIN budget AS T2 ON T1.event_id = T2.link_to_event INNER JOIN expense AS T3 ON T2.budget_id = T3.link_to_budget WHERE T1.event_name = 'October Meeting'",
+    "predicted_sql": "SELECT T2.expense_description, SUM(T2.cost) FROM event AS T1 INNER JOIN expense AS T2 ON T1.event_id = T2.link_to_event WHERE T1.event_name = 'October Meeting' AND T2.approved = 'Yes' GROUP BY T2.expense_description",
+    "score": 0.0,
+    "difficulty": "moderate"
+  },
+  {
+    "question_id": 1479,
+    "question": "Which year recorded the most consumption of gas paid in CZK?",
+    "evidence": "The first 4 strings of the Date values in the yearmonth table can represent year.",
+    "gold_sql": "SELECT SUBSTR(T2.Date, 1, 4) FROM customers AS T1 INNER JOIN yearmonth AS T2 ON T1.CustomerID = T2.CustomerID WHERE T1.Currency = 'CZK' GROUP BY SUBSTR(T2.Date, 1, 4) ORDER BY SUM(T2.Consumption) DESC LIMIT 1",
+    "predicted_sql": "SELECT SUBSTR(Date, 1, 4) AS Year FROM yearmonth WHERE Currency = 'CZK' GROUP BY Year ORDER BY SUM(Consumption) DESC LIMIT 1",
+    "score": 0.0,
+    "difficulty": "moderate"
+  },
+  {
+    "question_id": 1481,
+    "question": "What is the difference in the annual average consumption of the customers with the least amount of consumption paid in CZK for 2013 between SME and LAM, LAM and KAM, and KAM and SME?",
+    "evidence": "annual average consumption of customer with the lowest consumption in each segment = total consumption per year / the number of customer with lowest consumption in each segment; Difference in annual average = SME's annual average - LAM's annual average; Difference in annual average = LAM's annual average - KAM's annual average; Year 2013 can be presented as Between 201301 And 201312; The first 4 strings of the Date values in the yearmonth table can represent year.",
+    "gold_sql": "SELECT CAST(SUM(IIF(T1.Segment = 'SME', T2.Consumption, 0)) AS REAL) / COUNT(T1.CustomerID) - CAST(SUM(IIF(T1.Segment = 'LAM', T2.Consumption, 0)) AS REAL) / COUNT(T1.CustomerID) , CAST(SUM(IIF(T1.Segment = 'LAM', T2.Consumption, 0)) AS REAL) / COUNT(T1.CustomerID) - CAST(SUM(IIF(T1.Segment = 'KAM', T2.Consumption, 0)) AS REAL) / COUNT(T1.CustomerID) , CAST(SUM(IIF(T1.Segment = 'KAM', T2.Consumption, 0)) AS REAL) / COUNT(T1.CustomerID) - CAST(SUM(IIF(T1.Segment = 'SME', T2.Consumption, 0)) AS REAL) / COUNT(T1.CustomerID) FROM customers AS T1 INNER JOIN yearmonth AS T2 ON T1.CustomerID = T2.CustomerID WHERE T1.Currency = 'CZK' AND T2.Consumption = ( SELECT MIN(Consumption) FROM yearmonth ) AND T2.Date BETWEEN 201301 AND 201312",
+    "predicted_sql": "SELECT (SELECT AVG(T3.Consumption) FROM customers AS T1 INNER JOIN transactions_1k AS T2 ON T1.CustomerID = T2.CustomerID INNER JOIN yearmonth AS T3 ON T1.CustomerID = T3.CustomerID WHERE T1.Segment = 'SME' AND T1.Currency = 'CZK' AND SUBSTR(T3.Date, 1, 4) = '2013' ORDER BY T2.Amount ASC LIMIT 1) - (SELECT AVG(T3.Consumption) FROM customers AS T1 INNER JOIN transactions_1k AS T2 ON T1.CustomerID = T2.CustomerID INNER JOIN yearmonth AS T3 ON T1.CustomerID = T3.CustomerID WHERE T1.Segment = 'LAM' AND T1.Currency = 'CZK' AND SUBSTR(T3.Date, 1, 4) = '2013' ORDER BY T2.Amount ASC LIMIT 1) AS 'SME",
+    "score": 0.0,
+    "difficulty": "challenging"
+  },
+  {
+    "question_id": 1524,
+    "question": "What's the nationality of the customer who spent 548.4 in 2012/8/24?",
+    "evidence": "'2012/8/24' can be represented by '2012-08-24'",
+    "gold_sql": "SELECT T2.Country FROM transactions_1k AS T1 INNER JOIN gasstations AS T2 ON T1.GasStationID = T2.GasStationID WHERE T1.Date = '2012-08-24' AND T1.Price  = 548.4",
+    "predicted_sql": "SELECT T1.Country FROM customers AS T1 INNER JOIN \"transactions_1k\" AS T2 ON T1.CustomerID = T2.CustomerID WHERE T2.Date = '2012-08-24' AND T2.Amount = 548.4",
+    "score": 0.0,
+    "difficulty": "simple"
   }
 ]

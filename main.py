@@ -58,7 +58,6 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--threads", type=int, default=1)
     parser.add_argument("--input", type=str, default="sample.json")
-    parser.add_argument("--problem", action="store_true")
     args = parser.parse_args()
     reasoning_model = "o3"
     instruct_model = "deepseek-chat"
@@ -92,11 +91,6 @@ if __name__ == "__main__":
                         existing_ids.add(qid)
         except Exception:
             existing_ids = set()
-
-    if args.problem and os.path.exists(problems_file_path):
-        with open(problems_file_path, "r", encoding="utf-8") as pf:
-            existing_problem_ids = set(json.load(pf))
-        questions = [q for q in questions if str(q.get("question_id")) in existing_problem_ids]
 
     total_input = len(questions)
     questions = [q for q in questions if str(q.get("question_id")) not in existing_ids]

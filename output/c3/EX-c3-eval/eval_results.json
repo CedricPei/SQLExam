@@ -4039,5 +4039,86 @@
     "predicted_sql": "SELECT customers.segment, yearmonth.consumption FROM transactions_1k JOIN products ON transactions_1k.productid = products.productid JOIN yearmonth ON transactions_1k.customerid = yearmonth.customerid JOIN customers ON transactions_1k.customerid = customers.customerid WHERE products.productid = 5 AND transactions_1k.price/transactions_1k.amount > 29.00 AND yearmonth.date LIKE '201208%';",
     "score": 0.0,
     "difficulty": "moderate"
+  },
+  {
+    "question_id": 12,
+    "question": "Among the schools with an SAT excellence rate of over 0.3, what is the highest eligible free rate for students aged 5-17?",
+    "evidence": "Excellence rate = NumGE1500 / NumTstTakr; Eligible free rates for students aged 5-17 = `Free Meal Count (Ages 5-17)` / `Enrollment (Ages 5-17)`",
+    "gold_sql": "SELECT MAX(CAST(T1.`Free Meal Count (Ages 5-17)` AS REAL) / T1.`Enrollment (Ages 5-17)`) FROM frpm AS T1 INNER JOIN satscores AS T2 ON T1.CDSCode = T2.cds WHERE CAST(T2.NumGE1500 AS REAL) / T2.NumTstTakr > 0.3",
+    "predicted_sql": "SELECT ```sql MAX(`percent (%) eligible free (ages 5-17)`) FROM frpm JOIN schools ON frpm.cdscode = schools.cdscode JOIN satscores ON satscores.cds = schools.cdscode WHERE satscores.numge1500 / satscores.numtsttakr > 0.3; ```",
+    "score": 0.0,
+    "difficulty": "moderate"
+  },
+  {
+    "question_id": 28,
+    "question": "Consider the average difference between K-12 enrollment and 15-17 enrollment of schools that are locally funded, list the names and DOC type of schools which has a difference above this average.",
+    "evidence": "Difference between K-12 enrollment and 15-17 enrollment can be computed by `Enrollment (K-12)` - `Enrollment (Ages 5-17)`",
+    "gold_sql": "SELECT T2.School, T2.DOC FROM frpm AS T1 INNER JOIN schools AS T2 ON T1.CDSCode = T2.CDSCode WHERE T2.FundingType = 'Locally funded' AND (T1.`Enrollment (K-12)` - T1.`Enrollment (Ages 5-17)`) > (SELECT AVG(T3.`Enrollment (K-12)` - T3.`Enrollment (Ages 5-17)`) FROM frpm AS T3 INNER JOIN schools AS T4 ON T3.CDSCode = T4.CDSCode WHERE T4.FundingType = 'Locally funded')",
+    "predicted_sql": "SELECT school, doc FROM schools JOIN frpm ON schools.cdscode = frpm.cdscode WHERE fundingtype = 'Locally funded' AND ABS(enrollment - enrollment_ages_5_17) > (SELECT AVG(enrollment - enrollment_ages_5_17) FROM frpm WHERE charter_funding_type = 'Locally funded');",
+    "score": 0.0,
+    "difficulty": "challenging"
+  },
+  {
+    "question_id": 72,
+    "question": "How many students from the ages of 5 to 17 are enrolled at the State Special School school in Fremont for the 2014-2015 academic year?",
+    "evidence": "State Special School means EdOpsCode = 'SSS'",
+    "gold_sql": "SELECT T1.`Enrollment (Ages 5-17)` FROM frpm AS T1 INNER JOIN schools AS T2 ON T1.CDSCode = T2.CDSCode WHERE T2.EdOpsCode = 'SSS' AND T2.City = 'Fremont' AND T1.`Academic Year` BETWEEN 2014 AND 2015",
+    "predicted_sql": "SELECT enrollment FROM frpm WHERE \"school type\" = 'State Special Schools' AND city = 'Fremont' AND \"academic year\" = '2014-2015';",
+    "score": 0.0,
+    "difficulty": "moderate"
+  },
+  {
+    "question_id": 341,
+    "question": "What are the borderless cards available without powerful foils?",
+    "evidence": "borderless' refers to borderColor; poweful foils refers to cardKingdomFoilId paired with cardKingdomId AND cardKingdomId is not null",
+    "gold_sql": "SELECT id FROM cards WHERE borderColor = 'borderless' AND (cardKingdomId IS NULL OR cardKingdomId IS NULL)",
+    "predicted_sql": "SELECT ```sql name FROM cards WHERE bordercolor = 'borderless' AND (cardkingdomfoilid IS NULL OR cardkingdomid IS NULL) ```",
+    "score": 0.0,
+    "difficulty": "simple"
+  },
+  {
+    "question_id": 465,
+    "question": "For the set of cards with \"Ancestor's Chosen\" in it, is there a Korean version of it?",
+    "evidence": "set of cards with \"Ancestor''s Chosen\" in it refers to name = 'Ancestor''s Chosen'; Korean version refers to language = 'Korean'",
+    "gold_sql": "SELECT IIF(SUM(CASE WHEN T2.language = 'Korean' AND T2.translation IS NOT NULL THEN 1 ELSE 0 END) > 0, 'YES', 'NO') FROM cards AS T1 INNER JOIN set_translations AS T2 ON T2.setCode = T1.setCode WHERE T1.name = 'Ancestor''s Chosen'",
+    "predicted_sql": "SELECT ```sql SELECT c.name FROM cards c JOIN foreign_data f ON c.uuid = f.uuid WHERE c.name = 'Ancestor\\'s Chosen' AND f.language = 'Korean'; ```",
+    "score": 0.0,
+    "difficulty": "moderate"
+  },
+  {
+    "question_id": 469,
+    "question": "Did the set of cards with \"Angel of Mercy\" appear on Magic: The Gathering Online?",
+    "evidence": "card set \"Angel of Mercy\" refers to name = 'Angel of Mercy'; appear on Magic: The Gathering Online refers to mtgoCode is NOT NULL and vice versa",
+    "gold_sql": "SELECT IIF(T2.mtgoCode IS NOT NULL, 'YES', 'NO') FROM cards AS T1 INNER JOIN sets AS T2 ON T2.code = T1.setCode WHERE T1.name = 'Angel of Mercy'",
+    "predicted_sql": "SELECT name FROM cards WHERE name = 'Angel of Mercy' AND mtgoCode IS NOT NULL;",
+    "score": 0.0,
+    "difficulty": "moderate"
+  },
+  {
+    "question_id": 480,
+    "question": "What is the Italian flavor text of the card \"Ancestor's Chosen\"?",
+    "evidence": "Italian refers to language = 'Italian'; flavor text refers to flavorText; \"Ancestor''s Chosen\" refers to name = 'Ancestor''s Chosen'",
+    "gold_sql": "SELECT T2.flavorText FROM cards AS T1 INNER JOIN foreign_data AS T2 ON T2.uuid = T1.uuid WHERE T1.name = 'Ancestor''s Chosen' AND T2.language = 'Italian'",
+    "predicted_sql": "SELECT flavorText FROM cards JOIN foreign_data ON cards.uuid = foreign_data.uuid WHERE name = 'Ancestor''s Chosen' AND language = 'Italian';",
+    "score": 0.0,
+    "difficulty": "moderate"
+  },
+  {
+    "question_id": 634,
+    "question": "Among posts by Harvey Motulsky and Noah Snyder, which one has higher popularity?",
+    "evidence": "Has higher popularity means the post has higher view count ; calculation = MAX(SUM(ViewCount)) where DisplayName = 'Harvey Motulsky' OR DisplayName = 'Noah Snyder';",
+    "gold_sql": "SELECT T1.DisplayName FROM users AS T1 INNER JOIN postHistory AS T2 ON T1.Id = T2.UserId INNER JOIN posts AS T3 ON T2.PostId = T3.Id WHERE T1.DisplayName = 'Harvey Motulsky' OR T1.DisplayName = 'Noah Snyder' GROUP BY T1.DisplayName ORDER BY SUM(T3.ViewCount) DESC LIMIT 1",
+    "predicted_sql": "SELECT MAX(SUM(viewcount)) AS popularity, displayname FROM ( SELECT p.viewcount, u.displayname FROM posts p JOIN users u ON p.owneruserid = u.id WHERE u.displayname = 'Harvey Motulsky' OR u.displayname = 'Noah Snyder' GROUP BY u.displayname, p.id ) GROUP BY displayname;",
+    "score": 0.0,
+    "difficulty": "challenging"
+  },
+  {
+    "question_id": 981,
+    "question": "On what year did the youngest driver had his first qualifying race? Also state the name, date and time of the race.",
+    "evidence": "date of birth refers to drivers.dob; The larger the birthday value, the younger the person is, and vice versa; first qualifying race refers to MIN(races.date);",
+    "gold_sql": "SELECT T3.year, T3.name, T3.date, T3.time FROM qualifying AS T1 INNER JOIN drivers AS T2 on T1.driverId = T2.driverId INNER JOIN races AS T3 on T1.raceId = T3.raceId WHERE T1.driverId = ( SELECT driverId FROM drivers ORDER BY dob DESC LIMIT 1 ) ORDER BY T3.date ASC LIMIT 1",
+    "predicted_sql": "SELECT r.year, ra.name, ra.date FROM races ra JOIN qualifying q ON ra.raceid = q.raceid JOIN drivers d ON q.driverid = d.driverid WHERE d.dob = (SELECT MIN(dob) FROM drivers);",
+    "score": 0.0,
+    "difficulty": "moderate"
   }
 ]
