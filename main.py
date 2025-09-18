@@ -25,8 +25,12 @@ def _process_question(question):
     prover_verdict = None
     qid = str(question.get("question_id"))
 
-    if isinstance(pred_res, bool) or isinstance(gold_res, bool):
+    if pred_res is None or gold_res is None:
         return qid
+    if pred_res is False:
+        score = 0.0
+        write_result_to_file(question, pred_sql, score, prover_verdict, refuter_verdict, output_dir)
+        return None
 
     if compare_result(pred_res, gold_res):
         refuter_verdict = Refuter.call(question, pred_sql)
@@ -61,7 +65,7 @@ if __name__ == "__main__":
     partial = False
 
     input_stem = re.sub(r"(-result)$", "", os.path.splitext(os.path.basename(args.input))[0])
-    output_dir = f"output/{reasoning_model}-{input_stem}-eval"
+    output_dir = f"output/{input_stem}/{reasoning_model}-{input_stem}-eval"
     os.makedirs(output_dir, exist_ok=True)
 
     Prover = Prover(model=reasoning_model, output_dir=output_dir)
@@ -70,7 +74,8 @@ if __name__ == "__main__":
 
     problem_ids: List[str] = []
     num_threads = max(1, int(args.threads))
-    problems_file_path = os.path.join(output_dir, "problem_question_ids.json")
+    method_root_dir = os.path.join("output", input_stem)
+    problems_file_path = os.path.join(method_root_dir, "problem_question_ids.json")
     existing_results_path = os.path.join(output_dir, "eval_results.json")
 
     with open(args.input, "r", encoding="utf-8") as f:
@@ -116,7 +121,6 @@ if __name__ == "__main__":
             problem_ids.extend(f.result())
 
     if len(problem_ids) > 0:
+        os.makedirs(method_root_dir, exist_ok=True)
         with open(problems_file_path, "w", encoding="utf-8") as f:
             json.dump(problem_ids, f, ensure_ascii=False, indent=2)
-    elif os.path.exists(problems_file_path):
-        os.remove(problems_file_path)

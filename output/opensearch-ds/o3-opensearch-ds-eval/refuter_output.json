@@ -1,0 +1,3647 @@
+[
+  {
+    "question_id": 5,
+    "result": {
+      "judgement": "Prediction matches question: counts distinct schools (by primary key) where AvgScrMath>400 and Virtual='F'. No extra or missing conditions.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 12,
+    "result": {
+      "judgement": "Prediction correctly computes the maximum free-meal rate for ages 5-17 among schools whose SAT excellence rate exceeds 0.3.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 17,
+    "result": {
+      "judgement": "Predicted query lists schools with charter numbers and their writing scores ordered descending, satisfying the request for ranking by score > 499; inclusion of name instead of explicit rank column is acceptable.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 26,
+    "result": {
+      "judgement": "Prediction uses the proper FRPM-count field and returns all Monterey high schools with >800 free-or-reduced meals, while the gold query filters on free-only and misses North Monterey County High, so the prediction is correct and gold is not.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": false
+    }
+  },
+  {
+    "question_id": 31,
+    "result": {
+      "judgement": "Prediction correctly computes and returns the eligible free rates for the 10th and 11th highest-enrollment schools; extra school names do not violate the question’s requirement.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 36,
+    "result": {
+      "judgement": "Prediction correctly returns the administrators of the school with the greatest NumGE1500 by joining satscores to schools and ordering descending, matching the question’s requirements.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 40,
+    "result": {
+      "judgement": "Prediction matches the question’s requirement—filters Fresno Unified via satscores.dname, joins to schools, orders by lowest AvgScrRead, and returns the phone; logic is equivalent to gold.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 45,
+    "result": {
+      "judgement": "Prediction satisfies the stated filters and returns each school with its AvgScrWrite, matching the gold’s logic and the question’s requirements.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 47,
+    "result": {
+      "judgement": "Prediction matches the required filters and computes count/12 as monthly average, so it correctly answers the question.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 50,
+    "result": {
+      "judgement": "Prediction returns the 7th-highest Math average school’s MailStreet and School fields, fulfilling the question exactly.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 32,
+    "result": {
+      "judgement": "Predicted query wrongly restricts to schools whose GSserved equals '1-12' or 'K-12', excluding most SOC 66 high schools and therefore not returning the true top-5 rates; gold query matches the stated requirements.",
+      "verdict": true,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 79,
+    "result": {
+      "judgement": "Predicted query correctly counts exclusively virtual schools in the two counties and returns the county with the larger count, matching the question’s requirement.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 39,
+    "result": {
+      "judgement": "Pred query differs by filtering on City instead of County, but the term \"Fresno schools\" reasonably allows either city-based or county-based interpretation, so prediction remains a plausible answer.",
+      "verdict": false,
+      "ambiguity": "ambiguous question",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 85,
+    "result": {
+      "judgement": "Predicted query returns the decimal ratio (0.70) instead of the requested percent value (~70.15), violating the explicit *100 percent requirement.",
+      "verdict": true,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 89,
+    "result": {
+      "judgement": "Prediction correctly counts accounts with frequency 'POPLATEK PO OBRATU' in the East Bohemia region, matching the question and gold logic.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 93,
+    "result": {
+      "judgement": "Predicted query matches the question requirements exactly, counting male clients in North Bohemia whose district’s average salary exceeds 8000.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 46,
+    "result": {
+      "judgement": "Prediction uses SAT scores table which only covers schools with SAT data, omitting some state special schools and thus returns a different, smaller enrollment figure; it fails to identify the true highest-enrollment state special school, whereas the gold query correctly uses the FRPM K-12 enrollment field.",
+      "verdict": true,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 48,
+    "result": {
+      "judgement": "Prediction matches gold logic; counts merged unified vs elementary in Orange County, yielding correct ratio.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 62,
+    "result": {
+      "judgement": "Using DISTINCT on school name instead of counting by code is harmless here and satisfies the question’s filters; no unjustified predicates are added or missing.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 77,
+    "result": {
+      "judgement": "Predicted SQL matches gold semantics, computing percentage for K-9 schools in Los Angeles correctly.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 99,
+    "result": {
+      "judgement": "Prediction matches the gold and satisfies all stated conditions; no extra or missing filters.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 112,
+    "result": {
+      "judgement": "Predicted query returns the branch district of the client’s account, matching a natural reading of “district she opened her account,” while adding no unjustified filters; the question itself could also be read as the client’s home district, so both queries are acceptable.",
+      "verdict": false,
+      "ambiguity": "ambiguous question",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 116,
+    "result": {
+      "judgement": "Prediction adds LIMIT 1 to pick the earliest loan on that date, a reasonable reading of “first”; no extraneous filters are introduced, so semantics remain aligned with the question.",
+      "verdict": false,
+      "ambiguity": "ambiguous question",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 118,
+    "result": {
+      "judgement": "Predicted query correctly computes the share of loans under 100k that are still running (status='C'), matching gold logic and satisfying the question as interpreted.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 87,
+    "result": {
+      "judgement": "Predicted query satisfies the required county, district, date, SOC 62 and DOC 54 filters and returns the administrator email fields that include the non-null addresses; the extra column with a NULL value does not violate the request, and omitting an explicit City filter is acceptable given the district constraint.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 92,
+    "result": {
+      "judgement": "Predicted query obeys strict >6000 and <10000 as wording specifies, joins correctly; no unjustified predicates were added, so we uphold.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 128,
+    "result": {
+      "judgement": "Predicted query counts dispositions (client-account pairs), so women with multiple accounts are over-counted, giving inflated totals; the task asks for number of female account holders (unique women), which the gold query captures.",
+      "verdict": true,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 98,
+    "result": {
+      "judgement": "Predicted query correctly filters 1997 loans, weekly frequency accounts, selects minimal loan amount, and returns matching account; extra frequency column is permissible.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 136,
+    "result": {
+      "judgement": "Predicted query applies the same date, amount, and frequency filters and counts each qualifying loan, matching the question’s intent.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 100,
+    "result": {
+      "judgement": "Predicted query correctly counts female clients born before 1950 in the district named Sokolov; using DATE < '1950-01-01' is semantically equivalent to the gold’s year extraction.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 138,
+    "result": {
+      "judgement": "Predicted query counts male clients in the branch whose A15 value ranks second; tie handling is not specified by the question, so selecting one branch is a reasonable reading, matching core intent.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 115,
+    "result": {
+      "judgement": "Prediction correctly isolates the south Bohemia district with the greatest inhabitants and computes male-client percentage, matching question intent; no unjustified filters added.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 117,
+    "result": {
+      "judgement": "Prediction computes the percentage of total loan amount with status 'A' identically to the gold query.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 119,
+    "result": {
+      "judgement": "Predicted query correctly filters 1993 accounts with frequency 'POPLATEK PO OBRATU' and returns the required account id, district name, and region, matching the gold logic.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 125,
+    "result": {
+      "judgement": "Prediction lists each district with the correct unemployment-rate increment for loans in status 'D', matching the question’s intent; extra duplicates are permissible and no requirement for other columns is explicit.",
+      "verdict": false,
+      "ambiguity": "ambiguous question",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 159,
+    "result": {
+      "judgement": "Predicted query correctly retrieves all cash withdrawal transactions linked to client 3356 via disp without extra constraints.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 129,
+    "result": {
+      "judgement": "Pred query correctly lists the ten largest withdrawal transactions in Jan-1996 with their districts, matching the question, whereas the gold query merely picks ten districts alphabetically and ignores amount ranking, so gold is wrong.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": false
+    }
+  },
+  {
+    "question_id": 137,
+    "result": {
+      "judgement": "Prediction counts loan records rather than distinct accounts, so an account with multiple running loans would be over-counted, violating the question’s requirement to count accounts.",
+      "verdict": true,
+      "ambiguity": "na",
+      "gold_correct": false
+    }
+  },
+  {
+    "question_id": 169,
+    "result": {
+      "judgement": "Predicted query double-counts loans for accounts with multiple male dispositions and includes accounts whose male clients are only users, so it inflates the totals and gives an incorrect growth rate.",
+      "verdict": true,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 192,
+    "result": {
+      "judgement": "Predicted query applies identical filters and aggregation as required, matching gold semantics; no requirements violated.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 195,
+    "result": {
+      "judgement": "Prediction correctly returns the bond_type with the highest frequency, matching the question intent.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 212,
+    "result": {
+      "judgement": "Predicted query correctly counts total occurrences of each element across non-carcinogenic molecules, matching the evidence’s definition, whereas the gold counts only distinct molecules; this difference does not violate any explicit requirement and the prediction is acceptable.",
+      "verdict": false,
+      "ambiguity": "ambiguous question",
+      "gold_correct": false
+    }
+  },
+  {
+    "question_id": 189,
+    "result": {
+      "judgement": "Predicted query correctly finds the female client with earliest birth date and (tie-broken by) lowest district average salary and returns her account number; extra NOT NULL filters and slightly looser district join do not violate any explicit requirement.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 215,
+    "result": {
+      "judgement": "Predicted query counts all iodine or sulfur atoms in any molecule that merely contains a single bond and gives one total instead of separate counts, whereas the question (and evidence) require counting distinct atoms that are actually involved in single (‘-’) bonds, separately for iodine and sulfur; therefore the prediction is incorrect.",
+      "verdict": true,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 194,
+    "result": {
+      "judgement": "Prediction returns the same client IDs and a reasonable (more precise) age calculation; only minor rounding differences versus gold, so it satisfies the question.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 219,
+    "result": {
+      "judgement": "Predicted query follows evidence: computes share of triple bonds among all bonds within carcinogenic molecules, whereas gold computes share of carcinogenic molecules among molecules having triple bonds, contradicting the evidence; thus gold is incorrect and prediction should stand.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": false
+    }
+  },
+  {
+    "question_id": 226,
+    "result": {
+      "judgement": "Predicted query correctly computes five-decimal percentage of '=' bonds for molecule TR008 just like gold.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 228,
+    "result": {
+      "judgement": "Prediction correctly calculates the percentage of hydrogen atoms in molecule TR206 with proper rounding, matching the gold’s intent.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 200,
+    "result": {
+      "judgement": "Prediction matches the required filters and returns the same molecule IDs; projection alias difference is immaterial.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 208,
+    "result": {
+      "judgement": "Prediction follows question requirements and matches gold logic (group by label, count hydrogen atoms, pick max).",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 231,
+    "result": {
+      "judgement": "Predicted SQL correctly returns the majority bond type for TR010 and also the molecule’s carcinogenic label, fully answering the question, whereas the gold query omits the label.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": false
+    }
+  },
+  {
+    "question_id": 213,
+    "result": {
+      "judgement": "Predicted query correctly retrieves the bond type between the specified atoms using both direction conditions, matching the question requirements.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 234,
+    "result": {
+      "judgement": "Prediction correctly counts rows in connected where either atom column equals 'TR009_12', matching the requested bonds, while gold query mis-references atoms (_1/_2) and inflates count.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": false
+    }
+  },
+  {
+    "question_id": 218,
+    "result": {
+      "judgement": "Predicted query correctly computes percent of carcinogenic molecules lacking any fluorine, whereas gold wrongly counts molecules that have any non-F atom, thus including molecules that still contain fluorine.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": false
+    }
+  },
+  {
+    "question_id": 227,
+    "result": {
+      "judgement": "Predicted query correctly computes percentage of carcinogenic molecules with required rounding, matching gold semantics.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 239,
+    "result": {
+      "judgement": "Prediction correctly counts bonds where atom 19 appears in either atom column, while gold misses cases where atom 19 is the second atom, so prediction aligns better with the question.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": false
+    }
+  },
+  {
+    "question_id": 242,
+    "result": {
+      "judgement": "Predicted query correctly lists carcinogenic molecules whose atom_id ends with numbers 21–25, matching the question’s intent.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 230,
+    "result": {
+      "judgement": "Predicted query retrieves the molecule’s elements and label for TR060 just like the gold, differing only by not using DISTINCT, which the question does not strictly require; thus it satisfies the intent.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 232,
+    "result": {
+      "judgement": "Prediction satisfies all stated requirements and is semantically equivalent to gold.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 244,
+    "result": {
+      "judgement": "Predicted query correctly retrieves the carcinogenic label of the molecule having the highest count of double bonds, matching the question and gold intent.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 236,
+    "result": {
+      "judgement": "Predicate on bond table instead of connected is equivalent through the join, so the predicted SQL answers the question correctly.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 247,
+    "result": {
+      "judgement": "Predicted query correctly excludes atoms appearing in either connected.atom_id or connected.atom_id2, while gold ignores the second column and can list bonded atoms; therefore prediction matches the question and gold is faulty.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": false
+    }
+  },
+  {
+    "question_id": 240,
+    "result": {
+      "judgement": "Predicted query correctly filters by molecule TR004 and returns the element values; duplicates do not violate the question’s requirements, so it satisfies the intent like the gold (which just removes duplicates).",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 243,
+    "result": {
+      "judgement": "Predicted query correctly lists bond_ids that connect a phosphorus atom to a nitrogen atom without adding unwarranted filters.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 245,
+    "result": {
+      "judgement": "Pred query correctly divides by distinct iodine atoms, while gold divides by duplicated rows, so prediction aligns with question and gold is faulty.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": false
+    }
+  },
+  {
+    "question_id": 249,
+    "result": {
+      "judgement": "Prediction returns both atoms’ element symbols for bond TR144_8_19 (h and c); extra column/duplicate row does not violate the question’s requirement.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 255,
+    "result": {
+      "judgement": "Prediction matches the required proportion calculation over single bonds; no extraneous filters or omissions detected.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 248,
+    "result": {
+      "judgement": "Predicted query correctly retrieves each pair of atom IDs involved in triple bonds of molecule TR041, matching the question’s requirements; extra join in gold is redundant, so both are semantically equivalent.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 273,
+    "result": {
+      "judgement": "Both queries compute the share of chlorine atoms among atoms in carcinogenic molecules; the prediction’s denominator (count of molecule_id per atom) equals total atom count, so semantics match the question.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 253,
+    "result": {
+      "judgement": "Predicted query only gathers the element for connected.atom_id, omitting connected.atom_id2, so half of the atoms in each triple bond can be missed, violating the request to list the elements of all triple bonds.",
+      "verdict": true,
+      "ambiguity": "na",
+      "gold_correct": false
+    }
+  },
+  {
+    "question_id": 282,
+    "result": {
+      "judgement": "Prediction matches the required hydrogen-atom ratio for molecule TR006 and returns its label; no extraneous filters are added and semantics align with the question.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 344,
+    "result": {
+      "judgement": "Predicted query correctly filters mythic-rarity cards that are banned in gladiator and returns their names, so it satisfies the question despite duplicates.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 349,
+    "result": {
+      "judgement": "Predicted query correctly finds the card with the highest number of rulings and returns its name, artist, and promotional flag, matching the question, while the gold query mis-interprets the requirement and filters/aggregates differently.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": false
+    }
+  },
+  {
+    "question_id": 356,
+    "result": {
+      "judgement": "The predicted query correctly counts cards whose power is '*' as specified, matching the gold and the question requirements.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 366,
+    "result": {
+      "judgement": "Predicted query correctly returns the play formats (rules) for the card 'Benalish Knight', matching the question’s intent.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 371,
+    "result": {
+      "judgement": "Predicted query counts joined foreign_data rows rather than distinct cards, so it can mis-measure the percentage of Story Spotlight cards that are French; this violates the explicit “cards” granularity required by the question.",
+      "verdict": true,
+      "ambiguity": "na",
+      "gold_correct": false
+    }
+  },
+  {
+    "question_id": 379,
+    "result": {
+      "judgement": "Predicted query matches the gold and correctly lists IDs of cards whose duelDeck is 'a'.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 391,
+    "result": {
+      "judgement": "The prediction only adds a reasonable language IS NOT NULL check for the foreign translation requirement and otherwise matches the needed filters, so it satisfies the question.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 409,
+    "result": {
+      "judgement": "Predicted query matches gold logic exactly, meeting all stated filters and counting the correct set of cards.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 414,
+    "result": {
+      "judgement": "Predicted query correctly retrieves the languages for the 180-card set in the Ravnica block, matching the question’s explicit filters.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 416,
+    "result": {
+      "judgement": "Predicted query computes percentage of French-language cards among those whose power is NULL or '*', matching question; use of COUNT(*) vs COUNT(T1.id) is equivalent because id is non-null.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 440,
+    "result": {
+      "judgement": "Predicted query correctly finds the language for the given card name; extra duplicate rows do not violate any explicit requirement.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 462,
+    "result": {
+      "judgement": "Predicted query correctly finds the Italian set translations; extra English column and a duplicate row do not violate the question’s requirement.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 466,
+    "result": {
+      "judgement": "Predicted query correctly counts cards with artist 'Adam Rex' in the set whose translation is 'Hauptset Zehnte Edition'; no requirements violated.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 473,
+    "result": {
+      "judgement": "Prediction returns the isForeignOnly flag (0) for the relevant sets, which clearly shows they are not foreign-only, matching the gold answer of 'NO'. Representation difference only.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 477,
+    "result": {
+      "judgement": "Predicted query selects the three named artists who have cards in the set “Coldsnap”, matching the question with no extraneous conditions.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 480,
+    "result": {
+      "judgement": "Predicted query correctly joins cards to foreign_data, filters on name and Italian language, and returns the flavor text as required.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 486,
+    "result": {
+      "judgement": "Prediction computes the ratio of Coldsnap cards with convertedManaCost = 7 to all Coldsnap cards, matching the question’s requirement; its COUNT(CASE …) / COUNT(*) logic is equivalent to the gold’s SUM/COUNT and uses the correct join and filter.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 260,
+    "result": {
+      "judgement": "Predicted query only counts atoms that appear as the first endpoint of a triple-bond record, whereas the question asks for all P or Br atoms in molecules that have triple bonds, so it can miss valid atoms.",
+      "verdict": true,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 268,
+    "result": {
+      "judgement": "Prediction returns element for only the first atom of the bond, omitting the second atom, so it fails to list all elements requested.",
+      "verdict": true,
+      "ambiguity": "na",
+      "gold_correct": false
+    }
+  },
+  {
+    "question_id": 281,
+    "result": {
+      "judgement": "Prediction correctly counts occurrences of each element among 4th atoms of carcinogenic molecules, matching the request to \"tally\" them, while the gold query only lists elements without counts and thus under-answers.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": false
+    }
+  },
+  {
+    "question_id": 327,
+    "result": {
+      "judgement": "Predicted query correctly lists molecule_ids whose label is '-' and that have more than 5 atoms, matching the question.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 530,
+    "result": {
+      "judgement": "Prediction satisfies listing frameVersion and card names for Allen Williams and flags banned cards via status column; no core requirement violated.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 341,
+    "result": {
+      "judgement": "Predicted query properly excludes rows where both cardKingdomId and cardKingdomFoilId are present, matching the stated definition of “powerful foils,” while the gold query ignores cardKingdomFoilId and is thus semantically wrong.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": false
+    }
+  },
+  {
+    "question_id": 347,
+    "result": {
+      "judgement": "Prediction fulfills all stated requirements (artist filter, ruling text, and hasContentWarning field) and matches gold; no extraneous predicates.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 352,
+    "result": {
+      "judgement": "Prediction divides by count of joined rows, so cards with multiple language entries are over-counted; percentage of cards, not foreign_data rows, is required.",
+      "verdict": true,
+      "ambiguity": "na",
+      "gold_correct": false
+    }
+  },
+  {
+    "question_id": 537,
+    "result": {
+      "judgement": "Predicted query accurately joins posts to users and counts posts where DisplayName is 'csgillespie', matching the question and gold logic.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 544,
+    "result": {
+      "judgement": "Prediction matches question intent exactly; no extraneous filters or omissions detected.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 358,
+    "result": {
+      "judgement": "Predicted query gets the correct borderColor, and duplicate identical rows do not violate the question requirement.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 549,
+    "result": {
+      "judgement": "Predicted query correctly joins tags to posts via ExcerptPostId and filters TagName = 'bayesian', returning the post body as requested; it is semantically identical to the gold.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 557,
+    "result": {
+      "judgement": "Predicted query correctly computes percentage of posts with Score>5 whose owners are older than 65, matching gold semantics.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 368,
+    "result": {
+      "judgement": "Prediction matches the required calculation for percentage of borderless cards.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 565,
+    "result": {
+      "judgement": "Prediction correctly checks ClosedDate and returns an indicator showing the post is well-finished, matching the question intent.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 568,
+    "result": {
+      "judgement": "Prediction matches the question’s requirement, retrieving the display name for vote Id 6347 just like the gold.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 377,
+    "result": {
+      "judgement": "Predicted query matches the required filters and counting logic, differing from gold only in syntax but not semantics.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 572,
+    "result": {
+      "judgement": "Prediction matches gold and correctly retrieves the view count for the specified title.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 383,
+    "result": {
+      "judgement": "Predicted query correctly counts cards that are both banned and have a white border, matching the gold logic.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 576,
+    "result": {
+      "judgement": "Prediction matches the question’s requirement—joins comments to users and returns the commenter’s DisplayName without extraneous conditions.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 587,
+    "result": {
+      "judgement": "Prediction pulls Text from postHistory instead of the required comment text from the comments table, so it returns the wrong information for each humor-tagged post.",
+      "verdict": true,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 405,
+    "result": {
+      "judgement": "Prediction uses 'Portuguese (Brazil)' instead of the explicitly required value 'Portuguese (Brasil)', so it fails to follow a stated filter.",
+      "verdict": true,
+      "ambiguity": "na",
+      "gold_correct": false
+    }
+  },
+  {
+    "question_id": 408,
+    "result": {
+      "judgement": "The prediction filters unknown-power cards whose own text mentions 'triggered ability', matching the evidence; the gold instead searches rulings text—both are plausible interpretations, so prediction is acceptable.",
+      "verdict": false,
+      "ambiguity": "ambiguous question",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 412,
+    "result": {
+      "judgement": "Predicted query applies all required filters on language, card artist, layout, border color and Creature type, returning the foreign French name, matching the gold’s intent.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 415,
+    "result": {
+      "judgement": "Prediction matches all stated requirements; computes requested percentage correctly with proper filters and join.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 422,
+    "result": {
+      "judgement": "Predicted query correctly retrieves the language for multiverseid 149934, matching both the question and gold.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 633,
+    "result": {
+      "judgement": "Predicted SQL reasonably finds the post authored by user “slashnick” with the highest AnswerCount and satisfies the question; choice between owner join and postHistory is an acceptable alternative interpretation.",
+      "verdict": false,
+      "ambiguity": "ambiguous question",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 427,
+    "result": {
+      "judgement": "Predicted query correctly retrieves languages for set with mcmName='Archenemy' and code='ARC'; no extra or missing conditions.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 459,
+    "result": {
+      "judgement": "Prediction correctly returns the higher-cost card between the two, matching gold and fulfilling the question.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 669,
+    "result": {
+      "judgement": "Prediction is semantically identical to gold; extra IS NOT NULL filter is benign.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 672,
+    "result": {
+      "judgement": "Predicted query correctly counts distinct UK users with at least one post having FavoriteCount ≥4, whereas gold counts posts and can double-count users.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": false
+    }
+  },
+  {
+    "question_id": 465,
+    "result": {
+      "judgement": "Predicted query checks for a Korean-language printing of the card itself in foreign_data, whereas the question asks whether the set that contains that card has a Korean translation, which requires set_translations; thus prediction does not satisfy the requirement.",
+      "verdict": true,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 468,
+    "result": {
+      "judgement": "Predicted query correctly retrieves the Simplified Chinese translation for the set named 'Eighth Edition', matching the question requirements.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 472,
+    "result": {
+      "judgement": "Pred query meets all stated conditions; lack of DISTINCT does not clearly violate the requirement of counting sets, given one translation per set is typical.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 474,
+    "result": {
+      "judgement": "Prediction correctly counts distinct sets with Italian translations and baseSetSize < 100, matching the question requirements; no unjustified filters added.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 683,
+    "result": {
+      "judgement": "Pred query uses 2011-limited posts for both numerator and denominator, a natural reading of “posts … in 2011”, while gold divides by all posts of every year. Because the wording can reasonably be read either way, the prediction is acceptable.",
+      "verdict": false,
+      "ambiguity": "ambiguous question",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 479,
+    "result": {
+      "judgement": "Prediction correctly counts cards in Coldsnap with converted mana cost >5 whose power is unknown; no extra or missing filters.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 687,
+    "result": {
+      "judgement": "Predicted query correctly counts comments for the highest-scoring post and does not add or omit any unjustified filters.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 704,
+    "result": {
+      "judgement": "Predicted query exactly matches the gold and fulfills the question requirements.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 707,
+    "result": {
+      "judgement": "Predicted query correctly retrieves the highest-scoring comment on posts whose ViewCount is between 100 and 150, matching the question’s intent.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 716,
+    "result": {
+      "judgement": "Prediction follows the question’s stated filters and correctly computes the required percentage the same way as the gold (join on users, filter Score 5-10, numerator UpVotes=0, denominator all joined rows). No extra or missing predicates.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 719,
+    "result": {
+      "judgement": "Predicted query correctly counts superheroes with Super Strength over 200 cm, using DISTINCT (harmless & arguably safer); no requirements violated.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 724,
+    "result": {
+      "judgement": "Predicted SQL matches gold and correctly lists superheroes with blue eyes and blond hair.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 728,
+    "result": {
+      "judgement": "Predicted query correctly lists eye colors for Marvel heroes ordered by descending frequency, satisfying the requested ranking even without an explicit rank column.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 487,
+    "result": {
+      "judgement": "Prediction follows the question’s definition, computing (incredibly powerful cards / all Coldsnap cards) * 100 exactly like gold; differences are immaterial.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 732,
+    "result": {
+      "judgement": "Predicted query correctly finds the minimum non-null Speed value and returns that hero’s publisher, matching the question intent; extra IS NOT NULL filter is benign.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 522,
+    "result": {
+      "judgement": "Predicted query selects card names with edhrecRank = 1 and banned formats exactly as required; extra duplicate rows do not violate the question’s intent, so answer is semantically correct.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 736,
+    "result": {
+      "judgement": "Predicted query correctly finds the superhero with the lowest non-NULL intelligence and only adds a benign NOT NULL filter, matching the question’s intent.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 738,
+    "result": {
+      "judgement": "Predicted query correctly returns superheroes whose Durability attribute value is below 50 with proper joins, matching question intent.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 529,
+    "result": {
+      "judgement": "Prediction never checks that the set lacks a Japanese translation— it only looks at the Korean row itself— so it can return sets that actually do have Japanese translations, violating an explicit requirement of the question.",
+      "verdict": true,
+      "ambiguity": "na",
+      "gold_correct": false
+    }
+  },
+  {
+    "question_id": 740,
+    "result": {
+      "judgement": "Predicted query correctly counts female superheroes whose Strength attribute equals 100, matching the requirements.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 531,
+    "result": {
+      "judgement": "Predicted query correctly identifies the higher-reputation user and returning an extra column is harmless; tie-handling differences are acceptable since the question doesn’t specify.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 744,
+    "result": {
+      "judgement": "Prediction correctly computes Marvel minus DC superhero counts, matching question intent and gold logic.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 747,
+    "result": {
+      "judgement": "Prediction correctly counts superheroes whose full_name is NULL, matching the query intent.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 751,
+    "result": {
+      "judgement": "Predicted query correctly lists 5 distinct superpowers of male superheroes; adding DISTINCT is benign and meets the \"at least five\" requirement.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 758,
+    "result": {
+      "judgement": "Predicted query correctly filters by human race and 185 cm height and returns the hair colour; lack of DISTINCT only adds harmless duplicates.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 533,
+    "result": {
+      "judgement": "Predicted query correctly counts users whose LastAccessDate is greater than '2014-09-01', matching the stated evidence; inclusion or exclusion of 2014-09-01 itself is not definitively specified, so the prediction is acceptable.",
+      "verdict": false,
+      "ambiguity": "ambiguous question",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 761,
+    "result": {
+      "judgement": "Predicted query correctly lists male superheroes whose weight exceeds 79% of the overall average weight, matching the question’s requirement.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 539,
+    "result": {
+      "judgement": "Prediction matches question intent with correct join and filter.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 766,
+    "result": {
+      "judgement": "Prediction matches gold and correctly returns the full name of the hero with the highest strength attribute; no requirement violated.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 547,
+    "result": {
+      "judgement": "Predicted SQL correctly counts posts with Score ≥20 owned by users older than 65, matching the question’s requirements.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 555,
+    "result": {
+      "judgement": "Prediction correctly computes the average post score for the user with DisplayName 'csgillespie'.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 772,
+    "result": {
+      "judgement": "Predicted query correctly filters female superheroes from Dark Horse Comics and returns their eye, hair, and skin colour names, matching the intended information in the question.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 563,
+    "result": {
+      "judgement": "Predicted query correctly joins posts with the specific comment by user 3025 at the given timestamp and returns the post’s FavoriteCount, matching the question intent.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 567,
+    "result": {
+      "judgement": "Prediction correctly counts posts owned by the user with that display name using a proper join; no unjustified filters are added.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 775,
+    "result": {
+      "judgement": "Predicted query correctly computes blue female percentage like gold; no extra or missing filters.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 781,
+    "result": {
+      "judgement": "Predicted query matches gold and correctly returns heights for heroes with amber eye colour.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 785,
+    "result": {
+      "judgement": "Prediction correctly lists superhero_name for alignment 'Neutral', matching the question and gold.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 788,
+    "result": {
+      "judgement": "Predicted query measures the share of Marvel heroes that are female, but the question asks for the share of female heroes that are Marvel, so the core denominator is wrong.",
+      "verdict": true,
+      "ambiguity": "na",
+      "gold_correct": false
+    }
+  },
+  {
+    "question_id": 571,
+    "result": {
+      "judgement": "Prediction correctly computes the ratio of user 24’s post count to vote count and respects all stated requirements.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 573,
+    "result": {
+      "judgement": "Prediction matches the required filter on Score=17 and returns the comment texts as asked.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 792,
+    "result": {
+      "judgement": "Prediction matches gold and fulfills the question without extraneous conditions.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 578,
+    "result": {
+      "judgement": "Prediction correctly retrieves the display name and reputation of the user who owns the post with the specified title, matching the query intent.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 796,
+    "result": {
+      "judgement": "Predicted query correctly lists each attribute name with its value for superhero 3-D Man; no extraneous or missing conditions.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 798,
+    "result": {
+      "judgement": "Predicted query correctly retrieves publishers for the three specified superheroes.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 586,
+    "result": {
+      "judgement": "Predicted query correctly returns the display names of users who placed a 50-point bounty on posts whose titles contain 'variance'; gold adds an extra column but prediction fully meets the question.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 801,
+    "result": {
+      "judgement": "Prediction computes male/female count ratio the same way as gold (counts where gender_id=1 over gender_id=2), matching dataset mapping and fulfilling the question’s intent.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 819,
+    "result": {
+      "judgement": "Prediction correctly computes (# blue-eyed – # no-eye-color) among superheroes with missing weight, matching the question and gold semantics.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 824,
+    "result": {
+      "judgement": "Predicted query fetches superheroes with the 'Wind Control' power and orders their names alphabetically, fully satisfying the question.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 829,
+    "result": {
+      "judgement": "Predicted query correctly computes the count of superheroes for each publisher and returns their difference, matching question intent.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 850,
+    "result": {
+      "judgement": "Predicted query selects race names linked to circuits where country='Germany', matching the question; duplicates are benign and Luxembourg GP likely appears beyond the shown sample, so prediction is semantically correct.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 857,
+    "result": {
+      "judgement": "Prediction returns the correct latitude and longitude, only with duplicate identical rows; this satisfies the question’s intent.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 598,
+    "result": {
+      "judgement": "Prediction matches gold logic; same filters, counts, and formula, so answer is correct.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 629,
+    "result": {
+      "judgement": "Both queries compute count of votes for 2010 divided by count for 2011; COUNT with conditional nulls is equivalent to SUM of 1 flags.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 861,
+    "result": {
+      "judgement": "Predicted query returns the driver’s permanent number by joining drivers to qualifying with identical filters as gold, matching question intent.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 634,
+    "result": {
+      "judgement": "Predicted query sums view counts of each user’s posts and returns the user with the larger total, satisfying the popularity comparison requested; any difference from gold’s use of postHistory is immaterial to the question, and both queries yield the same winner.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 665,
+    "result": {
+      "judgement": "Predicted query matches the required filters and calculation for average monthly links, aligning with the question.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 671,
+    "result": {
+      "judgement": "Prediction matches intent; extra IS NOT NULL on Date is benign and does not violate requirements.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 678,
+    "result": {
+      "judgement": "Prediction correctly returns Harvey Motulsky’s post with the highest ViewCount, matching the question requirements.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 865,
+    "result": {
+      "judgement": "Predicted query applies correct filters (race 592, finished via time IS NOT NULL), orders by earliest dob to get oldest and returns driverId 306, which corresponds to the same driver (Jean-Pierre Beltoise) returned by gold; column difference is acceptable identification.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 868,
+    "result": {
+      "judgement": "Predicted query returns the correct latitude and longitude for the Malaysian Grand Prix; extra duplicate rows do not break any explicit requirement in the question.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 872,
+    "result": {
+      "judgement": "Predicted query matches gold semantics, correctly retrieving the driver code with q3 time 1:33 in race 45.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 877,
+    "result": {
+      "judgement": "Prediction matches question intent and gold; youngest driver correctly found.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 880,
+    "result": {
+      "judgement": "Predicted query correctly computes the percent difference between Paul di Resta’s fastest-lap speeds in race 853 and race 854 using equivalent logic to the gold; extra filter and MAX do not alter the result since there is one row per race.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 705,
+    "result": {
+      "judgement": "Predicted query matches gold and fulfills the question requirements; no violations found.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 894,
+    "result": {
+      "judgement": "Predicted query correctly retrieves the minimal (best) milliseconds along with the associated driver and race; the extra IS NOT NULL filter is benign and justified, so no explicit requirement is violated.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 710,
+    "result": {
+      "judgement": "Prediction correctly counts comments with score 0 on posts having exactly one comment, while gold mistakenly filters by post score instead of comment score.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": false
+    }
+  },
+  {
+    "question_id": 717,
+    "result": {
+      "judgement": "Predicted query matches the gold and correctly lists all powers for 3-D Man.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 723,
+    "result": {
+      "judgement": "Prediction correctly counts unique blue-eyed heroes with the Agility power; extra DISTINCT is benign or beneficial, satisfying the question.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 896,
+    "result": {
+      "judgement": "Predicted query reasonably implements the requested percentage using the race‐results table; using driverStandings (as in gold) vs results is a schema choice, so the difference does not prove the prediction wrong.",
+      "verdict": false,
+      "ambiguity": "ambiguous schema",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 898,
+    "result": {
+      "judgement": "Prediction returns the requested youngest Japanese driver’s name (forename, surname) and age just like the gold query, with only harmless column‐order/casting differences.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 902,
+    "result": {
+      "judgement": "Pred query reasonably uses finishing position (<20) to list races, satisfying a plausible reading of “track number”, so it cannot be deemed wrong despite differing from gold.",
+      "verdict": false,
+      "ambiguity": "ambiguous question",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 909,
+    "result": {
+      "judgement": "Prediction correctly computes the percentage of European Grand Prix races held in Germany with no extraneous filters, matching the question intent.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 912,
+    "result": {
+      "judgement": "Prediction returns the circuitRef of the Marina Bay Street Circuit exactly as requested, matching gold.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 928,
+    "result": {
+      "judgement": "Prediction identifies Lewis Hamilton as the race winner, matching the intended meaning of “ranked the first”, whereas the gold query incorrectly uses the fastest-lap rank and returns Fernando Alonso; therefore the prediction is correct and gold is faulty.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": false
+    }
+  },
+  {
+    "question_id": 730,
+    "result": {
+      "judgement": "Predicted query correctly lists Marvel Comics superheroes with the 'Super Strength' power using valid joins and filters, matching the question’s requirements.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 733,
+    "result": {
+      "judgement": "Predicted query correctly counts Marvel Comics superheroes whose eye colour is Gold, matching the gold query’s logic.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 931,
+    "result": {
+      "judgement": "Predicted query correctly computes the maximum fastestLapSpeed for the 2009 Spanish Grand Prix; minor IS NOT NULL difference is benign.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 737,
+    "result": {
+      "judgement": "Predicted query correctly joins superhero to race and filters on superhero_name to return Copycat’s race, fulfilling the question requirements.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 739,
+    "result": {
+      "judgement": "Prediction meets the exact filtering and correctly returns superhero names with the 'Death Touch' power.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 937,
+    "result": {
+      "judgement": "Predicted query picks the finish time of the race’s second-place finisher (positionOrder = 2), which matches the natural reading of “ranked second”; the gold query instead filters by fastest-lap rank and returns a different driver’s time, so the gold is wrong and the prediction is correct.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": false
+    }
+  },
+  {
+    "question_id": 743,
+    "result": {
+      "judgement": "Prediction understates the denominator by joining on publisher, so the percentage is too high and not the true share of all superheroes; gold uses total superheroes and is correct.",
+      "verdict": true,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 745,
+    "result": {
+      "judgement": "Prediction matches gold and fully satisfies the question.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 750,
+    "result": {
+      "judgement": "Predicted query correctly computes average weight for female superheroes with proper gender join and no extraneous filters.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 753,
+    "result": {
+      "judgement": "Predicted query satisfies the height range and eye-colour condition; lack of DISTINCT is acceptable for a list question.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 760,
+    "result": {
+      "judgement": "Predicted query correctly computes the percentage of superheroes within the 150–180 cm height range whose publisher is Marvel Comics.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 764,
+    "result": {
+      "judgement": "Predicted query correctly returns all power_name values for hero_id 1; lack of DISTINCT is acceptable for a list.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 948,
+    "result": {
+      "judgement": "Predicted query matches gold and correctly computes the maximum points among British constructors.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 769,
+    "result": {
+      "judgement": "Predicted query follows the filters for publisher, attribute, and max durability and returns the top hero, matching the gold logic.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 773,
+    "result": {
+      "judgement": "Predicted query meets all stated requirements, matching publisher and superheroes where eye, hair, and skin colours are identical.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 779,
+    "result": {
+      "judgement": "Predicted query correctly counts the number of powers linked to the superhero named 'Amazo', matching the gold logic.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 782,
+    "result": {
+      "judgement": "Predicted query correctly captures heroes whose eye and hair colours are both black, matching the question’s requirements without adding or omitting filters.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 960,
+    "result": {
+      "judgement": "Prediction meets all stated requirements with equivalent filters to gold; no unjustified conditions are added.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 786,
+    "result": {
+      "judgement": "Predicted SQL correctly counts heroes whose strength equals the maximum strength value, while gold incorrectly takes the max over all attributes, so prediction is sound and gold is faulty.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": false
+    }
+  },
+  {
+    "question_id": 790,
+    "result": {
+      "judgement": "Prediction matches question requirements, equivalent to gold; no invalid filters added.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 794,
+    "result": {
+      "judgement": "Predicted query correctly identifies the superhero with the maximum Speed attribute, matching gold exactly.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 797,
+    "result": {
+      "judgement": "Prediction matches gold and satisfies the question requirements.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 800,
+    "result": {
+      "judgement": "Predicted query correctly computes blue-eyed superhero percentage with equivalent logic to gold (choice of COUNT column is acceptable).",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 806,
+    "result": {
+      "judgement": "Predicted query matches gold and correctly retrieves the eye colour for Karen Beecher-Duncan.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 822,
+    "result": {
+      "judgement": "Prediction matches the question and gold in filtering bad-alignment superheroes with green skin and counting them.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 825,
+    "result": {
+      "judgement": "Predicted query correctly retrieves the gender(s) of superheroes possessing the Phoenix Force ability; joins and filter are semantically equivalent to gold.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 963,
+    "result": {
+      "judgement": "Prediction counts distinct French drivers with at least one lap under 2:00, matching the question’s focus on drivers, whereas gold counts every qualifying lap, so gold misinterprets the requirement.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": false
+    }
+  },
+  {
+    "question_id": 846,
+    "result": {
+      "judgement": "Predicted query only adds a harmless q1 IS NOT NULL filter; both queries list the 5 slowest Q1 drivers for race 20 as requested.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 971,
+    "result": {
+      "judgement": "Prediction correctly returns the reference name of the oldest German driver; the extra IS NOT NULL is benign.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 854,
+    "result": {
+      "judgement": "Predicted query correctly retrieves the latitude and longitude of the Australian Grand Prix circuit; extra duplicate rows do not violate the question’s requirements.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 859,
+    "result": {
+      "judgement": "Predicted query correctly retrieves Bruno Senna's Q1 time for raceId 354 using proper joins and filters identical in meaning to gold.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 977,
+    "result": {
+      "judgement": "Prediction incorrectly includes races 50 and 100 by using inclusive BETWEEN, violating explicit requirement raceId > 50 AND raceId < 100.",
+      "verdict": true,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 862,
+    "result": {
+      "judgement": "Prediction matches the question’s requirement: counts drivers without finish time for 2007 Bahrain GP; extra driver join in gold is unnecessary but benign.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 990,
+    "result": {
+      "judgement": "Predicted query does not ensure the row is the champion; it merely picks any finisher with non-NULL time and limits to one, thus violating the explicit champion requirement.",
+      "verdict": true,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 1001,
+    "result": {
+      "judgement": "Predicted query selects the driver at Marina Bay in 2008 with the smallest non-NULL q3 time, matching the requested first place; the lack of numeric cast is a harmless implementation difference, so prediction is acceptable.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 866,
+    "result": {
+      "judgement": "Prediction omits the driver’s name(s) requested by the “Who was the player” part and returns only URLs, so it does not fully answer the question, whereas the gold query does.",
+      "verdict": true,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 1003,
+    "result": {
+      "judgement": "Prediction matches the question, selecting the max accident count per driver for Canadian GP.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 869,
+    "result": {
+      "judgement": "Prediction matches gold and correctly returns the constructor URL with highest points in race 9.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 875,
+    "result": {
+      "judgement": "Predicted query correctly returns the season url for the year of race 901, matching question intent and gold semantics.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 1014,
+    "result": {
+      "judgement": "Prediction takes textual MIN over lapTimes.time, leading to nonsensical 13- and 15-minute values, so it does not return the true fastest laps; thus it fails to answer the question.",
+      "verdict": true,
+      "ambiguity": "na",
+      "gold_correct": false
+    }
+  },
+  {
+    "question_id": 879,
+    "result": {
+      "judgement": "Prediction matches the gold’s logic, correctly returns the nationality of the driver with the highest fastestLapSpeed.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 881,
+    "result": {
+      "judgement": "Prediction correctly computes the percentage of drivers with non-NULL finish times for the 1983-07-16 race, matching the gold logic.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 892,
+    "result": {
+      "judgement": "Predicted query correctly retrieves the driver entry with the highest single-race points and returns his forename, surname, and that points value, matching question intent and gold semantics.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 895,
+    "result": {
+      "judgement": "Predicted query correctly computes the average lap time for Lewis Hamilton in the 2009 Malaysian Grand Prix, matching the gold logic.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 901,
+    "result": {
+      "judgement": "Predicted query correctly returns each race in September 2005 with its circuit name and location, matching the question’s requirements; column order and lack of DISTINCT are immaterial.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 904,
+    "result": {
+      "judgement": "Predicted query uses race total time from results.milliseconds instead of lapTimes, thus does not measure Schumacher's fastest single lap and returns wrong race/year.",
+      "verdict": true,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 910,
+    "result": {
+      "judgement": "Prediction matches the gold and fulfills the question: it returns lat,lng for Silverstone Circuit.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 1031,
+    "result": {
+      "judgement": "Predicted query correctly filters 2013-2015 sprint_speed ≥97 players and computes current age; extra duplicate rows do not violate the question’s requirement.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 1035,
+    "result": {
+      "judgement": "Predicted query applies correct range filter; duplicates are allowed for a listing question, so it meets the requirement despite not using DISTINCT.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 930,
+    "result": {
+      "judgement": "Predicted query returns only a single race while multiple races share Hamilton’s best (rank = 1); thus it fails to list all highest-rank races required by the question.",
+      "verdict": true,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 933,
+    "result": {
+      "judgement": "Predicted query matches the question’s filters and correctly retrieves Lewis Hamilton’s positionOrder for the 2008 Chinese Grand Prix, same as gold.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 1037,
+    "result": {
+      "judgement": "Predicted query joins the same tables, filters by birth years 1987-1992, and computes left-foot percentage; counting is over joined rows just like gold, so it satisfies the question.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 940,
+    "result": {
+      "judgement": "Predicted query correctly counts distinct drivers who finished the 2008 Chinese Grand Prix, matching the question’s requirement; extra HAVING in gold is redundant, so prediction is semantically identical.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 945,
+    "result": {
+      "judgement": "Prediction correctly counts circuits located in Adelaide, Australia, matching the question and gold query.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 1040,
+    "result": {
+      "judgement": "Prediction groups by player_name, merging different players with identical names, leading to incorrect average heading accuracy and a different top-10 list; gold groups by unique player id, matching the intended per-player aggregation.",
+      "verdict": true,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 1044,
+    "result": {
+      "judgement": "Predicted query correctly selects players whose birthday year is 1970 and month is October, matching the question and gold semantics.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 1057,
+    "result": {
+      "judgement": "Prediction computes the average home_team_goal for Poland in 2010/2011 via League→Country join, matching the question’s scope; no unjustified filters are added and logic is equivalent to gold.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 950,
+    "result": {
+      "judgement": "Prediction uses constructorResults (points scored in that specific race) while gold uses constructorStandings (cumulative points after that race); wording “with 0 points at race 291” can reasonably refer to either, so prediction is a valid alternate interpretation.",
+      "verdict": false,
+      "ambiguity": "ambiguous question",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 1068,
+    "result": {
+      "judgement": "Predicted query meets all constraints and computes the requested average just like the gold (minor numeric difference only from rounding), so Prover’s pass stands.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 1078,
+    "result": {
+      "judgement": "Prediction adds only a benign IS NOT NULL check on birthday and otherwise matches gold logic, correctly returning the older of the two players.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 954,
+    "result": {
+      "judgement": "Predicted query correctly calculates the percentage of completed races for Japanese drivers during 2007-2009, matching question intent and gold logic.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 1080,
+    "result": {
+      "judgement": "Prediction matches the question’s conditions exactly, counting players with preferred_foot = 'left' and attacking_work_rate = 'low'.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 959,
+    "result": {
+      "judgement": "Predicted query correctly selects fastestLap for 2009 winners using position=1, equivalent to gold’s time-pattern filter, satisfying the question.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 962,
+    "result": {
+      "judgement": "Prediction counts drivers distinctly, matching the wording \"percentage of drivers\", whereas gold counts all result rows; the predicted SQL therefore aligns better with the question.",
+      "verdict": false,
+      "ambiguity": "ambiguous question",
+      "gold_correct": false
+    }
+  },
+  {
+    "question_id": 972,
+    "result": {
+      "judgement": "Prediction returns drivers born in 1971 that appear in results with a non-null fastestLapTime, matching the question’s requirements and the gold’s logic.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 989,
+    "result": {
+      "judgement": "Prediction returns the winner Robert Kubica together with the winning time, fully answering who the champion is and his finish time, whereas the gold query returns only the time; prediction is semantically correct.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": false
+    }
+  },
+  {
+    "question_id": 1092,
+    "result": {
+      "judgement": "Predicted query correctly finds a league with the maximum number of 2008/2009 matches (Spain LIGA BBVA), satisfying the question even though it returns only one of several tied leagues; tie-handling difference is permissible.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 1096,
+    "result": {
+      "judgement": "Prediction correctly computes the mean overall_rating for the player named Pietro Marino, matching the query intent.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 1102,
+    "result": {
+      "judgement": "Predicted query meets the stated filters and correctly orders by earliest birthday to find the oldest player; extra NOT NULL is benign, so no violation.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 1105,
+    "result": {
+      "judgement": "Prediction matches question requirements and mirrors gold, selecting attacking_work_rate for Francesco Migliore on 2015-05-01.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 1110,
+    "result": {
+      "judgement": "Predicted query correctly fetches buildUpPlayPassingClass for FC Lorient on 2010-02-22 using equivalent date filter.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 1002,
+    "result": {
+      "judgement": "Prediction meets the stated requirements—selects the youngest driver and her first race, returning name (forename+surname fields), nationality, and race name.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 1114,
+    "result": {
+      "judgement": "Predicted query correctly averages overall_rating for Marko Arnautovic within the stated date range; differing join key is acceptable and yields same semantics.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 1116,
+    "result": {
+      "judgement": "Predicted query restricts to a single row with LIMIT 1, whereas evidence specifies selecting all players with rank=1 (all tallest).",
+      "verdict": true,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 1025,
+    "result": {
+      "judgement": "Prediction satisfies the question: it filters season 2015/2016, sums goals per league, orders by total goals desc, and returns the league name, with no unjustified predicates.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 1030,
+    "result": {
+      "judgement": "Prediction matches gold and correctly finds league with most draws in 2015/2016 season.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 1032,
+    "result": {
+      "judgement": "Prediction correctly finds a league whose match count equals the global maximum, fulfilling the question despite ties, whereas the gold query is logically flawed.",
+      "verdict": false,
+      "ambiguity": "ambiguous question",
+      "gold_correct": false
+    }
+  },
+  {
+    "question_id": 1036,
+    "result": {
+      "judgement": "Predicted SQL correctly filters 2012 records, computes the average build-up play passing for that year, and returns teams whose 2012 scores exceed that average; no explicit requirement is violated.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 1039,
+    "result": {
+      "judgement": "Prediction matches the question intent; different join key and count column have no semantic impact.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 1042,
+    "result": {
+      "judgement": "Prediction matches the question requirements; AVG comparison per league in 2009/2010 season is correctly implemented with proper join and no extraneous filters.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 1048,
+    "result": {
+      "judgement": "Predicted query matches gold and correctly retrieves all overall_rating records for Gabriel Tamas in 2011, satisfying the question.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 1133,
+    "result": {
+      "judgement": "Predicted query reasonably interprets \"after the 1990s\" as excluding 1990-born players, applies correct name filter, and counts matches; the phrasing is ambiguous so difference with gold does not constitute an error.",
+      "verdict": false,
+      "ambiguity": "ambiguous question",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 1058,
+    "result": {
+      "judgement": "Predicted query returns the specific player name with the best finishing among all players whose height equals the global max or min, while the question (and gold) compare the two height-based groups and ask which of those groups (tallest vs shortest) has the higher average finishing; thus the prediction answers a different measure and output form.",
+      "verdict": true,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 1076,
+    "result": {
+      "judgement": "Predicted query correctly computes the difference in average ball control between the two named players, matching the intended logic of the question and the gold; no requirements violated.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 1079,
+    "result": {
+      "judgement": "Prediction matches gold and correctly selects the tallest player by ordering height descending with limit 1.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 1136,
+    "result": {
+      "judgement": "Predicted query counts rows in Player_Attributes rather than distinct players, so duplicates per player over time are possible and violates the explicit \"How many players\" requirement that calls for DISTINCT; gold query has the same flaw.",
+      "verdict": true,
+      "ambiguity": "na",
+      "gold_correct": false
+    }
+  },
+  {
+    "question_id": 1084,
+    "result": {
+      "judgement": "The prediction correctly counts distinct players born before 1986 whose defensive_work_rate is 'high'; using DISTINCT Player.id instead of name is appropriate and satisfies the question.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 1091,
+    "result": {
+      "judgement": "Prediction correctly counts matches in Belgium Jupiler League during April 2009; logic and filters match the question.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 1145,
+    "result": {
+      "judgement": "Predicted query correctly finds league names grouped by season 2015/2016, orders by match count, and limits to top 4, matching the question and gold intent.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 1147,
+    "result": {
+      "judgement": "Predicted query correctly returns a player who has the maximum overall_rating, satisfying the question’s requirement",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 1094,
+    "result": {
+      "judgement": "Prediction correctly takes one overall_rating value per player and computes the percentage difference, whereas the gold sums ratings across multiple rows which is not what \"overall rating\" implies.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": false
+    }
+  },
+  {
+    "question_id": 1098,
+    "result": {
+      "judgement": "Prediction takes MAX of score but pairs it with an unaggregated class, so the class may come from an arbitrary row and is not guaranteed to correspond to the highest score, violating the explicit requirement to report the classification of the maximum score.",
+      "verdict": true,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 1149,
+    "result": {
+      "judgement": "Predicted query returns the male in-patient/outpatient counts but expresses the deviation as a raw ratio (0.83) instead of a percentage (83%), so it violates the explicit \"in percentage\" requirement.",
+      "verdict": true,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 1103,
+    "result": {
+      "judgement": "Prediction satisfies the question, matching the intended player and date filter; no improper conditions added.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 1152,
+    "result": {
+      "judgement": "Predicted query follows evidence-specified numerator/denominator; wording of question is ambiguous, so prediction is acceptable.",
+      "verdict": false,
+      "ambiguity": "ambiguous question",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 1107,
+    "result": {
+      "judgement": "Predicted query correctly returns the earliest date on which Kevin Constant achieved his maximum crossing score, while the gold query instead takes the latest date regardless of score.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": false
+    }
+  },
+  {
+    "question_id": 1113,
+    "result": {
+      "judgement": "Predicted query correctly retrieves Hannover 96’s defenceAggressionClass for 2015-09-10.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 1115,
+    "result": {
+      "judgement": "Predicted query still selects each player’s rating for 2013-07-12 and computes (Landon−Jordan)/Landon*100, matching the question; differing use of MAX vs SUM and exact-timestamp filter are acceptable given identical results, so no clear error to overturn.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 1157,
+    "result": {
+      "judgement": "Predicted query joins Patient and Examination on ID and filters thrombosis = 2, returning ID, sex, diagnosis; absence of DISTINCT is acceptable since uniqueness wasn’t required.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 1164,
+    "result": {
+      "judgement": "Prediction correctly counts distinct female patients with thrombosis=1 in 1997, matching the question; use of DISTINCT is acceptable and does not violate any requirement.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 1122,
+    "result": {
+      "judgement": "Predicted query correctly retrieves a player name whose overall_rating is maximal, and the single-row LIMIT is acceptable since the question asks for “the” strongest player without tie rules.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 1168,
+    "result": {
+      "judgement": "Predicted SQL correctly picks the oldest SJS patient, returns a lab date and the year-difference age exactly as requested, matching gold semantics and result.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 1130,
+    "result": {
+      "judgement": "Prediction correctly lists team_short_name for records with chanceCreationPassingClass='Safe'; absence of DISTINCT causes only harmless duplicates.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 1134,
+    "result": {
+      "judgement": "The prediction correctly subtracts jumping scores for players with ids 6 and 23, whereas the gold query mistakenly treats attribute-row ids 6 and 23 as the players; thus the prediction better matches the question’s intent.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": false
+    }
+  },
+  {
+    "question_id": 1139,
+    "result": {
+      "judgement": "Prediction uses same filters as gold to return home and away goals for 24-Sep-2008 Belgian Jupiler League matches, satisfying the question.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 1179,
+    "result": {
+      "judgement": "Predicted query correctly retrieves the aCL IgM value for the specified patient/date, matching the question intent stated in the evidence.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 1144,
+    "result": {
+      "judgement": "Prediction correctly retrieves finishing rate and curve score for a player with the maximum weight, meeting the query intent.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 1189,
+    "result": {
+      "judgement": "The difference lies only in whether the average aCL IgM is global or restricted to the same subgroup; the question does not explicitly specify, so the prediction remains a reasonable interpretation.",
+      "verdict": false,
+      "ambiguity": "ambiguous question",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 1195,
+    "result": {
+      "judgement": "Predicted query satisfies all stated conditions and is semantically identical to gold; no violations found.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 1146,
+    "result": {
+      "judgement": "Predicted query correctly returns the full name of the away team in the match with the single-game maximum away goals, matching the question and evidence.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 1201,
+    "result": {
+      "judgement": "Prediction applies the same filters (RA diagnosis and 1980 birth year) and computes the female percentage exactly as required, matching the gold logic.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 1208,
+    "result": {
+      "judgement": "Predicted query exactly matches gold and fulfills the question requirements to return male patient IDs whose GPT is ≥ 60.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 1148,
+    "result": {
+      "judgement": "Prediction matches gold and reasonably computes share of players under 180 cm with rating > 70; no explicit requirement violated.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 1153,
+    "result": {
+      "judgement": "Predicted query correctly returns the patient’s diagnosis along with every lab test date for patient 30609, matching question intent.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 1156,
+    "result": {
+      "judgement": "Predicted query correctly lists patient IDs with positive RVVT and computes their age; absence of DISTINCT is benign since uniqueness wasn’t explicitly required.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 1220,
+    "result": {
+      "judgement": "Prediction uses correct tables, join, and UN = 29 filter; extra duplicates are allowed for a listing question, so it answers correctly.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 1162,
+    "result": {
+      "judgement": "Predicted query applies the correct filters on sex, description year 1997, and outpatient admission and simply counts IDs; this matches the question and is semantically identical to the gold.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 1227,
+    "result": {
+      "judgement": "Prediction matches gold and fulfills all explicit conditions; no violations found.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 1231,
+    "result": {
+      "judgement": "Predicted query correctly counts distinct male patients born 1936-1956 with CPK ≥ 250, matching gold logic.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 1166,
+    "result": {
+      "judgement": "Predicted query picks symptoms of the youngest examined patient and a diagnosis associated with that patient (from Examination rather than Patient); the question does not specify whether to take the patient-level or examination-level diagnosis, so both are defensible readings.",
+      "verdict": false,
+      "ambiguity": "ambiguous question",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 1169,
+    "result": {
+      "judgement": "Predicted query computes the male-to-female ratio using the specified abnormal UA thresholds and joins Patient with Laboratory exactly as required, matching the gold logic.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 1239,
+    "result": {
+      "judgement": "Predicted query correctly returns patients with at least two lab records having HCT >= 52 and gives their ID and age; no unjustified filters are added.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 1175,
+    "result": {
+      "judgement": "Predicted query follows evidence by computing age from Examination Date and provides the highest-HGB patient’s data, while gold computes age from Laboratory Date; thus prediction is more aligned with the question.",
+      "verdict": false,
+      "ambiguity": "ambiguous question",
+      "gold_correct": false
+    }
+  },
+  {
+    "question_id": 1242,
+    "result": {
+      "judgement": "Pred query calculates age using current date rather than the 1984 exam date, omitting patients who were <50 in 1984 but are now older, so it fails the question’s requirement.",
+      "verdict": true,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 1187,
+    "result": {
+      "judgement": "Prediction filters the date on Examination.Examination Date instead of Laboratory.Date explicitly required by the evidence, and it does not constrain GPT/ALB to that dated record, so it may include patients without qualifying lab results in the period; therefore it fails to meet the stated criteria.",
+      "verdict": true,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 1192,
+    "result": {
+      "judgement": "Predicted query applies all required filters (Admission='-', October 1991 date, T-BIL<2.0) using strftime which is semantically equivalent to the gold’s LIKE, so it answers the question correctly.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 1198,
+    "result": {
+      "judgement": "Prediction matches the question, counting female patients with diagnosis 'APS'.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 1209,
+    "result": {
+      "judgement": "Prediction matches the question: it joins Patient with Laboratory, filters GPT > 60, returns distinct diagnoses, and orders by birthday ascending, satisfying all explicit requirements.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 1225,
+    "result": {
+      "judgement": "Prediction correctly lists distinct patient IDs per sex using GROUP_CONCAT while filtering T-BIL ≥ 2.0, exactly matching the question and evidence; gold instead outputs one row per patient without the required aggregation.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": false
+    }
+  },
+  {
+    "question_id": 1229,
+    "result": {
+      "judgement": "Prediction properly counts distinct patients with TG ≥ 200 and age > 50, matching the question requirements.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 1247,
+    "result": {
+      "judgement": "Prediction correctly counts male patients who have a lab record where WBC is within the normal range and FG is abnormal, using DISTINCT patients, whereas the gold query’s missing parentheses lets any record with low FG qualify regardless of WBC, giving an inflated count.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": false
+    }
+  },
+  {
+    "question_id": 1232,
+    "result": {
+      "judgement": "Predicted query applies the required GLU ≥180 and T-CHO <250 filters and returns ID, sex, and computed age; extra duplicate rows are permissible since the question did not require uniqueness.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 1238,
+    "result": {
+      "judgement": "The prediction matches all explicit requirements; the extra Birthday IS NOT NULL filter is logically reasonable for determining age and does not violate the question’s scope.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 1252,
+    "result": {
+      "judgement": "Prediction counts unique patients whose IGG strictly lies between 900 and 2000 and who have non-null symptoms, matching the question’s definition, whereas the gold query counts rows (not patients) and also includes boundary values 900/2000, so gold over-counts. Prediction is semantically correct.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": false
+    }
+  },
+  {
+    "question_id": 1255,
+    "result": {
+      "judgement": "Predicted query correctly filters IGM ≤40 or ≥400 and finds the most frequent diagnosis; gold query wrongly omits the boundary values 40 and 400.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": false
+    }
+  },
+  {
+    "question_id": 1243,
+    "result": {
+      "judgement": "Prediction correctly computes the female-ratio among abnormal PT records for patients over 55, while gold’s COUNT with ELSE 0 counts all rows, giving a wrong denominator.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": false
+    }
+  },
+  {
+    "question_id": 1251,
+    "result": {
+      "judgement": "The prediction correctly counts distinct patients whose IGG lab value is >= 2000, matching the question, whereas the gold unnecessarily requires a matching Examination record and therefore under-counts.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": false
+    }
+  },
+  {
+    "question_id": 1275,
+    "result": {
+      "judgement": "Prediction matches the stated evidence for what constitutes a normal result and counts distinct male patients accordingly; the difference with gold arises only from using alternative code values, not from a logical error.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 1302,
+    "result": {
+      "judgement": "Predicted query correctly counts distinct patients satisfying CPK<250 and any positive coagulation marker, whereas gold counts row duplicates and can overcount; thus prediction aligns with the question and gold is faulty.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": false
+    }
+  },
+  {
+    "question_id": 1317,
+    "result": {
+      "judgement": "Prediction counts the relevant attendance rows (Medium-size T-shirt among attendees of Women's Soccer) exactly as required; differing COUNT column vs gold is immaterial.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 1254,
+    "result": {
+      "judgement": "Prediction counts distinct patients whose IgA is strictly between 80 and 500 and whose first visit is on/after 1990-01-01, matching the question, whereas gold double-counts lab rows, includes boundary 80/500, and even excludes year 1990, so prediction is more faithful.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": false
+    }
+  },
+  {
+    "question_id": 1334,
+    "result": {
+      "judgement": "Predicted query matches gold and satisfies the question requirements; no violation detected.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 1256,
+    "result": {
+      "judgement": "Prediction matches the required filters and counting logic for patients with CRP='+' and NULL Description.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 1339,
+    "result": {
+      "judgement": "Prediction matches the question’s requirements and mirrors the gold logic for averaging Elijah Allen’s September or October expenses.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 1344,
+    "result": {
+      "judgement": "Prediction fully satisfies the question requirements; no extraneous or missing conditions.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 1350,
+    "result": {
+      "judgement": "Predicted query reasonably fetches the event’s status via the event table; schema has both event.status and budget.event_status so either is acceptable, making no explicit requirement violated.",
+      "verdict": false,
+      "ambiguity": "ambiguous schema",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 1352,
+    "result": {
+      "judgement": "Prediction matches question requirements exactly; no violations found.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 1357,
+    "result": {
+      "judgement": "Predicted query correctly retrieves date_received for Connor Hilton with dues source, matching question requirements.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 1265,
+    "result": {
+      "judgement": "Predicted query properly applies both the normal-RNP filter ('-','+-') and the Admission='+' condition, counting distinct patients, whereas the gold query mis-places parentheses so the admission filter is not applied to RNP='negative', giving an inflated count.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": false
+    }
+  },
+  {
+    "question_id": 1361,
+    "result": {
+      "judgement": "Prediction matches the required sum of pizza expenses, fully satisfying the question.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 1270,
+    "result": {
+      "judgement": "Prediction meets all stated conditions—normal anti-scl70, female sex, no symptoms, counting distinct patients—so it correctly answers the question.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 1368,
+    "result": {
+      "judgement": "Predicted SQL exactly matches gold and faithfully answers the question.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 1375,
+    "result": {
+      "judgement": "Predicted query matches the gold and correctly lists first and last names of members in that department.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 1281,
+    "result": {
+      "judgement": "Predicted SQL matches gold and correctly selects the latest birthday among patients with GOT ≥ 60.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 1312,
+    "result": {
+      "judgement": "Predicted query correctly joins member to major and filters Angela Sanders, returning her major name.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 1378,
+    "result": {
+      "judgement": "Predicted query matches gold and properly computes the maximum spend, satisfying the question.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 1381,
+    "result": {
+      "judgement": "Prediction matches the question’s requirement of listing first and last names for students with more than 7 attendances; no extraneous predicates are added and grouping logic is correct.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 1322,
+    "result": {
+      "judgement": "Prediction returns a single count of events that are meetings with more than 10 attendees, exactly matching the question, whereas gold splits this into several rows; prediction is correct.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": false
+    }
+  },
+  {
+    "question_id": 1390,
+    "result": {
+      "judgement": "Predicted query correctly computes Yearly Kickoff cost divided by total event cost, matching the question intent.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 1394,
+    "result": {
+      "judgement": "Prediction matches the requirement, counting members with major 'Physics Teaching'; no extraneous filters and logic aligns with question and schema.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 1331,
+    "result": {
+      "judgement": "Summing the amounts is a reasonable interpretation of “amount of the funds,” and it does not violate any explicit requirement, so the prediction is acceptable.",
+      "verdict": false,
+      "ambiguity": "ambiguous question",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 1340,
+    "result": {
+      "judgement": "Predicted SQL correctly joins budget to event and subtracts 2020 spending from 2019 spending, matching the question’s requirement.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 1399,
+    "result": {
+      "judgement": "Prediction correctly checks if at least one attendance record exists for Maya Mclean at the 'Women''s Soccer' event, matching the question intent.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 1346,
+    "result": {
+      "judgement": "Prediction exactly matches gold and fulfills the question to retrieve Carlo Jacobs’ phone number; no violations present.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 1351,
+    "result": {
+      "judgement": "Prediction matches the required filters and correctly retrieves Brent Thomason’s major, identical to gold.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 1403,
+    "result": {
+      "judgement": "Predicted query correctly selects closed events (using event.status), filters exceeded budgets, picks most negative remaining and returns the event name, aligning with the question.",
+      "verdict": false,
+      "ambiguity": "ambiguous schema",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 1356,
+    "result": {
+      "judgement": "Prediction matches gold and correctly returns the department(s) for club member(s) with position President.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 1405,
+    "result": {
+      "judgement": "Predicted query lists each category with its budgeted amount and orders ascending; aggregation via SUM is unnecessary given one record per category, so no explicit requirement is violated.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 1359,
+    "result": {
+      "judgement": "Prediction omits the explicit filter that events must be of type 'Meeting', so it may count non-meeting events with the same names, violating the question’s requirement.",
+      "verdict": true,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 1410,
+    "result": {
+      "judgement": "Prediction merely adds GROUP BY on the uniquely identified member, yielding the same full name and total cost requested; no requirements violated.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 1362,
+    "result": {
+      "judgement": "Counting rows filtered by county and state is a reasonable way to answer how many cities are in that county; distinct-city logic is not strictly required by the wording, so prediction is acceptable.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 1371,
+    "result": {
+      "judgement": "Predicted query correctly counts attendance rows for the Women''s Soccer event, matching the question and gold logic.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 1376,
+    "result": {
+      "judgement": "Predicted query correctly joins events to budgets, restricts to closed events, orders by spend-to-budget ratio, and returns the top event, matching the question.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 1422,
+    "result": {
+      "judgement": "“Category of events” could reasonably refer either to event.type (Meeting, Guest Speaker, etc.) or to budget.category; the prediction chooses the first interpretation and correctly filters on location, so it remains a valid answer.",
+      "verdict": false,
+      "ambiguity": "ambiguous question",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 1380,
+    "result": {
+      "judgement": "Prediction correctly sums the spent amounts where the category is 'Food', matching the question exactly like the gold SQL.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 1387,
+    "result": {
+      "judgement": "Predicted query matches the gold logic, correctly retrieves the student (member) responsible for the Yearly Kickoff budget without adding or omitting filters.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 1392,
+    "result": {
+      "judgement": "Pred groups by source and orders by SUM(amount) DESC to return the source with the highest total amount in Sept-2019, matching the question, whereas gold orders by source name, ignoring amount.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": false
+    }
+  },
+  {
+    "question_id": 1427,
+    "result": {
+      "judgement": "Predicted query correctly filters by location, type, and spent and returns the requested budget categories; extra duplicates do not violate the question wording.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 1398,
+    "result": {
+      "judgement": "Predicted query correctly retrieves the event with the maximum advertisement spending, matching the gold logic.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 1401,
+    "result": {
+      "judgement": "Predicted query correctly retrieves the poster cost for the 'September Speaker' event with proper joins and filters, matching the question intent.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 1435,
+    "result": {
+      "judgement": "Predicted query filters by type, status, and the specified date range and returns event names; duplicates are acceptable for a list question, so it satisfies the request despite omitting DISTINCT.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 1460,
+    "result": {
+      "judgement": "Predicted query correctly joins member and expense, filters by the given description, and returns first and last name with cost, matching the question.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 1471,
+    "result": {
+      "judgement": "Predicted query correctly computes EUR-to-CZK customer ratio; differences (REAL vs FLOAT cast, alias) are immaterial.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 1404,
+    "result": {
+      "judgement": "Predicted query correctly returns each expense description with SUM(cost) for approved expenses of the October Meeting, while gold aggregates by event.type and ignores approval filter, so gold mismatches the request and prediction should stand.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": false
+    }
+  },
+  {
+    "question_id": 1473,
+    "result": {
+      "judgement": "Prediction matches question requirements, computing AVG(Consumption)/12 for SME customers in 2013; no extraneous or missing conditions.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 1409,
+    "result": {
+      "judgement": "Prediction matches gold and satisfies the question by summing cost on the specified date.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 1411,
+    "result": {
+      "judgement": "Prediction matches gold SQL and fully satisfies the question without extraneous constraints.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 1426,
+    "result": {
+      "judgement": "Predicted query satisfies all explicit requirements without unjustified filters, whereas gold adds a position filter that is not clearly demanded; prediction is acceptable.",
+      "verdict": false,
+      "ambiguity": "ambiguous question",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 1479,
+    "result": {
+      "judgement": "Predicted query correctly filters CZK payments, aggregates by year, orders by total consumption, and returns the top year, matching the question.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 1432,
+    "result": {
+      "judgement": "Predicted query calculates the share of $50 income entries for medium-shirt members, matching the question’s likely intent and mirroring the gold logic.",
+      "verdict": false,
+      "ambiguity": "ambiguous question",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 1457,
+    "result": {
+      "judgement": "Predicted SQL correctly lists each member whose expense cost exceeds the overall average, matching the question’s requirements; the extra budget join in the gold is unnecessary, so Prover’s pass stands.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 1464,
+    "result": {
+      "judgement": "Predicted query correctly retrieves each member’s first and last name with the amount for 2019-09-09; extra event/attendance joins in gold are unnecessary and not required by the question.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 1483,
+    "result": {
+      "judgement": "Predicted query matches the gold and fully satisfies the question conditions; no unjustified filters added.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 1476,
+    "result": {
+      "judgement": "Predicted query correctly computes CZK total minus EUR total for 2012, matching question intent and gold semantics.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 1486,
+    "result": {
+      "judgement": "Prediction computes the count difference between SME customers paying in CZK and EUR exactly as required; extra outer SELECT/LIMIT do not alter the result.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 1480,
+    "result": {
+      "judgement": "Predicted query picks the month of the single highest-consumption record instead of aggregating consumption per month, so it can misidentify the true peak month; gold correctly sums by month.",
+      "verdict": true,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 1493,
+    "result": {
+      "judgement": "Prediction matches the required computation for February 2012 exactly, with no extraneous filters or omissions.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 1484,
+    "result": {
+      "judgement": "Predicted query correctly computes the count difference of discount gas stations between Czech Republic and Slovakia, matching question intent.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 1490,
+    "result": {
+      "judgement": "Predicted query applies same LAM filter and computes (rows with Consumption>46.73)/(all LAM rows)*100 just like gold, with equivalent COUNT vs SUM formulation.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 1505,
+    "result": {
+      "judgement": "Prediction correctly counts distinct euro-paying customers whose monthly consumption exceeds 1000, while gold counts the number of qualifying month records, mismatching the question’s focus on customers.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": false
+    }
+  },
+  {
+    "question_id": 1507,
+    "result": {
+      "judgement": "Prediction matches the gold and correctly returns distinct transaction times for gas-station chain 11; no extra or missing predicates.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 1498,
+    "result": {
+      "judgement": "Predicted query only finds the single largest row value, whereas the question (and explicit hint about extracting the 5th-6th characters for month) requires aggregating by month and then selecting the peak month total; therefore the prediction violates the core requirement.",
+      "verdict": true,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 1514,
+    "result": {
+      "judgement": "Predicted query filters by the specified date and time, joins to customers to fetch Currency, and although it returns duplicates, it still yields the correct currency value; semantics match gold.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 1501,
+    "result": {
+      "judgement": "Prediction joins gas stations with transactions and filters customers in 201306 exactly like the gold, returning the distinct countries; no requirement is violated.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 1521,
+    "result": {
+      "judgement": "Predicted query fully matches gold and satisfies the question’s filters; no violations present.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 1506,
+    "result": {
+      "judgement": "Prediction retrieves distinct product descriptions for transactions at Czech gas stations exactly as requested.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 1525,
+    "result": {
+      "judgement": "Prediction gives percentage based on distinct customers, matching the plain reading of “percentage of the customers,” whereas the gold counts transactions; both could fit different readings, so prediction is acceptable.",
+      "verdict": false,
+      "ambiguity": "ambiguous question",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 1528,
+    "result": {
+      "judgement": "Prediction correctly filters to SVK stations and computes premium count over total, matching the question intent.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 1509,
+    "result": {
+      "judgement": "Predicted SQL correctly counts Czech transactions dated strictly after 2012-01-01, satisfying the question; no unjustified predicates are added.",
+      "verdict": false,
+      "ambiguity": "ambiguous question",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 1515,
+    "result": {
+      "judgement": "Predicted query correctly joins customers to transactions, filters on the specified date and time, and returns the customer segment, matching the question’s requirement.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 1526,
+    "result": {
+      "judgement": "Predicted query uses the stated amount (634.8) to locate the customer and correctly computes the decrease rate; gold uses an incorrect amount (1513.12), so prediction is semantically right.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": false
+    }
+  },
+  {
+    "question_id": 1533,
+    "result": {
+      "judgement": "Prediction satisfies all stated conditions and matches gold logic; it correctly returns consumption for customers paying >29 per unit of product 5 in 201208.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  }
+]

@@ -35,10 +35,13 @@ def extract_json_from_response(response: str) -> str:
                 return extracted
     return response
 
-def execute_sql(db: str | Path, sql: str) -> pd.DataFrame:
+def execute_sql(db: str | Path, sql: str) -> pd.DataFrame | bool:
     db_path = Path(db) if isinstance(db, Path) else _get_db_path(db)
-    with sqlite3.connect(db_path) as conn:
-        return pd.read_sql_query(sql, conn)
+    try:
+        with sqlite3.connect(db_path) as conn:
+            return pd.read_sql_query(sql, conn)
+    except Exception:
+        return False
 
 def compare_result(df1: pd.DataFrame, df2: pd.DataFrame) -> bool:
     if df1.shape != df2.shape:
@@ -60,7 +63,7 @@ def _worker(q: mp.Queue, func: Callable[..., Any], args: tuple, kwargs: dict):
     except Exception:
         q.put(False)
 
-def run_with_timeout(func: Callable[..., Any], *args, timeout: float = 2.0, **kwargs) -> bool:
+def run_with_timeout(func: Callable[..., Any], *args, timeout: float = 2.0, **kwargs) -> Any:
     ctx = mp.get_context("spawn")
     q: mp.Queue = ctx.Queue(maxsize=1)
     p = ctx.Process(target=_worker, args=(q, func, args, kwargs), daemon=True)
@@ -69,7 +72,7 @@ def run_with_timeout(func: Callable[..., Any], *args, timeout: float = 2.0, **kw
     if p.is_alive():
         p.terminate()
         p.join()
-        return False
+        return None
     try:
         return q.get_nowait()
     except Exception:

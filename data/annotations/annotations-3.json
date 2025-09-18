@@ -6,7 +6,7 @@
     "predicted_sql": "SELECT schools.Zip FROM schools INNER JOIN frpm ON schools.CDSCode = frpm.CDSCode WHERE schools.County = 'Fresno County Office of Education' AND frpm.`Charter School (Y/N)` = 1",
     "gold_sql": "SELECT T2.Zip FROM frpm AS T1 INNER JOIN schools AS T2 ON T1.CDSCode = T2.CDSCode WHERE T1.`District Name` = 'Fresno County Office of Education' AND T1.`Charter School (Y/N)` = 1",
     "label": false,
-    "reason": "\"Fresno County Office of Education\" means `District Name` not County. Maybe GOLD FALSE.",
+    "reason": "\"Fresno County Office of Education\" means `District Name` not County.",
     "evidence": "Charter schools refers to `Charter School (Y/N)` = 1 in the table fprm"
   },
   {
@@ -105,7 +105,7 @@
     "question": "State different accounts who have account opening date before 1997 and own an amount of money greater than 3000USD",
     "predicted_sql": "SELECT DISTINCT T1.account_id FROM account AS T1 INNER JOIN trans AS T2 ON T1.account_id = T2.account_id WHERE T1.date < '1997-01-01' AND T2.balance > 3000",
     "gold_sql": "SELECT DISTINCT T2.account_id FROM trans AS T1 INNER JOIN account AS T2 ON T1.account_id = T2.account_id WHERE STRFTIME('%Y', T2.date) < '1997' AND T1.amount > 3000",
-    "label": false,
+    "label": true,
     "reason": "GOLD FALSE. amount represents the transaction amount, and balance is the balance after the transaction.",
     "evidence": ""
   },
@@ -666,7 +666,7 @@
     "predicted_sql": "SELECT uuid FROM legalities WHERE format = 'oldschool' AND status IN ('banned', 'restricted')",
     "gold_sql": "SELECT uuid FROM legalities WHERE format = 'oldschool' AND (status = 'Banned' OR status = 'Restricted')",
     "label": false,
-    "reason": "It should be correct in a case-insensitive database",
+    "reason": "It should be correct in a case-insensitive database.",
     "evidence": "old school format refers to format = 'oldschool'; restricted or banned refers to status = 'banned' or 'restricted'"
   },
   {
@@ -1195,7 +1195,7 @@
     "question": "What is the ratio of outpatient to inpatient followed up treatment among all the 'SLE' diagnosed patient?",
     "predicted_sql": "SELECT CAST(COUNT(CASE WHEN Admission = '-' THEN 1 END) AS REAL) / COUNT(CASE WHEN Admission = '+' THEN 1 END) AS outpatient_to_inpatient_ratio FROM Patient WHERE Diagnosis = 'SLE'",
     "gold_sql": "SELECT SUM(CASE WHEN Admission = '+' THEN 1.0 ELSE 0 END) / SUM(CASE WHEN Admission = '-' THEN 1 ELSE 0 END) FROM Patient WHERE Diagnosis = 'SLE'",
-    "label": false,
+    "label": true,
     "reason": "GOLD FALSE. The numerator should be Admission = '-', that is, outpatient.",
     "evidence": "'SLE' diagnosed patient means Diagnosis = 'SLE'; inpatient refers to Admission = '+'; outpatient refers to Admission = '-'; calculation =  DIVIDE(COUNT(ID) where Diagnosis = 'SLE' and Admission = '+', COUNT(ID) where Diagnosis = 'SLE' and Admission = '-')"
   },
@@ -1255,7 +1255,7 @@
     "question": "How long did it take after patient number 821298 arrived at the hospital for the first time before her evaluation began?",
     "predicted_sql": "SELECT JULIANDAY(T2.`Examination Date`) - JULIANDAY(T1.`First Date`) AS days_diff FROM Patient AS T1 INNER JOIN Examination AS T2 ON T1.ID = T2.ID WHERE T1.ID = 821298 AND T2.`Examination Date` IS NOT NULL",
     "gold_sql": "SELECT STRFTIME('%d', T3.`Examination Date`) - STRFTIME('%d', T1.`First Date`) FROM Patient AS T1 INNER JOIN Examination AS T3 ON T1.ID = T3.ID WHERE T1.ID = 821298",
-    "label": false,
+    "label": true,
     "reason": "GOLD FALSE. Gold SQL only subtracts day-of-month values, which fails across months or years.It might even be a negative number.Predicted SQL TRUE.",
     "evidence": "DATEDIFF(`Examination Date`, `First Date`)"
   },

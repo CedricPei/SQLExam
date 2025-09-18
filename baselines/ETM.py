@@ -1,4 +1,5 @@
 import sqlite3
+import re
 from copy import deepcopy as dc
 import os, sys, json
 import argparse
@@ -73,7 +74,9 @@ def main():
             "score": score,
         })
 
-    out_dir = os.path.join(base, 'output', 'ETM')
+    method = os.path.splitext(os.path.basename(path))[0]
+    method = re.sub(r'(-result)$', '', method)
+    out_dir = os.path.join(base, 'output', method, f'ETM-{method}-eval')
     os.makedirs(out_dir, exist_ok=True)
     out_file = os.path.join(out_dir, 'eval_results.json')
     with open(out_file, 'w', encoding='utf-8') as f:

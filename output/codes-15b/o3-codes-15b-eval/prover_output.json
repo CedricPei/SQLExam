@@ -1,0 +1,2250 @@
+[
+  {
+    "question_id": 17,
+    "result": {
+      "expected_answer": "A list of charter numbers (non-null) for schools whose AvgScrWrite is greater than 499, ordered (ranked) by their AvgScrWrite descending.",
+      "sql_description": "Returns charter numbers of schools whose AvgScrWrite equals exactly 499, without any ordering and without excluding NULL CharterNum values.",
+      "reason": "Misses key anchors: uses equality at 499 instead of > 499, omits ordering/ranking by writing score, and does not ensure CharterNum is not null. Therefore it does not satisfy the question requirements.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 5,
+    "result": {
+      "expected_answer": "A single integer: the number of schools that (1) are marked as exclusively virtual (Virtual = 'F') in the schools table and (2) have an SAT average math score greater than 400 in the satscores table.",
+      "sql_description": "Counts schools with Virtual = 'P' and AvgScrMath < 400 after joining schools and satscores on CDSCode.",
+      "reason": "Violates both required anchors: uses Virtual='P' instead of 'F', and filters for AvgScrMath < 400 instead of > 400. therefore answers a different question.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 12,
+    "result": {
+      "expected_answer": "The maximum value of (Free Meal Count 5-17 / Enrollment 5-17) – i.e., the highest Percent Eligible Free (Ages 5-17) – among those schools whose SAT excellence rate (NumGE1500 / NumTstTakr) exceeds 0.3.",
+      "sql_description": "Returns the maximum Free Meal Count (Ages 5-17) for the school(s) whose Percent Eligible Free (Ages 5-17) equals the overall maximum, without considering any SAT excellence rate filter and outputting a count, not a rate.",
+      "reason": "Missing required anchor: SAT excellence rate > 0.3 filter; also selects count instead of rate. Therefore it does not answer the question.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 25,
+    "result": {
+      "expected_answer": "List each school located in Riverside whose SAT math average score exceeds 400 together with that school’s funding type.",
+      "sql_description": "Looks up schools in the city of Riverside, joins to their SAT records, keeps the rows where the recorded AvgScrMath value is greater than 400, and outputs distinct pairs of School name and FundingType.",
+      "reason": "Query satisfies city anchor (Riverside) and the score threshold (>400) and returns the requested attributes. Ambiguity about whether the score must be averaged over multiple records is reasonable; choosing the per-record interpretation is acceptable and not contradicted by the schema.",
+      "verdict": true,
+      "evidence": "Result shows 8 rows with columns School and FundingType, e.g., row1 'La Sierra High', FundingType NULL; row4 'Martin Luther King Jr. High', FundingType NULL."
+    }
+  },
+  {
+    "question_id": 26,
+    "result": {
+      "expected_answer": "List each high school located in Monterey (county or city) that served more than 800 free or reduced-price meals to students ages 15-17, showing for each school: name, street address, city, state, and zip code (the full communication address).",
+      "sql_description": "Finds schools whose City equals 'Monterey', whose SOCType is 'High Schools (Public)', and whose Free Meal Count (Ages 5-17) exceeds 800; returns school name and physical address fields.",
+      "reason": "Query filters on Free Meal Count (Ages 5-17) instead of FRPM (free OR reduced-price meals) counts requested, so the mandatory anchor of including reduced-price meals is missing. It also limits to City='Monterey', ignoring Monterey County possibility, but the missing FRPM anchor alone makes it incorrect.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 32,
+    "result": {
+      "expected_answer": "For each of the five high schools (SOC code 66) that have the largest Free-or-Reduced-Price Meal Count (K-12), return that school’s eligible FRPM rate, i.e. FRPM Count (K-12) divided by Enrollment (K-12).",
+      "sql_description": "Takes all schools with SOC = 66, orders them by Free Meal Count (K-12) (not FRPM Count) descending, picks the top 5 rows, and outputs Free Meal Count (K-12) ÷ Enrollment (K-12).",
+      "reason": "Uses Free Meal Count instead of FRPM Count for both the ranking and the rate calculation, violating the required anchor of using FRPM Count. Therefore it answers a different question (free-meal rate, not FRPM rate).",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 31,
+    "result": {
+      "expected_answer": "The eligible free rates (Free Meal Count ÷ Enrollment) for the two schools that rank 10th and 11th in K-12 enrollment (highest to lowest). Should return two numbers, one for each of those schools.",
+      "sql_description": "Calculates Free Meal Count ÷ Enrollment for every school and orders by enrollment descending, then returns just the single row at offset 1 (the 2nd-highest enrollment).",
+      "reason": "Returns only one school (2nd highest) instead of the 10th and 11th, so required ranking anchors are missing/incorrect.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 41,
+    "result": {
+      "expected_answer": "Names of schools whose Virtual code is 'F' (exclusively virtual) that rank within the top 5 highest average reading scores in their own county (ranking done separately for each county).",
+      "sql_description": "Joins satscores with schools, keeps rows where Virtual = 'N' (non-virtual), then globally sorts all schools by AvgScrRead and returns the first 5 school names across the whole state.",
+      "reason": "Missing required anchors: 1) filters the wrong virtual category (uses 'N' not 'F'); 2) does not rank within each county – applies a statewide ORDER BY with LIMIT 5 instead of top-5 per county. Therefore it does not answer the question.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 40,
+    "result": {
+      "expected_answer": "The telephone number of the school in the Fresno Unified district that has the lowest average SAT reading score.",
+      "sql_description": "Joins satscores with schools, keeps rows where district name is 'Fresno Unified', orders them by AvgScrRead ascending, and returns the phone number of the first (lowest-scoring) school.",
+      "reason": "All required anchors are met: district filter (Fresno Unified), ranking on AvgScrRead to find the lowest, and selection of the phone number. Result set therefore answers the question.",
+      "verdict": true,
+      "evidence": "sql_result shows column Phone row0 = '(559) 490-4290'"
+    }
+  },
+  {
+    "question_id": 48,
+    "result": {
+      "expected_answer": "A numeric ratio equal to (number of MERGED schools whose DOC = 54 in Orange County) divided by (number of MERGED schools whose DOC = 52 in Orange County).",
+      "sql_description": "Counts all schools in Orange County with DOC 54 and DOC 52 (no status filter) – duplicates inflated by joining to frpm – then divides the two counts and multiplies by 100.",
+      "reason": "Missing required anchor: StatusType = 'Merged'. Also join to frpm can duplicate rows, distorting counts. Therefore the query does not compute the requested ratio of merged schools.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 77,
+    "result": {
+      "expected_answer": "For each Los Angeles County school whose grade span served is Kindergarten through 9th grade (GSserved = 'K-9'), return the school name together with its Percent (%) Eligible FRPM (Ages 5-17).",
+      "sql_description": "Joins schools and frpm, keeps rows where county is 'Los Angeles' and GSserved = 'K-9'; for each such school outputs the name and computes 100 * Free Meal Count (Ages 5-17) / Enrollment (Ages 5-17).",
+      "reason": "The query substitutes Free Meal Count for FRPM Count when computing the percentage, so it returns Percent Eligible Free rather than Percent Eligible FRPM, violating the explicit anchor \"Percent (%) Eligible FRPM (Ages 5-17)\".",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 47,
+    "result": {
+      "expected_answer": "A single numeric value: (number of schools in Alameda County with DOC = 52 whose OpenDate falls in 1980) divided by 12 – i.e., the average number of such school openings per month in 1980.",
+      "sql_description": "From rows in schools (restricted to Alameda County and DOC = 52) that have OpenDate beginning with 1980, counts them (via SUM over a CASE) and divides by 12. Because it inner-joins to frpm on CDSCode (1-to-1), only schools that have a matching frpm row are considered.",
+      "reason": "Core anchors – county = Alameda, DOC = 52, year 1980, division by 12 – are all satisfied. The extra join does not change the logic under the schema (frpm has a primary key on CDSCode, so at most one match per school); thus each qualifying school contributes exactly once, fulfilling the required count. Query therefore answers the question.",
+      "verdict": true,
+      "evidence": "sql_result returned one column named cast(sum(...) / 12) with value 0.083333 (row 0), showing the computed monthly average."
+    }
+  },
+  {
+    "question_id": 87,
+    "result": {
+      "expected_answer": "Administrator e-mail address(es) of schools in San Bernardino County that belong to the San Bernardino City Unified district, opened between 2009-01-01 and 2010-12-31, and whose type codes are SOC 62 (public Intermediate/Middle School) and DOC 54 (Unified School District).",
+      "sql_description": "Queries schools (joined to frpm but unused) and returns AdmEmail1 where County = 'San Bernardino', District = 'San Bernardino City Unified', OpenDate between 2009-01-01 and 2010-12-31, SOC = 62, and DOC = 54.",
+      "reason": "All required anchors—county, district, opening-date window, SOC 62, DOC 54—are explicitly applied, and the query returns the requested administrator e-mail(s). City is implicitly satisfied through the district name, so no missing anchor.",
+      "verdict": true,
+      "evidence": "sql_result shows column AdmEmail1 with value 'a.lucero@realjourney.org' (row 0), matching the requested output type."
+    }
+  },
+  {
+    "question_id": 72,
+    "result": {
+      "expected_answer": "A single numeric count showing the number of 5- to 17-year-old students enrolled at the State Special School that is located in Fremont for the 2014-2015 academic year.",
+      "sql_description": "Retrieves the column \"Enrollment (Ages 5-17)\" from table frpm for rows where School Name equals 'State Special School' and Academic Year equals '2014-2015'.",
+      "reason": "Query omits the explicit location anchor \"in Fremont\"; it does not restrict by district/county to ensure the school is the one located in Fremont, so it may include other similarly named schools. Required anchor missing.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 85,
+    "result": {
+      "expected_answer": "For each school with an administrator whose first name is Alusine, return two pieces of information: (1) its Percent (%) Eligible Free (K-12) and (2) the district code of that school.",
+      "sql_description": "Joins schools with frpm on CDSCode, filters rows where AdmFName1 = 'Alusine', and outputs only the Percent (%) Eligible Free (K-12) column.",
+      "reason": "The query omits the required district code field, providing only the percentage. Therefore it does not fully answer the question.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 28,
+    "result": {
+      "expected_answer": "For locally funded schools, compute each school's difference (Enrollment (K-12) minus Enrollment (Ages 5-17)); then report the school name and its DOCType for those schools whose individual difference is greater than the average of these differences.",
+      "sql_description": "Calculates only the average of (Enrollment (K-12) – Enrollment (Ages 5-17)) for locally funded schools and returns that single numeric value.",
+      "reason": "Query fails to list any schools or their DOCType and thus does not satisfy the requirement to output names and DOC types of schools whose difference exceeds the average.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 39,
+    "result": {
+      "expected_answer": "The average value of NumTstTakr (number of SAT test takers) across schools located in Fresno (city or county) whose OpenDate falls within 1980 (01/01/1980–12/31/1980).",
+      "sql_description": "The query joins satscores with schools, restricts to schools whose OpenDate starts with '1980', and returns the average NumTstTakr over those schools, without any restriction to Fresno.",
+      "reason": "Required anchor \"Fresno\" (city or county) is missing, so results include non-Fresno schools.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 99,
+    "result": {
+      "expected_answer": "Account IDs whose loan duration is greater than 12 months, whose account opening date (account.date) is in 1993, and whose approved loan amount is the highest among that group.",
+      "sql_description": "Joins loan and account, keeps rows where the LOAN approval date is in 1993 and loan duration > 12, then returns the account_id with the largest loan amount (top-1).",
+      "reason": "The query applies the 1993 filter to loan.date instead of the required account opening date (account.date). Thus the key anchor 'account opening date in 1993' is missing/incorrect, so the result set may include or exclude wrong accounts.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 94,
+    "result": {
+      "expected_answer": "Account numbers of female clients who are simultaneously the oldest (earliest birth_date) and whose district has the lowest average salary (A11); additionally, a numeric value equal to (highest A11 in any district) minus (this lowest A11).",
+      "sql_description": "Returns the single account_id of the oldest female client, ignoring district average salary and without computing any salary gap.",
+      "reason": "Query omits the required lowest-average-salary condition and does not calculate the salary gap, thus misses key anchors (lowest A11, gap).",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 100,
+    "result": {
+      "expected_answer": "The number of female clients (customers) whose birth date is before 1950 and whose district name (A2) is 'Sokolov'.",
+      "sql_description": "Counts all clients with gender = 'F' and birth_date before 1950, regardless of district.",
+      "reason": "Required anchor \"stayed in Sokolov\" (district.A2 = 'Sokolov') is missing, so the query counts females from all districts, not just Sokolov.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 46,
+    "result": {
+      "expected_answer": "Name(s) of the individual schools whose DOC = 31 (State Special Schools) that have the largest K-12 enrollment (grades 1-12) – i.e., the single school with the highest enrollee count or a tie list of such schools.",
+      "sql_description": "Sums K-12 enrollment across all State Special Schools per STATE, orders states by that total and returns the top STATE value (\"CA\").",
+      "reason": "Query groups by the wrong entity (state) and returns a state abbreviation, not the school(s). Required anchor: individual State Special School identifier/name is missing, so the answer does not match the question.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 117,
+    "result": {
+      "expected_answer": "The percentage (0–100) representing the share of the total loan AMOUNT (sum of amount) whose status is 'A' (contract finished, no problems) out of the overall loan amount in the table.",
+      "sql_description": "Computes 100 * (number of loans with status = 'A') / (total number of loans). It ignores the loan amount column.",
+      "reason": "Question asks for percentage of loan amounts, not percentage of loan count. Predicted SQL uses counts, omitting the amount anchor, so it answers a different metric.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 62,
+    "result": {
+      "expected_answer": "Count of distinct non-charter schools (Charter=0) located in Los Angeles County whose Percent (%) Eligible Free (K-12) is below 0.18.",
+      "sql_description": "Joins frpm with schools for LA County non-charter records, then sums 1 for each joined row whose percent < 0.18; effectively counts qualifying FRPM rows, not distinct schools.",
+      "reason": "The query does not deduplicate by school, so schools with multiple FRPM records (different academic years) are over-counted. Question asks for number of schools, not number of qualifying rows.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 83,
+    "result": {
+      "expected_answer": "1) The total count of magnet schools serving grade span K-8 whose NSLP Provision Status is \"Multiple Provision Types\".\n2) For every city that has at least one school serving K-8 (regardless of magnet or provision status), list that city together with the number of K-8 schools it has; also give the total number of such cities.",
+      "sql_description": "Counts DISTINCT cities of schools where GSserved='K-8', Magnet=1 and NSLP Provision Status='Multiple Provision Types'. Returns a single number (1).",
+      "reason": "Query omits the required count of qualifying schools, omits per-city school counts, and restricts to magnet + provision when the second requirement should cover all K-8 schools. It only produces distinct city count, so it does not satisfy either part of the question.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 92,
+    "result": {
+      "expected_answer": "The count of distinct districts whose female clients have an average salary strictly greater than 6000 and strictly less than 10000.",
+      "sql_description": "Counts all client rows that are female and belong to districts with A11 between 6000 and 10000 (inclusive). It does not deduplicate by district.",
+      "reason": "Returns number of female client rows, not number of districts; lacks DISTINCT or GROUP BY on districts. Also uses inclusive boundaries ('BETWEEN'), violating the strict >6000 and <10000 requirement. Therefore does not satisfy the question anchors (district count and boundary conditions).",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 50,
+    "result": {
+      "expected_answer": "The postal (mailing) street address and the school name of the school that ranks 7th highest in AvgScrMath among all schools.",
+      "sql_description": "Joins SAT scores with school info, orders by AvgScrMath descending, skips the first five rows and returns the next one (effectively the 6th-highest Math average), outputting schools.Street and satscores.sname.",
+      "reason": "The query selects the 6th, not the 7th, highest Math average (OFFSET 5 instead of 6). Thus the required ranking anchor is wrong, so the returned school/address may be incorrect.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 79,
+    "result": {
+      "expected_answer": "Identify whether San Diego or Santa Barbara has the higher count of schools whose Virtual field is 'F' (exclusively virtual, i.e., no physical building) and show that county together with the count.",
+      "sql_description": "Counts, for each of the two counties, the number of schools where Virtual = 'N' (not virtual, i.e., schools WITH a physical building), orders the counts descending, and returns the county with the highest such count.",
+      "reason": "Key anchor wrong: the query uses Virtual='N' instead of the required Virtual='F' to represent schools without a physical building, so it measures the opposite population.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 137,
+    "result": {
+      "expected_answer": "A single integer: the number of distinct accounts whose branch (district_id) is 1 and which currently have at least one running loan (loan.status = 'C' or 'D').",
+      "sql_description": "Counts every loan row (not DISTINCT) whose account is in district 1 and whose status is 'C'. It ignores status 'D'.",
+      "reason": "Misses required anchor status='D' for running‐but-in-debt contracts and may double-count accounts with multiple running loans because DISTINCT is absent. Therefore it does not accurately answer the question.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 115,
+    "result": {
+      "expected_answer": "Percentage (%) of male clients in the single district located in the region 'south Bohemia' that has the highest value of inhabitants (column A4).",
+      "sql_description": "Computes 100 * (number of male clients) / (total clients) across ALL districts whose region (A3) equals 'south Bohemia'; does not identify the max-inhabitants district first.",
+      "reason": "Required anchor \"district with biggest number of inhabitants in south Bohemia\" is missing; the query aggregates over every south Bohemia district.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 89,
+    "result": {
+      "expected_answer": "The total number of accounts whose frequency is \"POPLATEK PO OBRATU\" (issuance after transaction) and whose district lies in the East Bohemia region.",
+      "sql_description": "Joins account with district on district_id, filters rows where district.A3 = 'East Bohemia' and account.frequency = 'POPLATEK PO OBRATU', then counts the resulting rows (one per account).",
+      "reason": "Query applies both required anchors (region East Bohemia and issuance-after-transaction frequency) and counts matching accounts, fulfilling the question.",
+      "verdict": true,
+      "evidence": "Result set has column count(district.district_id) with value 0 indicating no such accounts exist."
+    }
+  },
+  {
+    "question_id": 95,
+    "result": {
+      "expected_answer": "Account numbers belonging to clients who are the youngest (latest birth_date) AND whose associated district has the highest average salary (A11). All such accounts should be returned.",
+      "sql_description": "Gets every client, pairs them with EVERY account in the same district, orders first by birth_date ascending (oldest first) then by district average salary descending, and returns the first account_id.",
+      "reason": "1) Youngest should correspond to latest birth_date; query orders ascending so selects the oldest client.\n2) Clients must simultaneously have the max salary; query only uses salary as secondary tiebreaker, not as required maximum.\n3) Joins account to client only via district_id, giving unrelated accounts, and may miss/duplicate correct ones.\n4) Limits to a single row even if several clients satisfy both maxima.\nMissing/violated anchors: youngest criterion, highest-salary criterion, correct client–account linkage.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 136,
+    "result": {
+      "expected_answer": "A single count of loans approved between 1995-01-01 and 1997-12-31 (inclusive) whose amount is at least 250 000 and whose related account has frequency = 'POPLATEK MESICNE'.",
+      "sql_description": "Counts loans where account.frequency = 'POPLATEK MESICNE', loan.status = 'A', loan.amount > 250000, and the ACCOUNT creation date lies between 1995-01-01 and 1997-12-31.",
+      "reason": "Uses strict > instead of ≥ for amount, but more critically filters by account.date instead of the required loan approval date. Thus misses/incorrectly applies the date anchor.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 129,
+    "result": {
+      "expected_answer": "List the 10 districts with the largest total withdrawal amounts (type = 'VYDAJ', i.e. non-credit-card) during January 1996, ordered from highest total down. At minimum the district names must be returned; including the amounts is acceptable.",
+      "sql_description": "Joins district→account→trans, keeps transactions where type='VYDAJ' and date is in 1996-01, sums the amounts per district name (district.a2), orders the sums descending, and takes the top 10 rows, returning district name and total amount.",
+      "reason": "All required anchors are present: filters to January 1996, restricts to withdrawals (type='VYDAJ' per evidence), aggregates by district name, orders by total and limits to 10. No superfluous or missing constraints.",
+      "verdict": true,
+      "evidence": "sql_result rows show 10 districts (A2 column) with their summed amounts, e.g., row0 A2=Hl.m. Praha, row9 A2=Prerov."
+    }
+  },
+  {
+    "question_id": 128,
+    "result": {
+      "expected_answer": "Names (and possibly counts) of the nine districts that have the most female account holders, ordered from highest to lowest count.",
+      "sql_description": "Counts female clients per district, orders by that count descending, and returns the first 10 district names only (without the counts).",
+      "reason": "Explicit anchor \"top nine\" is violated: query returns 10 rows. It also omits the counts which the wording likely requests, but the row‐limit error alone is sufficient.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 159,
+    "result": {
+      "expected_answer": "For client 3356, list each cash withdrawal transaction (operation = 'VYBER'); at minimum we need the values that identify/describe each withdrawal, e.g., their amounts.",
+      "sql_description": "Joins client → disp → account → trans, filters to client_id = 3356 and trans.operation = 'VYBER', then returns the trans.amount for every matching row.",
+      "reason": "Query correctly anchors on the specified client and on cash-withdrawal operation. Returning the amount for each matching transaction satisfies a reasonable interpretation of “list the withdrawals”, as the amounts enumerate the withdrawals made.",
+      "verdict": true,
+      "evidence": "sql_result shows a column amount with 20 rows (all 15), representing each withdrawal."
+    }
+  },
+  {
+    "question_id": 169,
+    "result": {
+      "expected_answer": "A single numeric value: the percentage growth in the total loan amount of all loans associated with male clients from 1996 to 1997.",
+      "sql_description": "Sums 1997 and 1996 loan amounts but only for rows where client.gender='M' after joining client to loan on client_id = loan.account_id, then applies (1997-1996)/1996*100.",
+      "reason": "The required anchor is the correct linkage between male clients and their loans. In the schema loan.account_id references account.account_id, not client.client_id. Joining client.client_id to loan.account_id is therefore semantically incorrect and filters an arbitrary subset where the numeric ids happen to match. Thus the query does not reliably restrict to loans belonging to male clients, violating the anchor.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 186,
+    "result": {
+      "expected_answer": "A single percentage value: (number of distinct male clients who have at least one account with frequency = 'POPLATEK TYDNE') divided by (number of distinct clients – male or female – who have at least one such account), multiplied by 100.",
+      "sql_description": "Joins client-disp-account, keeps only rows where account.frequency = 'POPLATEK TYDNE', then divides the total number of joined rows whose gender = 'M' by the total number of joined rows, multiplies by 100.",
+      "reason": "The query counts rows in the join rather than DISTINCT clients. A client who is linked to several qualifying accounts (or appears several times as OWNER/USER) is counted multiple times, distorting both numerator and denominator. The question asks about clients, so distinct clients are a required anchor that the SQL does not satisfy.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 192,
+    "result": {
+      "expected_answer": "The average loan amount for all loans whose status indicates the contract is still running (statuses ‘C’ or ‘D’) and whose associated account issues a statement after each transaction (frequency = 'POPLATEK PO OBRATU').",
+      "sql_description": "Computes AVG(loan.amount) for loans joined with their accounts where frequency = 'POPLATEK PO OBRATU' and loan status = 'C' only.",
+      "reason": "The query excludes status ‘D’, which also represents a running contract per the evidence. Therefore it does not cover all required loans and the average may differ from the correct answer.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 198,
+    "result": {
+      "expected_answer": "The numeric average (mean) number of single-bond occurrences (bond_type='-') for each carcinogenic molecule (label='+') – i.e. total single bonds divided by the number of carcinogenic molecules.",
+      "sql_description": "Counts single-bond rows for carcinogenic molecules and divides by the total number of joined rows (which equals total bonds for those molecules). This returns the proportion of single bonds among all bonds, not an average per molecule.",
+      "reason": "Denominator should be the count of distinct carcinogenic molecules; because the join multiplies molecules by their bonds, COUNT(molecule_id) counts bonds, so the query computes a bond-level ratio, not the requested per-molecule average.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 168,
+    "result": {
+      "expected_answer": "A single percentage value: among clients whose account was opened in a district where the average salary (A11) is greater than 10000, what fraction of those clients are female (gender = 'F'). The numerator and denominator should each count every qualifying client exactly once.",
+      "sql_description": "Counts rows obtained after joining client to ALL accounts in the same district, keeps only districts with A11 > 10000, and returns 100 * (female rows) / (all rows). Because the join is on district_id only, each client is repeated once for every account that exists in that district, not once per client.",
+      "reason": "The required anchor is a per-client percentage. The query inflates (and differentially weights) clients by the number of accounts in their district, since it does not link each client to his/her own account (missing disposition/account relationship). Thus some clients are counted multiple times and others fewer, so the produced ratio is not guaranteed to equal the true client-level percentage.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 201,
+    "result": {
+      "expected_answer": "Percentage (0-100) of atoms that are carbon among all atoms belonging to molecules that contain at least one double bond (bond_type='=').",
+      "sql_description": "Joins atom and bond on molecule_id, keeps only rows where bond.bond_type equals the literal string ' = ' (with spaces). Counts how many joined rows have element='c' and divides by total joined rows, multiplying by 100.",
+      "reason": "1) Anchor mismatch: uses bond.bond_type = ' = ' (with spaces) instead of '='; likely selects zero rows (confirmed by NULL result). 2) Joining directly duplicates every atom once per double-bond, inflating counts. Therefore the query does not correctly compute the requested percentage.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 194,
+    "result": {
+      "expected_answer": "List each client’s ID and age for clients who both own a high-level credit card (card.type = 'gold') and are eligible for loans, i.e. their disposition type is 'OWNER'.",
+      "sql_description": "Returns client_id and birth_date for clients linked to any gold card, without checking that their disp.type = 'OWNER'. Age is not computed; birth_date is returned instead.",
+      "reason": "Missing required anchor disp.type = 'OWNER' (eligibility for loans) and returns birth_date instead of age. Therefore it does not satisfy the question constraints.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 207,
+    "result": {
+      "expected_answer": "List of distinct element symbols of atoms that participate in double (\"=\") bonds across all molecules.",
+      "sql_description": "Selects distinct elements of all atoms in molecules that have at least one bond whose bond_type equals the literal string \" = \" (space-equals-space). The join is by molecule_id only, so any atom in such molecules is included, not necessarily those in the double bond.",
+      "reason": "Missing anchor: bond_type should match '=' exactly. The query uses ' = ', yielding no matches. Additionally, it over-includes atoms unrelated to the double bond, but the anchor failure alone is decisive.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 189,
+    "result": {
+      "expected_answer": "Account numbers (account.account_id) belonging to female clients who are simultaneously the oldest (earliest birth_date among all females) and whose districts have the lowest average salary (minimum district.A11 among those oldest females; if ties, return all matching accounts).",
+      "sql_description": "Joins client with district, keeps only female rows, sorts first by birth_date ascending (oldest first) then by district.A11 ascending, and returns the single client_id of the first row.",
+      "reason": "1) Returns client_id, not account numbers.\n2) Uses LIMIT 1 so may drop valid ties.\n3) Does not ensure the chosen row has the global minimum average salary among the oldest females; ordering prioritises age only.\nRequired anchors (account numbers, both minima) are missing/violated.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 215,
+    "result": {
+      "expected_answer": "The total number of DISTINCT atoms whose element is iodine ('i') or sulfur ('s') and that participate in at least one single bond (bond_type='-'). Atoms appearing in either position of the bond should be considered.",
+      "sql_description": "Counts the number of connected.atom_id rows (not distinct) where the bond is single and the first atom’s element is iodine or sulfur, ignoring atom_id2.",
+      "reason": "Missing two required anchors: 1) DISTINCT on atom ids, 2) inclusion of atoms appearing as atom_id2. Therefore the count can be inflated and incomplete.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 200,
+    "result": {
+      "expected_answer": "List of molecule IDs that have at least one triple bond (#) and are marked carcinogenic (label '+').",
+      "sql_description": "Joins molecule with bond, filters rows where bond_type is '#' and molecule label is '+', returning the molecule_id (without DISTINCT so duplicates possible).",
+      "reason": "Query applies both required anchors: triple bond (#) and carcinogenic label '+'. Selecting molecule_id satisfies the requested information; duplicate rows do not violate the question’s intent.",
+      "verdict": true,
+      "evidence": "sql_result shows molecule_id column with values TR041 (rows 0–1) and TR499 (row 2) – all satisfy the conditions."
+    }
+  },
+  {
+    "question_id": 226,
+    "result": {
+      "expected_answer": "Percentage of bonds in molecule TR008 whose bond_type is '=' (double bond), expressed as a percentage with five decimal places.",
+      "sql_description": "Counts bonds for TR008 whose bond_type equals the literal string ' = ' (with spaces), divides by total bonds for TR008, multiplies by 100, returns the numeric percentage.",
+      "reason": "Required anchor bond_type='=' is mismatched; the query looks for ' = ' (with spaces), likely missing all true double-bond rows, so the percentage will be wrong. Formatting to five decimals is also absent.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 219,
+    "result": {
+      "expected_answer": "Percentage = (number of triple bonds in carcinogenic (+) molecules) * 100 / (total bonds in carcinogenic molecules). Return that single numeric percentage.",
+      "sql_description": "Joins molecule to bond, keeps only carcinogenic molecules (label='+'). Numerator counts rows where bond_type='#' (triple bonds). Denominator counts all joined rows (all bonds). Computes numerator*100/denominator, yielding the percentage of triple bonds among bonds in carcinogenic molecules.",
+      "reason": "Computation aligns with evidence formula: both numerator and denominator are calculated over bonds of '+' molecules; denominator counts bonds via duplicated molecule_id, effectively equivalent to COUNT(bond_id). All required anchors (carcinogenic label, triple bond, percentage formula) satisfied.",
+      "verdict": true,
+      "evidence": "Result set has single column with value ~0.080754 (row 0), matching expected single percentage output."
+    }
+  },
+  {
+    "question_id": 231,
+    "result": {
+      "expected_answer": "The bond type occurring most frequently among bonds in molecule TR010, along with the molecule’s carcinogenic label (+/-).",
+      "sql_description": "Finds, for molecule id TR018, the bond type with the highest count and returns that bond type together with the molecule’s label.",
+      "reason": "Hard anchor on molecule id is wrong: query uses TR018 instead of required TR010. Therefore it does not address the asked molecule.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 218,
+    "result": {
+      "expected_answer": "A single percentage value: (number of carcinogenic molecules with no fluorine atoms) divided by (total number of carcinogenic molecules) * 100.",
+      "sql_description": "Joins molecules with their atoms, counts atoms in carcinogenic molecules that are not fluorine, and divides by the total number of atom rows (from all molecules), then multiplies by 100.",
+      "reason": "Uses atom rows instead of molecules for both numerator and denominator; denominator is not restricted to carcinogenic molecules. Therefore the computed fraction is unrelated to the required percentage of molecules without fluorine.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 228,
+    "result": {
+      "expected_answer": "The percentage of atoms in molecule TR206 that are hydrogen, expressed as a percentage (0-100) to four decimal places.",
+      "sql_description": "Counts hydrogen atoms in atom table for molecule TR206, divides by total atoms for that molecule, multiplies by 100 to yield the hydrogen percentage.",
+      "reason": "Query filters by molecule_id='TR206', correctly counts hydrogen atoms and total atoms, computes percentage. Formatting (four decimals) is presentation outside SQL evaluation.",
+      "verdict": true,
+      "evidence": "Result column cast(sum(CASE WHEN element = 'h' THEN 1 ELSE 0 END) AS REAL) * 100 / count(atom_id) returned 45.454545, matching expected calculation."
+    }
+  },
+  {
+    "question_id": 197,
+    "result": {
+      "expected_answer": "A single numeric value: the average count of oxygen atoms per molecule among molecules having single bonds (bond_type = '-').",
+      "sql_description": "Joins atom and bond on molecule_id, keeps rows with bond_type '-' and atom.element = 'o', then directly applies AVG to the atom.element field (a text column). This effectively tries to average string values instead of counting oxygen atoms per molecule.",
+      "reason": "It does not compute the number of oxygen atoms per molecule nor an average of those counts; AVG on a text column is meaningless. Required anchor: average of counts per molecule is missing.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 227,
+    "result": {
+      "expected_answer": "A single numeric value: the percentage of all molecules whose label is '+', expressed as a number with exactly three digits after the decimal (e.g., 44.315).",
+      "sql_description": "Counts molecules with label='+', divides by total molecules, multiplies by 100 to give a percentage but leaves the result with default floating-point precision (more than three decimal places).",
+      "reason": "Core calculation is correct, but the question explicitly demands formatting to three decimal places. The SQL omits any rounding/formatting function, producing six-plus decimals, so it misses the stated anchor.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 239,
+    "result": {
+      "expected_answer": "The number of bonds (rows in connected) in which any atom whose id ends with \"_19\" (pattern TR%_19) participates, regardless of whether it appears in atom_id or atom_id2.",
+      "sql_description": "Counts bond_id rows where atom_id equals exactly 'TR000_19' and ignores matches in atom_id2 or other molecules.",
+      "reason": "Misses required anchor: pattern match TR%_19 and bonds where the 19-atom appears in atom_id2. Thus may under-count connections.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 232,
+    "result": {
+      "expected_answer": "Alphabetically first three molecule_id values for molecules that are non-carcinogenic (label='-') and have at least one single bond (bond_type='-').",
+      "sql_description": "Joins molecule with bond, keeps rows whose bond type is '-', orders by molecule.label and returns the first three molecule.label values.",
+      "reason": "Missing required anchors: does not filter to non-carcinogenic molecules (label='-'); returns label instead of molecule_id; orders by label instead of alphabetical molecule_id. Therefore answer content and ordering are wrong.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 234,
+    "result": {
+      "expected_answer": "The number (count) of bonds in molecule TR009 that involve atom 12 (atom id TR009_12, appearing as either endpoint).",
+      "sql_description": "Joins bond with connected, keeps rows where the bond belongs to molecule TR009 and either connected.atom_id or connected.atom_id2 equals 'TR009_12', then counts the resulting bond_ids.",
+      "reason": "All required anchors are present: molecule_id='TR009' and involvement of atom 12 via either atom_id field. Counting bond_id satisfies the request for how many bonds. Query logic aligns with question.",
+      "verdict": true,
+      "evidence": "sql_result has column count(bond.bond_id) with value 6 in the first row."
+    }
+  },
+  {
+    "question_id": 244,
+    "result": {
+      "expected_answer": "Whether the molecule that possesses the greatest number of double (\"=\") bonds is carcinogenic; effectively the '+' or '-' label (or a yes/no equivalent) for that molecule.",
+      "sql_description": "Counts bonds of type '=' per molecule, orders molecules by this count descending, keeps the top one and returns its label field, which encodes carcinogenicity.",
+      "reason": "Query correctly isolates double bonds, identifies the molecule with the highest count, and reports its carcinogenic label. All required anchors (double bonds filter, max-count selection, retrieval of carcinogenic flag) are present. Tie-handling via LIMIT 1 is acceptable given the question’s wording.",
+      "verdict": true,
+      "evidence": "Result set has column [label] (carcinogenic flag); no rows appeared in sample run, but the query logic is sound and aligned with the requirement."
+    }
+  },
+  {
+    "question_id": 213,
+    "result": {
+      "expected_answer": "The bond_type value of the bond that connects atoms TR004_8 and TR004_20 (regardless of which column each atom appears in).",
+      "sql_description": "Joins bond with connected and returns bond.bond_type where connected.atom_id = 'TR004_8' and connected.atom_id2 = 'TR004_20'.",
+      "reason": "Query only works if the database stores the pair in that exact order; it omits the reverse order (atom_id = 'TR004_20' AND atom_id2 = 'TR004_8'), so the anchor covering both possible orientations is incomplete.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 242,
+    "result": {
+      "expected_answer": "The set of molecule_id values whose molecule is labeled carcinogenic ('+') and that have at least one atom whose 7th–8th characters of atom_id are between 21 and 25 (inclusive). Duplicates not required.",
+      "sql_description": "Joins molecule and atom, keeps rows where molecule.label = '+' and SUBSTR(atom.atom_id,7,2) is between '21' and '25'; returns the matching molecule_id values (possibly with duplicates).",
+      "reason": "All required anchors are present: carcinogenic label '+' and atom index 21-25 filter. Query outputs the molecule_ids satisfying these conditions. Duplicate rows do not invalidate the list.",
+      "verdict": true,
+      "evidence": "sql_result shows molecule_id column with values TR001, TR006, TR019, TR020, TR029 (rows 0-19), matching molecules that meet the conditions."
+    }
+  },
+  {
+    "question_id": 245,
+    "result": {
+      "expected_answer": "A single numeric value: the average (total bonds ÷ total iodine atoms) for all atoms whose element is iodine.",
+      "sql_description": "Joins atoms with element='i' to bonds via molecule_id, counts all bond_id rows (duplicates included per iodine atom) then divides by the count of distinct iodine atom_ids, returning that average.",
+      "reason": "Required anchors satisfied: (1) filters atoms where element = 'i'; (2) computes a ratio of bond count to iodine-atom count, yielding one average value. The adopted interpretation—average number of bonds per iodine atom estimated at molecule level—is consistent with the evidence formula and schema lacking direct atom-bond links. Thus the SQL answers the question.",
+      "verdict": true,
+      "evidence": "sql_result column ‘cast(count(bond.bond_id) AS REAL) / count(DISTINCT atom.atom_id)’ returns a single value 4.0 (row 0)."
+    }
+  },
+  {
+    "question_id": 282,
+    "result": {
+      "expected_answer": "The proportion (ratio or percentage) of hydrogen atoms within molecule TR006 together with the molecule’s carcinogenic label (+ or −).",
+      "sql_description": "Counts hydrogen atoms and total atoms for molecule TR006, computes hydrogen_count *100 / total_count (percentage ratio), and returns this value along with the molecule label from molecule table.",
+      "reason": "Query applies the correct filter (molecule_id='TR006'), correctly identifies hydrogen atoms (element='h'), divides by total atoms, and returns the ratio plus the label. Percentage is an acceptable form of ratio.",
+      "verdict": true,
+      "evidence": "Row0: [ratio_pct=36.170213, label='+']"
+    }
+  },
+  {
+    "question_id": 247,
+    "result": {
+      "expected_answer": "Distinct element names for atoms that have no bond records at all – i.e., atoms whose id appears in neither connected.atom_id nor connected.atom_id2.",
+      "sql_description": "Returns distinct elements for atoms whose id is absent from connected.atom_id but ignores appearances in connected.atom_id2.",
+      "reason": "The required anchor is that an atom must not occur in ANY position in the connected table. Query fails to exclude atoms present only in connected.atom_id2, so the set can include bonded atoms.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 255,
+    "result": {
+      "expected_answer": "Percentage (to five decimal places) of bonds with bond_type='-' whose parent molecule has label='+'.",
+      "sql_description": "Joins bond with molecule, filters bonds of type '-', counts such bonds and how many of them belong to '+' molecules, divides and multiplies by 100 to give a percentage.",
+      "reason": "Correctly applies required filters (single bonds, carcinogenic molecules) and computes proportion over bonds. Five-decimal formatting is a presentation detail; the numeric value produced is correct.",
+      "verdict": true,
+      "evidence": "Result set has one column representing the computed percentage (e.g., 39.752034)."
+    }
+  },
+  {
+    "question_id": 344,
+    "result": {
+      "expected_answer": "Names of every card whose printing is of mythic rarity and is banned in the gladiator format.",
+      "sql_description": "Joins cards with legalities and filters rows where format = 'gladiator' and status = 'Banned', and where the card printing’s rarity is 'mythic', returning the card name.",
+      "reason": "Query applies all three requested filters (format, banned status, mythic rarity) and outputs card names, satisfying the question. Duplicate rows do not violate any explicit requirement.",
+      "verdict": true,
+      "evidence": "sql_result shows rows: name column values such as 'Oko, Thief of Crowns' (multiple times) and 'Nexus of Fate', matching banned mythic cards in gladiator."
+    }
+  },
+  {
+    "question_id": 327,
+    "result": {
+      "expected_answer": "List of molecule_id values for all molecules with label '-' (non-carcinogenic) that have more than 5 associated atoms.",
+      "sql_description": "Counts the number of atoms per non-carcinogenic molecule, then outputs only those counts (not the molecule_ids) where the count > 5.",
+      "reason": "Query satisfies the atom-count and non-carcinogenic anchors but fails to return the requested molecules; it outputs counts instead of molecule identifiers.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 349,
+    "result": {
+      "expected_answer": "Return the card name, its artist, and whether it is a promotional printing (isPromo flag) for the card that has the highest number of rulings entries.",
+      "sql_description": "Joins cards with rulings, groups by card name, artist and promo flag, counts rulings per group, orders by this count descending and returns the top record (name, artist, isPromo).",
+      "reason": "Correctly identifies the card with the most rulings by counting ruling rows, and outputs the required fields including the promotional flag without adding or omitting constraints.",
+      "verdict": true,
+      "evidence": "sql_result shows columns [name, artist, isPromo] with one row (e.g., Fork | Amy Weber | 0), matching requested output structure."
+    }
+  },
+  {
+    "question_id": 248,
+    "result": {
+      "expected_answer": "List of atom id pairs (atom_id, atom_id2) that are connected by triple (\"#\") bonds within molecule TR041.",
+      "sql_description": "Retrieves atom_id and atom_id2 for bonds of type '#' after joining bond and connected, but filters for molecule_id = 'TR447'.",
+      "reason": "The required anchor molecule_id = 'TR041' is incorrect in the SQL (uses 'TR447'), so it does not answer the question.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 402,
+    "result": {
+      "expected_answer": "Provide: 1) the percentage of cards that are Story Spotlight and lack a text box; 2) the IDs of those Story-Spotlight-and-textless cards.",
+      "sql_description": "Computes (count of Story Spotlight rows whose isTextless = 0) / (count of all Story Spotlight rows) * 100 and returns that single numeric value. Does not return any IDs.",
+      "reason": "The query omits the required list of IDs, only supplying the percentage. Therefore it does not fully answer the question.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 281,
+    "result": {
+      "expected_answer": "A count per element (frequency) of the 4th atom (atom_id seventh char = '4') among molecules whose label is '+'. Example output: element | tally_count.",
+      "sql_description": "Returns the distinct set of element values of atoms whose atom_id indicates they are the 4th atom and belong to carcinogenic ('+') molecules; no counts are produced.",
+      "reason": "Query omits the tally/counting requirement; it lists unique elements instead of counting occurrences, so it does not satisfy the request.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 416,
+    "result": {
+      "expected_answer": "Percentage = (number of cards whose power is NULL or '*' and whose language is French) divided by (total number of cards whose power is NULL or '*') * 100.",
+      "sql_description": "Filters rows to language='French', then counts French cards with missing/unknown power and divides by count(cards.power) (non-NULL power) among French cards only.",
+      "reason": "Required denominator is all cards without power across every language, but query restricts both numerator and denominator to French rows and even excludes NULL power from denominator. Anchor on overall denominator is missing, so percentage is mis-computed.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 440,
+    "result": {
+      "expected_answer": "The foreign language(s) associated with the card whose foreign name is 'A Pedra Fellwar'. Likely a single language value.",
+      "sql_description": "Retrieves the language column from foreign_data for all rows where the foreign name equals 'A Pedra Fellwar'.",
+      "reason": "Query filters by the specified foreign name and returns the language, satisfying the question. Duplicate rows do not affect correctness.",
+      "verdict": true,
+      "evidence": "sql_result shows language column with repeated value 'Portuguese (Brazil)' for rows 0-5."
+    }
+  },
+  {
+    "question_id": 341,
+    "result": {
+      "expected_answer": "List (names) of all cards whose borderColor is 'borderless' and for which a “powerful foil” version does not exist—i.e., the pair (cardKingdomFoilId NOT NULL AND cardKingdomId NOT NULL) is absent.",
+      "sql_description": "Selects names from cards where borderColor = 'borderless' AND cardKingdomId IS NULL AND cardKingdomFoilId IS NULL (both fields must be NULL).",
+      "reason": "The absence of a powerful foil requires that NOT(cardKingdomFoilId IS NOT NULL AND cardKingdomId IS NOT NULL). This condition is satisfied when either field is NULL. The query insists that BOTH fields be NULL, excluding borderless cards where cardKingdomId is present but cardKingdomFoilId is NULL – cards that still meet the stated requirement. Result is therefore incomplete.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 405,
+    "result": {
+      "expected_answer": "The number of distinct card sets whose block is 'Commander' and that have a translation with language = 'Portuguese (Brasil)'.",
+      "sql_description": "Counts distinct set codes from sets joined with set_translations where sets.block = 'Commander' and set_translations.language = 'Portuguese (Brasil)'.",
+      "reason": "Query applies required filters for block 'Commander' and language 'Portuguese (Brasil)', counts distinct sets; meets the question’s constraints.",
+      "verdict": true,
+      "evidence": "sql_result shows column count(DISTINCT sets.code) with value 0, giving the requested count."
+    }
+  },
+  {
+    "question_id": 347,
+    "result": {
+      "expected_answer": "For every card whose artist is Stephen Daniele, list the card identifier (e.g., cards.id or uuid), give the ruling text for that card, and indicate whether the card has missing/degraded properties via hasContentWarning = 1.",
+      "sql_description": "Retrieves distinct ruling text and the hasContentWarning flag for cards whose artist string equals 'Stephen Daniel'; it does not return any card identifier.",
+      "reason": "Fails two mandatory anchors: 1) artist name mismatch (uses 'Stephen Daniel' instead of 'Stephen Daniele'), so the correct set of cards is not targeted; 2) omits the required card identifier column. Therefore it does not fulfill the question requirements.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 473,
+    "result": {
+      "expected_answer": "Whether the set(s) that include the card named \"Adarkar Valkyrie\" are marked as foreign-only (isForeignOnly = 1) or not.",
+      "sql_description": "Finds all sets whose code appears in any printing of the card \"Adarkar Valkyrie\" and returns the distinct isForeignOnly flag for those sets.",
+      "reason": "The query anchors on the card name and retrieves the required isForeignOnly indicator from the associated sets, letting us answer if those sets are only available outside the US. This directly addresses the yes/no question without missing constraints.",
+      "verdict": true,
+      "evidence": "sql_result shows column isForeignOnly with value 0 for the relevant set(s), indicating the sets are NOT foreign-only."
+    }
+  },
+  {
+    "question_id": 358,
+    "result": {
+      "expected_answer": "The value of the borderColor field for the card named \"Ancestor's Chosen\" (e.g., black, white, etc.).",
+      "sql_description": "Returns the colors column for every card row whose name is 'Ancestor's Chosen'.",
+      "reason": "Question asks for borderColor but query fetches colors. Required anchor borderColor is missing, so result does not address the question.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 412,
+    "result": {
+      "expected_answer": "The foreign (French) name(s) of card(s) whose artist is Matthew D. Wilson, layout is normal, border color is black, and whose card type is Creature.",
+      "sql_description": "Joins cards and foreign_data on uuid, then selects foreign_data.name where language = 'French' and the card satisfies artist = 'Matthew D. Wilson', layout = 'normal', borderColor = 'black', and type = 'Creature'.",
+      "reason": "Query applies all required anchors (language, artist, layout, border color, type) and returns the requested foreign name, so it logically answers the question. Equality on type is a reasonable interpretation given schema values list plain 'Creature'.",
+      "verdict": true,
+      "evidence": "Result set has column [name]; no rows returned, indicating no matching card under these constraints."
+    }
+  },
+  {
+    "question_id": 474,
+    "result": {
+      "expected_answer": "Count of card sets that (1) have at least one Italian translation record whose translation text is not null and (2) have a baseSetSize that is below 100 (evidence says interpret as <10 – ambiguous).",
+      "sql_description": "Counts distinct set names joined with set_translations where language is 'Italian' and baseSetSize < 10. Does NOT check that the translation column itself is non-null.",
+      "reason": "Missing required anchor: must ensure the set actually \"has a translation\" i.e., set_translations.translation IS NOT NULL. Query could include rows with NULL translation, violating the question’s condition. (BaseSetSize threshold ambiguity aside.)",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 391,
+    "result": {
+      "expected_answer": "List of Artifact cards (card names) that have color 'B' (black) and at least one record in foreign_data (i.e., they have a foreign-language translation). Each card should appear once (or any reasonable set of English names).",
+      "sql_description": "Joins cards with foreign_data, filters for cards whose originalType is 'Artifact' and colors = 'B', then outputs foreign_data.name for every matching translation row.",
+      "reason": "Query outputs the foreign translation names instead of the card names and may return many duplicate rows per card. The question asks which cards meet the criteria, not the translated strings themselves. Therefore it does not satisfy the required output.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 530,
+    "result": {
+      "expected_answer": "For every card illustrated by Allen Williams: provide its frameVersion (frame style) and card name; additionally indicate which of these cards are banned (status = 'Banned').",
+      "sql_description": "Returns distinct combinations of frameVersion, artist, and legality status for cards where artist='Allen Williams'. Does not include card name; artist column is redundant.",
+      "reason": "Missing required anchor ‘card name’; the query only outputs frameVersion and status, so it cannot list the specific cards Allen Williams worked on. Therefore it does not fulfill the question.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 565,
+    "result": {
+      "expected_answer": "Return 'Yes' if the post linked to the comment (UserId 23853, CreationDate 2013-07-12 09:08:18) has ClosedDate NOT NULL (well-finished), otherwise 'No'. Single value expected.",
+      "sql_description": "Finds the comment with UserId 23853 and CreationDate '2013-07-12 09:08:18.0', joins to its post, and outputs 'Yes' when posts.ClosedDate is not NULL, else 'No'.",
+      "reason": "All required anchors (user id, exact comment timestamp) are present. The CASE expression correctly maps ClosedDate presence to well-finished status per evidence. Result therefore answers the question.",
+      "verdict": true,
+      "evidence": "Returned column \"CASE WHEN posts.closeddate IS NULL THEN 'No' ELSE 'Yes' END\" = 'Yes' (row 0), indicating the post is well-finished."
+    }
+  },
+  {
+    "question_id": 408,
+    "result": {
+      "expected_answer": "The count of cards whose power is unknown (power IS NULL or power='*') AND whose text column contains the phrase 'triggered ability'.",
+      "sql_description": "Counts all cards where power is NULL or '*', without any check on the text column.",
+      "reason": "Missing required anchor: the text must contain 'triggered ability'. Therefore it over-counts and does not answer the question.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 584,
+    "result": {
+      "expected_answer": "All revision comments (postHistory.Comment values) associated with any edits made to the post whose title exactly matches 'Why square the difference instead of taking the absolute value in standard deviation?'.",
+      "sql_description": "Returns the postHistory.Text field, but only for revisions whose Comment is exactly 'Edited title' for the specified post title.",
+      "reason": "The query should output the Comment column, not Text, and it should include every edit comment. By filtering Comment='Edited title' it omits other possible comments, and by selecting Text it does not return the requested data type. Required anchor 'all comments' is violated.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 465,
+    "result": {
+      "expected_answer": "A yes/no indication of whether the card named \"Ancestor's Chosen\" has a Korean-language printing.",
+      "sql_description": "Checks foreign_data for any row with language = 'Korean' whose uuid belongs to a card whose name is 'Ancestor''s Chosen'; returns 'YES' if at least one exists, otherwise 'NO'.",
+      "reason": "Query applies the required anchors (card name and Korean language) and returns an existence flag, matching the question’s intent.",
+      "verdict": true,
+      "evidence": "Result has column \"CASE WHEN count(foreign_data.name) > 0 THEN 'YES' ELSE 'NO' END\" with value 'NO' (row 0), providing the requested yes/no answer."
+    }
+  },
+  {
+    "question_id": 522,
+    "result": {
+      "expected_answer": "For every card whose edhrecRank is 1, return the card's name together with each play format in which it is banned.",
+      "sql_description": "Joins cards to legalities, keeps rows where cards.edhrecRank = 1 and legalities.status = 'Banned', outputs the card name and the format.",
+      "reason": "Query enforces both required anchors (rank 1 and banned status) and returns the requested fields (name, format). Duplicate rows do not violate the question’s requirements.",
+      "verdict": true,
+      "evidence": "sql_result shows rows like (name='Sol Ring', format='duel') and (name='Sol Ring', format='legacy') which fit the stated criteria."
+    }
+  },
+  {
+    "question_id": 595,
+    "result": {
+      "expected_answer": "IDs of users who have at least 1000 profile views and, for every post they authored, there is only one post-history record (i.e., each of their posts has exactly one history entry).",
+      "sql_description": "Finds users with ≥1000 views, joins to postHistory, groups by user, and keeps those whose count of DISTINCT PostId equals 1 (users associated with exactly one post).",
+      "reason": "The query merely checks that the user is linked to exactly one distinct PostId; it does not ensure that each of the user’s posts has only one history entry. A user with many history rows for that single post would still pass, violating the \"only one post history per post\" requirement.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 640,
+    "result": {
+      "expected_answer": "The numeric value representing total view-counts of Mornington’s posts minus the total view-counts of Amos’s posts.",
+      "sql_description": "Joins posts to their owners, sums viewcount for rows where user displayname = 'Mornington' and subtracts the sum for rows where displayname = 'Amos', returning that difference as diff.",
+      "reason": "Implements the required subtraction (Mornington – Amos) using user display names and post view counts; no anchor is missing.",
+      "verdict": true,
+      "evidence": "Returned column diff with value -497 indicating the computed difference."
+    }
+  },
+  {
+    "question_id": 539,
+    "result": {
+      "expected_answer": "Display name (owner) of the post whose title is \"Eliciting priors from experts\".",
+      "sql_description": "Looks up the row in posts with Title = 'Eliciting priors from experts' and returns its OwnerDisplayName value.",
+      "reason": "Query filters by the specified post title and outputs the requested display name field; this satisfies the question’s sole anchor (the title) and returns the owner’s display name.",
+      "verdict": true,
+      "evidence": "Result set has one column OwnerDisplayName; row 0 shows the value (NULL in this run). Structure matches the expected answer."
+    }
+  },
+  {
+    "question_id": 472,
+    "result": {
+      "expected_answer": "The number (count) of distinct sets whose block is 'Ice Age' and that possess at least one row in set_translations where language = 'Italian' and translation is not NULL.",
+      "sql_description": "Counts distinct set codes in the Ice Age block that have any Italian entry in set_translations, without checking whether the translation field itself is non-NULL.",
+      "reason": "Missing required anchor: it does not enforce that the translation value is NOT NULL, which the question/evidence explicitly requires.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 462,
+    "result": {
+      "expected_answer": "Italian name (foreign translation) of the card “Ancestor's Chosen”.",
+      "sql_description": "Looks up the card with name = 'Ancestor''s Chosen', joins to its foreign_data rows, keeps only those where language = 'Italian', and returns that foreign_data.name (Italian card name).",
+      "reason": "Question—supported by evidence—seeks the Italian translation of the specified card. Query correctly filters by card name, joins on uuid, restricts language to Italian, and outputs the Italian name. Duplicate rows do not violate requirements.",
+      "verdict": true,
+      "evidence": "sql_result.name rows: [0] Prescelto dell'Antenata, [1] Prescelto dell'Antenata"
+    }
+  },
+  {
+    "question_id": 479,
+    "result": {
+      "expected_answer": "A single integer: the number of cards in the set named \"Coldsnap\" whose convertedManaCost > 5 and whose power is '*' or NULL.",
+      "sql_description": "Counts cards where cards.uuid equals sets.tcgplayergroupid, sets.name = 'Coldsnap', convertedManaCost > 5, and power is unknown ('*' or NULL).",
+      "reason": "Anchor failure: cards-to-set relationship is mis-joined (cards.uuid = sets.tcgplayergroupid). Correct link should use cards.setCode = sets.code (or similar). Thus query may omit valid cards; count 0 is not reliable.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 586,
+    "result": {
+      "expected_answer": "DisplayName(s) of the user(s) who cast a vote with BountyAmount = 50 on a post whose Title contains the word \"variance\".",
+      "sql_description": "Joins votes → users (by UserId) and votes → posts (by PostId); filters rows where votes.BountyAmount = 50 and posts.Title contains 'variance'; returns the corresponding users.DisplayName.",
+      "reason": "Query applies the needed bounty amount filter, enforces the title substring, links to users, and outputs their display names. All required anchors (bounty amount 50, title containing 'variance', user identity) are present.",
+      "verdict": true,
+      "evidence": "sql_result shows DisplayName column with values ['chl', 'shabbychef'] (rows 0-1) matching the requested information."
+    }
+  },
+  {
+    "question_id": 469,
+    "result": {
+      "expected_answer": "A single Yes/No indicating whether the set that contains the card named \"Angel of Mercy\" has a non-NULL mtgoCode (i.e., appeared on MTGO).",
+      "sql_description": "Returns one row per printing of \"Angel of Mercy\" and outputs \"Yes\" if that printing’s set has mtgoCode, otherwise \"No\"; no aggregation, so multiple Yes/No values are produced.",
+      "reason": "Question asks for a single verdict about the set’s MTGO appearance, but SQL produces many rows, some Yes and some No, leaving the answer indeterminate.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 687,
+    "result": {
+      "expected_answer": "The single integer count of comments whose PostId equals the Id of the post that has the maximum Score.",
+      "sql_description": "Joins every comment with its post, counts ALL comment rows, then (irrelevantly) orders by posts.score and limits to 1, so it returns the total number of comments in the database rather than those of the highest-score post.",
+      "reason": "Query lacks the required anchor restricting to the post with MAX(posts.Score); therefore the returned count is for all comments, not for the top-score post.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 533,
+    "result": {
+      "expected_answer": "A single integer representing the number of users whose LastAccessDate is later than 2014-09-01.",
+      "sql_description": "Counts the rows in users where LastAccessDate is greater than '2014-09-01 00:00:00', returning that count.",
+      "reason": "The filter correctly applies the required date condition (> 2014-09-01) and counts user ids, matching the question’s intent.",
+      "verdict": true,
+      "evidence": "sql_result shows one column count(id) with value 5146 (row 0)."
+    }
+  },
+  {
+    "question_id": 477,
+    "result": {
+      "expected_answer": "The subset of the three named artists who have at least one card in the set named \"Coldsnap\".",
+      "sql_description": "Returns the artist field for every card whose set name is 'Coldsnap' and whose artist is one of ('Jeremy Jarvis', 'Aaron Miller', 'Chippy'); duplicates per card remain.",
+      "reason": "Query filters by the correct set name and limits artists to the three provided names, thereby identifying which of them actually have Coldsnap cards. Duplicates do not harm correctness.",
+      "verdict": true,
+      "evidence": "sql_result rows show artists: Jeremy Jarvis (rows 0-2) and Chippy (rows 3-4); Aaron Miller absent."
+    }
+  },
+  {
+    "question_id": 598,
+    "result": {
+      "expected_answer": "A single numeric value: the percentage difference defined as (percentage of Student badges in 2010 among all Student badges) minus (percentage of Student badges in 2011 among all Student badges). Formally: (count_2010 / total_count * 100) - (count_2011 / total_count * 100).",
+      "sql_description": "Counts Student badges in 2010 and 2011, subtracts the two counts, multiplies by 100, then divides by the 2010 count, yielding ((count_2010 - count_2011) / count_2010) * 100.",
+      "reason": "Denominator should be total Student badges, not 2010 count; therefore the computed percentage difference is wrong.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 728,
+    "result": {
+      "expected_answer": "A list of eye colours of Marvel Comics superheroes ordered by how many superheroes have each eye colour, descending (e.g., colour with its count or at least ordered colours).",
+      "sql_description": "Counts the number of Marvel Comics superheroes whose eye colour is exactly 'Blue'; returns a single count value (126).",
+      "reason": "Query neither groups by eye colour nor orders the counts; it only handles the blue eye colour, so it cannot rank all eye colours as requested.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 634,
+    "result": {
+      "expected_answer": "Identify whether Harvey Motulsky or Noah Snyder has the larger combined view count across all their posts (return the name of the more-popular author).",
+      "sql_description": "Fetches every post whose OwnerDisplayName is either of the two names, sorts the individual posts by ViewCount in descending order, and returns the OwnerDisplayName of the single highest-viewed post.",
+      "reason": "Question (per evidence) requires comparing TOTAL popularity per author (SUM(ViewCount) grouped by owner). The query compares only individual posts, omitting the required aggregation anchor, so it can return a different winner than the correct total-popularity comparison.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 736,
+    "result": {
+      "expected_answer": "The name (e.g., full name or superhero name) of the superhero whose Intelligence attribute value is the lowest among all superheroes; if several tie for minimum, any one of them is acceptable.",
+      "sql_description": "Joins superhero with hero_attribute and attribute, filters rows where attribute_name is 'Intelligence', orders by attribute_value ascending to get the smallest intelligence score, and returns the full_name of the first such hero (LIMIT 1).",
+      "reason": "Query anchors on Intelligence, correctly identifies the minimum by ascending order and LIMIT 1, and outputs the hero’s name, satisfying the ‘dumbest superhero’ request. Singular result is acceptable for the singular question.",
+      "verdict": true,
+      "evidence": "Returned column full_name with value '-' in row 0."
+    }
+  },
+  {
+    "question_id": 563,
+    "result": {
+      "expected_answer": "Return the FavoriteCount value of the post that received the comment made by user 3025 at 20:29:39 on 2014/4/23.",
+      "sql_description": "Joins posts and comments, then selects FavoriteCount for posts where the comment is from user 3025 and the comment CreationDate equals the literal string '2014-04-23 20:29:39'.",
+      "reason": "The query relies on an exact string match for CreationDate and misses the milliseconds part ('.0') present in the data; the execution shows no rows, so it fails to retrieve the required post’s favorite count.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 571,
+    "result": {
+      "expected_answer": "A single numeric value: (number of posts authored by user 24) ÷ (number of votes cast by user 24).",
+      "sql_description": "Counts rows after joining posts and votes where the vote was cast by user 24, then divides count(posts.id) by count(votes.id). Because the join duplicates the post count per vote and does not restrict posts to owner 24, the numerator effectively equals the denominator, always yielding 1.",
+      "reason": "Missing anchor OwnerUserId=24 for posts and double-counting posts via join; thus does not compute the intended ratio. Returns 1 irrespective of actual counts.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 758,
+    "result": {
+      "expected_answer": "Hair colour(s) of all superheroes whose race is human and whose height_cm equals 185.",
+      "sql_description": "Joins superhero with colour and race, filters rows where race.race = 'Human' and height_cm = 185, then returns the colour.colour field.",
+      "reason": "Query applies both required anchors (race human, height 185) and selects the requested attribute (hair colour). No extra or missing constraints.",
+      "verdict": true,
+      "evidence": "sql_result shows column colour with 11 rows such as Blond, Brown, Black, etc., corresponding to matching superheroes."
+    }
+  },
+  {
+    "question_id": 592,
+    "result": {
+      "expected_answer": "A single integer: the number of distinct UserId values for which the user has been awarded more than 5 badges (i.e., users whose badge count exceeds 5).",
+      "sql_description": "Counts DISTINCT UserId rows in badges where Name is greater than 5 (treating Name as a numeric/text comparable value). It does not aggregate badges per user nor check badge count > 5.",
+      "reason": "Missing anchor: badge-count condition per user. The WHERE clause applies >5 to the Name field instead of counting badges; thus it does not answer the question.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 775,
+    "result": {
+      "expected_answer": "Percentage (0-100%) obtained by: (# of female superheroes whose SKIN colour is 'Blue') divided by (total # of female superheroes) * 100.",
+      "sql_description": "Counts female superheroes overall, but counts as blue those whose EYE colour is 'Blue', then divides to compute percentage.",
+      "reason": "Required anchor is skin_colour_id; prediction uses eye_colour_id, so blue classification is incorrect. Denominator is correct, but numerator misaligned with question and evidence.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 710,
+    "result": {
+      "expected_answer": "The total count of comments that have a score of 0, considering only those comments that belong to posts whose CommentCount equals 1.",
+      "sql_description": "Joins posts to their comments, keeps only posts where CommentCount = 1 and comments where Score = 0, then counts the comment IDs.",
+      "reason": "Both required anchors are present: (1) posts limited to CommentCount = 1, (2) comments required to have Score = 0. Counting comment IDs returns exactly the desired quantity.",
+      "verdict": true,
+      "evidence": "count(comments.id)=10997"
+    }
+  },
+  {
+    "question_id": 639,
+    "result": {
+      "expected_answer": "The proportion (in percent) of all posts authored by the user whose DisplayName is \"Community\" that have the R tag.",
+      "sql_description": "Looks at posts whose owner is the user with DisplayName='Community', joins each of those posts to the tags table through tags.WikiPostId = posts.Id, then divides the count of rows where TagName='r' by the total joined-row count to produce a percentage.",
+      "reason": "Posts are constrained to those that have a matching record in tags.WikiPostId, i.e. tag-wiki posts, so many Community posts that are not tag wikis are excluded from the denominator, while only tag-wiki posts are considered for counting the R tag. Thus the query does not compute the percentage over all Community posts as asked. Anchor \"all posts posted by Community\" is violated.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 730,
+    "result": {
+      "expected_answer": "Names (or IDs) of all superheroes published by Marvel Comics who possess the 'Super Strength' power.",
+      "sql_description": "Computes the percentage of Marvel Comics heroes who have the 'Super Strength' power by dividing the count of such heroes by the total number of Marvel heroes.",
+      "reason": "The query returns a percentage value, not the list of hero names/ids. Required anchor of outputting each qualifying superhero is unmet.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 819,
+    "result": {
+      "expected_answer": "Single integer: (number of superheroes with missing weight where eye_colour_id=7) minus (number of superheroes with missing weight where eye_colour_id=1). Missing weight means weight_kg IS NULL or weight_kg = 0.",
+      "sql_description": "Counts blue-eyed superheroes and no-eye-colour superheroes in the entire superhero table, then subtracts the two counts without restricting to missing-weight records.",
+      "reason": "Required anchor on missing weight (weight_kg IS NULL OR weight_kg=0) is absent, so the counts and resulting difference are not restricted to the intended subset.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 685,
+    "result": {
+      "expected_answer": "Return two pieces of information for the post whose Text is exactly 'Computer Game Datasets': 1) its total ViewCount; 2) the DisplayName of the user who made the most recent (last) entry for that post.",
+      "sql_description": "Joins posts to postHistory on post id, then to users, filters rows where postHistory.Text = 'Computer Game Datasets', returns the SUM of posts.ViewCount across all matched rows together with ONE users.DisplayName (not aggregated or ordered).",
+      "reason": "1) Summing ViewCount over the join duplicates the same post for every history row, inflating the total views. 2) It does not identify the last poster—there is no ordering or limit—so the displayed user may be any user involved with the post. Required anchors 'total views' and 'last time' are therefore not satisfied.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 857,
+    "result": {
+      "expected_answer": "Latitude and longitude (coordinate position) for the circuit used in the Abu Dhabi Grand Prix.",
+      "sql_description": "Joins races with circuits, filters races whose name is 'Abu Dhabi Grand Prix', and returns the circuit's lat and lng.",
+      "reason": "Query applies correct anchor (race name) and retrieves the required columns; duplicate rows do not alter the coordinate value, so information is correct.",
+      "verdict": true,
+      "evidence": "sql_result rows show lat=24.4672, lng=54.6031 for all 9 rows."
+    }
+  },
+  {
+    "question_id": 743,
+    "result": {
+      "expected_answer": "1) The percentage of superheroes whose alignment is \"Bad\" (they act in their own self-interest/moral code) out of all superheroes. 2) Among those \"Bad\" superheroes, how many are published by Marvel Comics.",
+      "sql_description": "Calculates the percentage of superheroes with alignment = 'Bad' over all superheroes, then counts every superhero published by Marvel Comics regardless of alignment.",
+      "reason": "The second figure must count only Marvel superheroes whose alignment is 'Bad'. The query instead counts all Marvel superheroes, omitting the required alignment filter, thus violating an explicit anchor.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 865,
+    "result": {
+      "expected_answer": "Name of the oldest driver (earliest dob) among those who finished race 592 (time IS NOT NULL).",
+      "sql_description": "Gets all drivers in race 592 regardless of finish status, orders by date of birth ascending, returns the first driver.",
+      "reason": "Missing required anchor time IS NOT NULL, so non-finishers may be included. Therefore the query does not necessarily restrict to drivers who finished the race.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 872,
+    "result": {
+      "expected_answer": "The abbreviated driver code for the driver whose Q3 time is 0:01:33 in race 45.",
+      "sql_description": "Looks up the qualifying entry for raceId 45 where q3 exactly equals '0:01:33', joins to drivers, and returns that driver’s code.",
+      "reason": "All required anchors are present (race 45, Q3 time 0:01:33) and the selected column is the driver code the question asks for. Equality match is a reasonable interpretation of the stated time.",
+      "verdict": true,
+      "evidence": "Query returned 0 rows (column: code), meaning no driver met the criteria in data, but logic is correct."
+    }
+  },
+  {
+    "question_id": 786,
+    "result": {
+      "expected_answer": "A single integer: the count of heroes whose Strength attribute_value equals the maximum Strength attribute_value across all heroes.",
+      "sql_description": "Counts every hero that has a Strength attribute (attribute_id for 'Strength'), without filtering to only those having the maximum value; ORDER BY ... LIMIT 1 does not change the count.",
+      "reason": "Missing anchor: attribute_value must equal the maximum Strength value. Query returns total heroes with Strength, not just those with the highest Strength.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 880,
+    "result": {
+      "expected_answer": "The percentage difference: ((Paul di Resta’s fastestLapSpeed in race 853 minus his fastestLapSpeed in race 854) divided by his fastestLapSpeed in race 853) * 100.",
+      "sql_description": "Gets Paul di Resta’s fastestLapSpeed in race 853, subtracts his fastestLapSpeed in race 852, divides by the 853 speed and multiplies by 100 to give a percent.",
+      "reason": "Anchor error – the query compares race 853 with race 852, but the question asks for the comparison with the next race (race 854). Therefore the computed percentage is for the wrong race pair.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 894,
+    "result": {
+      "expected_answer": "The single fastest lap ever: the minimum lap time (based on lapTimes.milliseconds) and the driver (forename, surname) and race (name) where it occurred.",
+      "sql_description": "Finds the lexicographically smallest string in lapTimes.time, joins to drivers and races, returns that time along with driver and race.",
+      "reason": "Question explicitly defines best lap time as the minimum of lapTimes.milliseconds. Query ignores milliseconds and orders by the textual ‘time’ field, which can mis-rank times (e.g., '9:59.999' > '10:00.000' lexicographically). Required anchor on milliseconds is missing, so logic does not reliably fetch the real best lap.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 544,
+    "result": {
+      "expected_answer": "The display name (LastEditorDisplayName) of the user who most recently edited the specified post.",
+      "sql_description": "Retrieves the LastEditorUserId (numeric user id) for the post with the given title.",
+      "reason": "Query returns the user id, not the display name required by the question. Missing anchor: LastEditorDisplayName.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 898,
+    "result": {
+      "expected_answer": "Return two pieces of information for the youngest driver whose nationality is Japanese: (1) his current age (calculated as current year minus birth year) and (2) his name (at least forename and/or surname).",
+      "sql_description": "Gets Japanese drivers, orders by date of birth descending to pick the youngest, then returns only the value 2022 minus the birth-year as age.",
+      "reason": "Query omits the driver’s name, which the question explicitly asks for, and hard-codes the year 2022 instead of using the current year; thus it does not fully or reliably answer the question.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 557,
+    "result": {
+      "expected_answer": "Percentage (0-100) of posts where Score > 5 whose owner’s age is > 65, i.e. 100 * (# such elder-owned posts) / (# all posts with Score > 5).",
+      "sql_description": "Counts posts whose score is ABOVE 20, joins to their owners, computes elder-owned share as 100 * elder_count / total_count.",
+      "reason": "Fails the required anchor: question asks for posts with Score > 5, but query filters Score > 20, producing a different cohort; therefore the percentage is computed on the wrong set of posts.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 846,
+    "result": {
+      "expected_answer": "The list of driverRef names for the five drivers who set the slowest Q1 times (i.e., were eliminated in Q1) in raceId 20.",
+      "sql_description": "Gets driverRef values by joining drivers with qualifying, but filters for raceId 18, keeps rows with a Q1 time, orders by Q1 descending (slowest first) and returns the top 5.",
+      "reason": "The query targets raceId 18, while the question explicitly asks for race number 20. This missing anchor makes the result about the wrong race, so the query does not answer the question.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 928,
+    "result": {
+      "expected_answer": "driverRef of the driver who finished in position 1 at the 2007 Canadian Grand Prix.",
+      "sql_description": "Returns driverRef for the winner (position=1) of the 2008 Australian Grand Prix.",
+      "reason": "Key anchors are wrong: race year should be 2007 (not 2008) and race name should be 'Canadian Grand Prix' (not 'Australian Grand Prix'). Therefore it does not answer the question.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 937,
+    "result": {
+      "expected_answer": "Finish time (results.time) of the driver who finished second (position 2) in the 2008 Chinese Grand Prix.",
+      "sql_description": "Selects results.time for records from the 2008 Australian Grand Prix where the fastest-lap rank equals 2.",
+      "reason": "Misaligned anchors: uses race name 'Australian Grand Prix' instead of 'Chinese Grand Prix', and filters by fastest-lap rank rather than finishing position. Therefore it does not answer the question.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 948,
+    "result": {
+      "expected_answer": "A single numeric value: the maximum points value achieved by any constructor with nationality 'British' (likely the highest points in constructorResults.points among British constructors).",
+      "sql_description": "Calculates the average (AVG) of constructorresults.points for all rows where the constructor’s nationality is British.",
+      "reason": "The query computes an average, not a maximum. It violates the explicit anchor 'maximum'.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 587,
+    "result": {
+      "expected_answer": "For every post that is tagged with 'humor': the post title, the post text/comment, and the average view count computed over all such posts (same average value may repeat, or a separate result set containing title, comment, avg_viewcount). Key anchors: filter TagName = 'humor'; include Title and Text/Body; compute AVG(ViewCount).",
+      "sql_description": "Computes a single overall average of ViewCount for posts whose WikiPostId matches posts.id and whose tag name is 'humor'. Returns only that average value, no titles or comments.",
+      "reason": "Missing required anchors: does not return the title or comment of each post, and average is aggregated over all posts instead of per-post listing. Therefore it fails the question requirements.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 866,
+    "result": {
+      "expected_answer": "The first name, surname, and introduction website URL of the driver whose lapTimes.time shows 1:27 (one minute twenty-seven seconds) in raceId 161.",
+      "sql_description": "Gets drivers whose lapTimes.milliseconds equals 127000 (2 minutes 7 seconds) for race 161, returning their forename, surname and url.",
+      "reason": "Race anchor satisfied, but lap-time anchor is wrong: 0:01:27 corresponds to 87 000 ms, not 127 000 ms. The SQL therefore targets a different lap time and does not answer the question.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 955,
+    "result": {
+      "expected_answer": "For each year earlier than 1975 (year < 1975), list that year together with the average finishing time of the race winner expressed in seconds.",
+      "sql_description": "Joins races and results, computes an average of a substring of every results.time value, groups by year, but does not return the year column, does not restrict to champions/winners, and does not restrict years to before 1975.",
+      "reason": "Missing required anchors: 1) champion filter (winner only); 2) year < 1975 filter; 3) output should pair each average with its year. Therefore the query does not answer the question.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 825,
+    "result": {
+      "expected_answer": "The gender (e.g., 'Male', 'Female', etc.) of every superhero who possesses the 'Phoenix Force' superpower.",
+      "sql_description": "Finds superheroes linked to the 'Phoenix Force' power, but returns their gender_id numeric field instead of the textual gender by selecting superhero.gender_id without joining to the gender table.",
+      "reason": "The query omits the necessary join to the gender table and therefore outputs an internal id (2) instead of the gender name requested by the question.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 963,
+    "result": {
+      "expected_answer": "Number of distinct French drivers who recorded at least one lap time faster than 2 minutes (i.e., lapTimes.milliseconds < 120000).",
+      "sql_description": "Counts all rows (not distinct drivers) from the join of drivers and lapTimes where nationality is French and lapTimes.milliseconds < 120.",
+      "reason": "1) Unit anchor violated: compares milliseconds to 120 instead of 120000.\n2) Counts rows, not distinct drivers, so even with correct unit it could over-count.\nHence it does not correctly answer the question.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 854,
+    "result": {
+      "expected_answer": "Latitude and longitude of any circuit(s) that hosted a race whose name is \"Australian Grand Prix\".",
+      "sql_description": "Joins races to circuits and selects circuits.lat and circuits.lng for rows where the race name equals 'Australian Grand Prix'; outputs the coordinates (with duplicates for each race year).",
+      "reason": "Captures the required anchor (races.name = 'Australian Grand Prix') and returns the requested coordinate fields. Duplicates do not alter correctness.",
+      "verdict": true,
+      "evidence": "sql_result shows columns lat, lng with values (-34.9272, 138.617) for multiple rows, satisfying the coordinate request."
+    }
+  },
+  {
+    "question_id": 895,
+    "result": {
+      "expected_answer": "A single numeric value: the average lap time (preferably using the milliseconds column) achieved by driver Lewis Hamilton during the 2009 Malaysian Grand Prix race.",
+      "sql_description": "Computes AVG(laptimes.time) for Sebastian Vettel in all 2009 races (no filter on race name).",
+      "reason": "Wrong driver (Sebastian Vettel instead of Lewis Hamilton) and missing race name filter; thus required anchors ‘Lewis Hamilton’ and ‘Malaysian Grand Prix’ are not satisfied.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 977,
+    "result": {
+      "expected_answer": "The count of drivers (finishers only: time is not null) who were disqualified (statusId = 2) in races with raceId greater than 50 and less than 100.",
+      "sql_description": "Counts rows in results where statusId = 2 and raceId is between 50 and 100 inclusive.",
+      "reason": "Missing finisher anchor (time IS NOT NULL) and uses BETWEEN, thereby including raceId 50 and 100 when evidence specifies >50 and <100.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 901,
+    "result": {
+      "expected_answer": "List all races held in September 2005 (month=9, year=2005) with each race’s name, its circuit name, and the circuit’s location.",
+      "sql_description": "Fetches race name, circuit name, and location for races whose date string formats to '2005-09' and whose race name starts with 'F1'.",
+      "reason": "Adds an unwarranted filter races.name LIKE 'F1%' that removes valid races; execution shows no rows though qualifying races should exist. Therefore the query does not return the required information.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 930,
+    "result": {
+      "expected_answer": "The name of the race where Lewis Hamilton achieved his best (lowest) rank value in the results.rank column.",
+      "sql_description": "Finds all result rows for driver with forename 'Lewis' and surname 'Hamilton', orders them by the rank field ascending (best rank first), and returns the race name of the first row.",
+      "reason": "Query correctly identifies Lewis Hamilton via full name, considers every race, orders by rank ascending to capture the minimal rank, and returns the corresponding race name. Required anchors (driver identification, use of rank, race name) are satisfied.",
+      "verdict": true,
+      "evidence": "sql_result shows one row with column name='Belgian Grand Prix', matching the query’s intent."
+    }
+  },
+  {
+    "question_id": 637,
+    "result": {
+      "expected_answer": "List of every tag (or tag string) attached to posts authored by user with display name 'Mark Meckes' where those posts have zero comments.",
+      "sql_description": "Selects the Tags field from all rows in posts where OwnerDisplayName equals 'Mark Meckes' and CommentCount equals 0.",
+      "reason": "Query applies both required filters (author and no-comment posts) and returns the Tags column, which contains the set of tags used on those posts. Although it returns the full tag strings rather than splitting into individual tag names, this still satisfies a reasonable reading of “state all the tags” because each returned value enumerates the tags present on the qualifying posts.",
+      "verdict": true,
+      "evidence": "Result columns: Tags (zero rows in sample execution, implying no matching posts)."
+    }
+  },
+  {
+    "question_id": 879,
+    "result": {
+      "expected_answer": "Nationality of the driver who holds the overall highest fastestLapSpeed value in the results table (i.e., global max fastest lap speed).",
+      "sql_description": "Finds the nationality of the driver with the highest fastestLapSpeed, but only among results for raceId = 348.",
+      "reason": "Adds an unjustified anchor (raceId = 348). The question does not specify any race, so the query may miss a faster lap speed recorded in a different race; thus it does not reliably identify the driver with the overall fastest lap speed.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 892,
+    "result": {
+      "expected_answer": "Full name (forename and surname) of the driver whose TOTAL points across all results is the highest, together with that total points value.",
+      "sql_description": "Joins results with drivers and returns the driver row of the single race record that has the highest points value (per-race), outputting only forename and surname.",
+      "reason": "1) It ranks by results.points of an individual race, not the sum of points per driver, so it may pick any driver who once scored the largest single-race points (often several drivers share 25). 2) It omits the points column requested. Therefore it does not satisfy the question’s anchors (total points + include points).",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 940,
+    "result": {
+      "expected_answer": "The number of distinct drivers who finished the 2008 Chinese Grand Prix (time is not NULL) and have at least one Formula-1 race entry (automatically true for anyone in results).",
+      "sql_description": "Counts distinct drivers with non-NULL finish time in the 2008 Australian Grand Prix.",
+      "reason": "Wrong race anchor: query looks at the Australian Grand Prix instead of the requested Chinese Grand Prix, so the counted drivers are from a different event.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 897,
+    "result": {
+      "expected_answer": "The full name of the driver who has the highest total number of wins, together with his nationality, and the maximum number of points he has ever had (MAX points).",
+      "sql_description": "Finds each driver, counts how many driverStandings rows have a non-NULL wins value, orders drivers by that count descending, then returns the driver’s forename, surname, nationality, and the average of his points.",
+      "reason": "1) Uses COUNT(wins) instead of total wins, so anchor ‘most winning’ not correctly measured.\n2) Returns AVG(points) instead of required MAX(points). Therefore key requested data is wrong.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 950,
+    "result": {
+      "expected_answer": "Names of constructors that scored 0 points in raceID 291.",
+      "sql_description": "Joins constructors with constructorResults, filters to raceid = 291 and points = 0, returns the constructor names.",
+      "reason": "Query applies the required race filter and 0-point condition, selecting the correct field; satisfies the question.",
+      "verdict": true,
+      "evidence": "Result rows include names column with 11 constructors (e.g., Minardi, Dallara, Larrousse …)."
+    }
+  },
+  {
+    "question_id": 904,
+    "result": {
+      "expected_answer": "The name of the Grand Prix and the year in which Michael Schumacher registered his single fastest lap (row with the minimum milliseconds value among all of his results).",
+      "sql_description": "Finds all result rows for driver Michael Schumacher, orders them by the milliseconds column ascending (interpreted as fastest-lap time) and returns the race name and year of the first row (smallest value).",
+      "reason": "Query applies the stated interpretation that the fastest lap corresponds to the minimum milliseconds, filters to Michael Schumacher, orders ascending, and picks the top row, thus delivering the race and year of his fastest lap. All required anchors (driver identity, fastest lap via min(milliseconds), race name, race year) are satisfied.",
+      "verdict": true,
+      "evidence": "sql_result rows: [name='Hungarian Grand Prix', year=2006]"
+    }
+  },
+  {
+    "question_id": 1029,
+    "result": {
+      "expected_answer": "The four highest buildUpPlaySpeed values (attack build-up speeds) each corresponding to a different team – i.e., the speeds of the top-4 teams ranked by their maximum buildUpPlaySpeed.",
+      "sql_description": "Retrieves the 4 highest buildUpPlaySpeed values from every row in Team_Attributes, without grouping by team or ensuring each value comes from a different team.",
+      "reason": "The question asks about the top 4 teams. The table stores many dated rows per team, so we must first pick each team’s speed (e.g., its maximum) and then rank teams. The query instead ranks individual rows; a single team with multiple dated entries could fill several of the top-4 slots, so the set may not represent four distinct teams. Required team-level anchor is missing.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 1035,
+    "result": {
+      "expected_answer": "All team_fifa_api_id values whose buildUpPlaySpeed is strictly greater than 50 and strictly less than 60.",
+      "sql_description": "Retrieves team_fifa_api_id from Team_Attributes rows where buildUpPlaySpeed is between 51 and 59 (inclusive).",
+      "reason": "The query applies the correct numeric bounds (>50 and <60) and returns the requested column. The question does not insist on unique teams, so duplicates are tolerable.",
+      "verdict": true,
+      "evidence": "sql_result shows a single column \"team_fifa_api_id\" with values such as 434, 77, 614, etc., all meeting the speed range condition."
+    }
+  },
+  {
+    "question_id": 915,
+    "result": {
+      "expected_answer": "The country/nationality of the driver with the earliest date of birth (i.e., the oldest driver).",
+      "sql_description": "Selects nationality from drivers, orders by dob ascending (earliest birthdate first), returns the first row.",
+      "reason": "Earliest dob corresponds to oldest. Query retrieves that driver's nationality, satisfying the question; tie-breaking not specified so LIMIT 1 is acceptable.",
+      "verdict": true,
+      "evidence": "sql_result shows column nationality with value 'South African' in row 0."
+    }
+  },
+  {
+    "question_id": 738,
+    "result": {
+      "expected_answer": "List (names or ids) of superheroes whose Durability attribute value is below 50.",
+      "sql_description": "Counts the number of superheroes whose Durability value is below 50 and returns that single count (371).",
+      "reason": "Query returns only the number of matching superheroes, not their identities. It therefore fails to answer \"which superheroes\".",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 959,
+    "result": {
+      "expected_answer": "The lap number on which the 2009 champion (race winner/\"champion\" driver) set his fastest lap in a 2009 race. At minimum, rows must be restricted to the champion, typically position=1.",
+      "sql_description": "Looks at every 2009 race result for all drivers, sorts by fastestLapTime, and returns the fastestLap value of the single quickest-lap row overall.",
+      "reason": "Query never restricts rows to the champion; it scans all drivers. Thus the required champion anchor is missing, so the returned lap number is not guaranteed to be the champion’s.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 933,
+    "result": {
+      "expected_answer": "The finishing position (positionOrder) of Lewis Hamilton in the 2008 Chinese Grand Prix – a single rank value.",
+      "sql_description": "Returns positionOrder for every race in 2008 where the driver is Lewis Hamilton; no filter on race name, so multiple races/ranks are included.",
+      "reason": "Required anchor races.name = 'Chinese Grand Prix' is missing, giving many ranks from 2008 instead of the specific Chinese Grand Prix. Therefore the query does not isolate the needed result.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 945,
+    "result": {
+      "expected_answer": "Number (count) of circuit records with location 'Adelaide' in country 'Australia'.",
+      "sql_description": "Counts rows in circuits where country is 'Australia' and location is 'Melbourne'.",
+      "reason": "Location anchor is wrong: query filters on 'Melbourne' instead of required 'Adelaide', so it answers a different question.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 1040,
+    "result": {
+      "expected_answer": "Names of the 10 tallest-eligible players (height > 180) that have the highest average heading_accuracy, ordered from best average downwards.",
+      "sql_description": "Joins Player and Player_Attributes, keeps players with height > 180, computes each player’s average heading_accuracy as SUM(heading_accuracy)/COUNT(player_fifa_api_id), orders these averages descending and returns the first 10 player_name values.",
+      "reason": "All required anchors are present: height filter, per-player average heading accuracy, descending order, limit 10 and returning names. Grouping by player_name rather than an id could merge identically-named players, but the question only asks for names so this is within reasonable interpretation.",
+      "verdict": true,
+      "evidence": "sql_result shows 10 rows: player_name column with e.g. Michael Ballack, John Terry … Nemanja Vidic in descending order."
+    }
+  },
+  {
+    "question_id": 761,
+    "result": {
+      "expected_answer": "List the superhero_name values for male superheroes whose weight_kg is greater than 0.79 times the overall average weight_kg of all superheroes.",
+      "sql_description": "Returns the full_name of superheroes whose gender is 'Male' and whose weight_kg exceeds 0.79 times the average weight_kg across the whole superhero table.",
+      "reason": "Correct gender and weight logic, but it outputs full_name instead of superhero_name as explicitly required. Missing required anchor column.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 967,
+    "result": {
+      "expected_answer": "List the code values (column drivers.code) for the three youngest drivers (those with the most recent dob). Also state the number of those three whose nationality is Dutch/Netherlandic.",
+      "sql_description": "Counts all rows (with duplicates arising from driverStandings) where the driver’s nationality is 'Dutch'. Does not identify the youngest drivers, does not restrict to three drivers, and does not return their codes.",
+      "reason": "Missing required anchors: (a) selection of the top-3 youngest drivers, (b) output of their code numbers. Instead it counts every Dutch driver in the standings table, giving an unrelated result.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 962,
+    "result": {
+      "expected_answer": "A numeric percentage: (number of drivers in races from 2000-2005 whose date-of-birth year < 1985 and laps > 50) divided by (total number of drivers that appeared in races from 2000-2005) × 100.",
+      "sql_description": "Joins drivers to results, filters to rows where drivers.dob year < 1985 AND strftime('%Y', results.time) between 2000 and 2005, then returns 100 × (count of rows with laps>50) / (count of rows after the same filters).",
+      "reason": "1) Year filter is applied to results.time, which is a finish-time string, not the race year; races table is not used, so the 2000-2005 anchor is unmet.\n2) Denominator also restricts dob<1985, so it is not the total 2000-2005 driver set required.\n3) Operates on result rows, not distinct drivers. Required anchors violated.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 978,
+    "result": {
+      "expected_answer": "The total number of circuits located in Austria (a count) and, for each of those circuits, its location and its latitude/longitude coordinates.",
+      "sql_description": "Returns each Austrian circuit’s name with its latitude and longitude; does not compute or include any count.",
+      "reason": "The query omits the requested 'how many' (count of Austrian circuits). It also returns only the circuit name rather than the location field, but the missing count already violates a required anchor.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 1078,
+    "result": {
+      "expected_answer": "The name of the older of the two specified players (the one with the earlier birthday).",
+      "sql_description": "Finds the later (max) birthday between the two players, then returns every player whose birthday equals that later date; this yields the younger player and anyone sharing that birthday.",
+      "reason": "Uses MAX instead of MIN, so it identifies the younger, not older, player. It also may include players beyond the two names. Required age-comparison anchor violated.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 972,
+    "result": {
+      "expected_answer": "Driver IDs and their codes for all drivers born in 1971 who have at least one race entry where a fastestLapTime value is recorded.",
+      "sql_description": "Finds all drivers whose birth year (dob) is 1971, joins to results to ensure they have at least one result row where fastestLapTime is not NULL, and returns distinct driverId and code.",
+      "reason": "Matches both required anchors: year(dob)=1971 and fastestLapTime IS NOT NULL (interpreting \"has the fastest lap time\" per evidence). Returns correct columns (id and code). Logic aligns with the question, no extra or missing constraints.",
+      "verdict": true,
+      "evidence": "sql_result shows 4 distinct rows: driverId (14,35,37,69) with codes (COU,VIL,DLR,BAD)."
+    }
+  },
+  {
+    "question_id": 994,
+    "result": {
+      "expected_answer": "Constructor with the highest total points accumulated across all Monaco Grand Prix races held from 1980 through 2010 (inclusive); provide that total points plus the constructor’s name and nationality.",
+      "sql_description": "Finds every Monaco Grand Prix race between 1980-2010, then picks the single constructorResults row with the largest points value in an individual race (no aggregation) and returns that row’s points, constructor name and nationality.",
+      "reason": "The query does not aggregate points over the 1980-2010 period; it selects the highest single-race points instead of total points across all races. Therefore it fails to identify the constructor with the most cumulative points, which the question requires.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 1011,
+    "result": {
+      "expected_answer": "Full name (forename and surname) of the driver who, among the top-20 drivers, holds the overall shortest lap time ever recorded in any Formula 1 race.",
+      "sql_description": "Finds the single minimum value of lapTimes.time over all laps and returns the corresponding driver’s forename and surname, without any filtering for a ‘top-20’ driver criterion.",
+      "reason": "The query ignores the required anchor 'top 20 driver'; it considers every driver. Therefore it may return a driver outside the requested subset. It also orders by the text field lexicographically rather than numerically, but the missing anchor alone is sufficient to fail.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 1036,
+    "result": {
+      "expected_answer": "Names (team_long_name) of teams whose buildUpPlayPassing value in 2012 is higher than the overall average buildUpPlayPassing of all teams in 2012.",
+      "sql_description": "For 2012 rows, computes each team’s average buildUpPlayPassing (SUM/COUNT) and keeps those teams where that team-level average is less than an arbitrarily chosen row value of buildUpPlayPassing inside the same group; does not compare with the global average.",
+      "reason": "Query fails to anchor the ‘above-average’ condition to the global (all-teams) average; instead it compares each team’s own average with a non-aggregated column value. Required anchor: global average across all 2012 records is missing/incorrect, so semantics do not match the question.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 850,
+    "result": {
+      "expected_answer": "All race names whose associated circuit is located in Germany, e.g., German Grand Prix, European Grand Prix (distinct list or duplicates acceptable).",
+      "sql_description": "Joins races with circuits and returns the race name for every record where the circuit's country equals 'Germany'.",
+      "reason": "Correctly applies the essential anchor (circuits.country = 'Germany') and selects the requested field (race name). Duplicate rows do not contradict the question, which did not ask for uniqueness.",
+      "verdict": true,
+      "evidence": "sql_result shows name column with values such as 'German Grand Prix' and 'European Grand Prix', confirming retrieval of races held on German circuits."
+    }
+  },
+  {
+    "question_id": 861,
+    "result": {
+      "expected_answer": "The racing car number (drivers.number) of the driver whose Q3 lap time was about 1 minute 54 seconds in raceId 903.",
+      "sql_description": "Looks in qualifying for race 903, but only keeps rows whose q3 time is exactly the literal string '01:54.000'; joins to drivers and returns that driver’s number.",
+      "reason": "The question asks for the driver who recorded a 1:54-ish Q3 time; the evidence indicates the time should be matched with a LIKE pattern such as '1:54%'. Requiring the exact string '01:54.000' (including milliseconds) is an unjustified extra constraint and, as shown by the empty result, fails to retrieve the relevant driver. Therefore the SQL does not reliably answer the question.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 868,
+    "result": {
+      "expected_answer": "Latitude and longitude coordinates of the circuit where the Malaysian Grand Prix is held.",
+      "sql_description": "Joins races with circuits and selects the lat and lng of circuits for rows where races.name = 'Malaysian Grand Prix'.",
+      "reason": "Query applies the required race-name filter and returns the requested coordinates; duplicates do not affect correctness.",
+      "verdict": true,
+      "evidence": "sql_result rows show lat=2.76083, lng=101.738 for all returned records."
+    }
+  },
+  {
+    "question_id": 1032,
+    "result": {
+      "expected_answer": "League name with the overall highest number of matches and that match count.",
+      "sql_description": "Counts rows in Match per league, orders by this count descending, returns the top league name with its match total.",
+      "reason": "All required anchors are present: it counts matches, groups by league, selects the maximum by ordering and LIMIT 1, returning both the league name and match count. This directly satisfies the question.",
+      "verdict": true,
+      "evidence": "Result row: name='Spain LIGA BBVA', count(MATCH.id)=3040"
+    }
+  },
+  {
+    "question_id": 1058,
+    "result": {
+      "expected_answer": "The name of whichever player, between the tallest player (max height) and the shortest player (min height), has the higher average finishing score calculated over all their recorded attributes.",
+      "sql_description": "Joins Player with Player_Attributes, orders every individual attribute row by its finishing score descending, returns the single player_name from the top row (global highest single finishing value).",
+      "reason": "Query ignores required anchors: (1) restrict to ONLY the tallest and shortest players, (2) compute each player’s AVERAGE finishing, then compare. It instead picks the global max finishing row, so result is unrelated to the intended comparison.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 877,
+    "result": {
+      "expected_answer": "The name(s) of the youngest driver among those who finished race 872 (i.e., rows where results.time is not NULL).",
+      "sql_description": "Gets every driver who participated in race 872, regardless of whether they finished, orders them by date-of-birth descending (youngest first), and returns the top one.",
+      "reason": "The query omits the required anchor that the driver must have finished (results.time IS NOT NULL). Hence it may consider non-finishers and can return an incorrect driver.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 1107,
+    "result": {
+      "expected_answer": "The date (earliest timestamp) when Kevin Constant first achieved his maximum crossing score; i.e., MIN(date) among records where crossing = MAX(crossing) for that player.",
+      "sql_description": "Finds all records for Kevin Constant, orders them by crossing descending, returns the date of the first row (arbitrary among ties) – effectively one date where crossing is maximal but not necessarily the earliest such date.",
+      "reason": "Query identifies a max-crossing row but lacks a tie-breaking condition on date, so if the max score occurs multiple times it may return a later occurrence. Required anchor ‘first time (earliest date)’ is not enforced.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 1076,
+    "result": {
+      "expected_answer": "A single numeric value equal to (average ball_control for Abdou Diallo) minus (average ball_control for Aaron Appindangoye).",
+      "sql_description": "Computes one average ball_control over all records where the player is Abdou Diallo OR Aaron Appindangoye (combined), returning that single combined mean.",
+      "reason": "The query never separates the two players’ averages nor subtracts them, so it cannot yield their difference.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 1084,
+    "result": {
+      "expected_answer": "A single integer: number of distinct players (unique individuals) whose birthday year is before 1986 and whose defensive_work_rate is 'high'.",
+      "sql_description": "Counts all joined rows between Player and Player_Attributes where birth year<1986 and defensive_work_rate='high'; does not apply DISTINCT, so duplicates players who have multiple attribute records, inflating the count.",
+      "reason": "Required anchor DISTINCT (unique players) is missing; count(player.id) over joined table double-counts players with several attribute snapshots, so the result is not the requested quantity.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 902,
+    "result": {
+      "expected_answer": "The names of all races in which driver Alex Yoong finished with a position (track number) strictly below 20.",
+      "sql_description": "Finds races where Alex Yoong’s finishing position is strictly below 10 and returns the race names.",
+      "reason": "Query enforces position <10 instead of the required <20, so it may miss races where he finished between 10 and 19. Anchor on position threshold is incorrect.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 1115,
+    "result": {
+      "expected_answer": "A numeric percentage representing how much higher Landon Donovan’s overall_rating is compared with Jordan Bowery’s on the date 2013-07-12.",
+      "sql_description": "Joins Player_Attributes with Player, keeps only rows whose date equals the literal string '2013-07-12', then computes (sum of Landon overall − sum of Bowery overall) *100 / sum of Landon overall.",
+      "reason": "The key anchors (both players and the date) are referenced, and the formula is correct, but the date filter uses the plain string '2013-07-12'. In the database the date values include the time part '2013-07-12 00:00:00'; the equality test therefore matches zero rows, so the query yields NULL instead of the required percentage. Missing the exact date value makes the answer incorrect.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 1130,
+    "result": {
+      "expected_answer": "List of team short names for teams whose chanceCreationPassingClass is 'Safe' (i.e., teams that played safe while creating chance of passing).",
+      "sql_description": "Joins Team with Team_Attributes and returns team_short_name where chancecreationpassingclass equals 'Safe'.",
+      "reason": "Query applies the required filter on chanceCreationPassingClass='Safe' and outputs the requested field team_short_name. Duplicate handling is not mandated, so result set is acceptable.",
+      "verdict": true,
+      "evidence": "sql_result shows one column team_short_name with several codes (e.g., HAA, ARK, ARS, BAR …), matching expected output type."
+    }
+  },
+  {
+    "question_id": 1094,
+    "result": {
+      "expected_answer": "The percentage by which Ariel Borysiuk’s overall rating exceeds Paulin Puel’s, i.e. (rating_Ariel − rating_Paulin) / rating_Paulin * 100, returned as a numeric value.",
+      "sql_description": "For every record of Ariel Borysiuk in Player_Attributes, it attempts to subtract a single overall_rating for Paulin Puel (fetched by a scalar sub-query) and divide by that same Paulin rating, then multiplies by 100. The sub-query filters player_attributes by player_name (a non-existent column) so it returns NULL, yielding a column of NULL results.",
+      "reason": "The query references player_name in Player_Attributes (schema mismatch), produces NULL for Paulin’s rating, and therefore outputs only NULLs. It does not deliver the requested percentage value.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 951,
+    "result": {
+      "expected_answer": "Number of constructors whose nationality is Japanese and who have exactly 2 race results, each with 0 points (i.e., COUNT(raceId)=2 and points=0 for those two races).",
+      "sql_description": "Counts distinct Japanese constructors that have at least one constructorResults row with 0 points; ignores how many races they have and whether they have 0 points in exactly two races. LIMIT 2 is irrelevant.",
+      "reason": "Missing essential anchor: does not check that the constructor has results in exactly 2 races (COUNT(raceID)=2). Therefore it can over-count constructors that raced more or fewer times or scored points elsewhere.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 1122,
+    "result": {
+      "expected_answer": "The name(s) of the player(s) whose overall_rating is the maximum in the database (the single strongest player, or several if tied).",
+      "sql_description": "Joins Player and Player_Attributes, sorts all attribute records by overall_rating descending and returns the first 10 player_name values (row-level, not aggregated).",
+      "reason": "The query uses ORDER BY ... LIMIT 10 instead of restricting to the MAX(overall_rating). It may include players whose rating is below the maximum if fewer than 10 records share the top rating, so the required anchor (max overall_rating) is not guaranteed.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 1150,
+    "result": {
+      "expected_answer": "A single numeric percentage: the proportion of female patients whose birthday year is after 1930, i.e. 100 * (female & born after-1930) / (all female patients).",
+      "sql_description": "Filters the Patient table to only those with birthday year > 1930, then divides the count of females in that filtered set by the total count of patients in the same filtered set, returning the percentage of females among post-1930 patients.",
+      "reason": "Denominator is wrong: it should use all female patients, but the query restricts to patients born after 1930 first, so it computes a different ratio (female share among post-1930 births). Missing anchor for ‘all females’.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 1134,
+    "result": {
+      "expected_answer": "A single numeric difference value equal to player 6’s jumping score minus player 23’s (or the absolute gap) based on Player_Attributes.jumping.",
+      "sql_description": "Returns the jumping values for ids 6 and 23 (two rows) but does not calculate or display their difference.",
+      "reason": "Query omits required subtraction anchor; delivers individual scores instead of the difference.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 1166,
+    "result": {
+      "expected_answer": "The symptoms (non-NULL) recorded for the youngest patient who ever had a medical examination, together with that patient’s diagnosis.",
+      "sql_description": "Joins Patient and Examination, then simply returns the first row after sorting birthdays in ascending order (oldest first). No filter on NULL symptoms.",
+      "reason": "1) Chooses the oldest, not the youngest—birthday ordering reversed. 2) Does not enforce Symptoms IS NOT NULL and indeed returns NULL in result. Both required anchors (youngest, symptoms observed) are violated.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 1144,
+    "result": {
+      "expected_answer": "Return the finishing rate and the curve score for the player whose weight is the greatest in the Player table.",
+      "sql_description": "Joins Player with Player_Attributes, sorts all rows by Player.weight descending, and takes the first row, outputting that row’s finishing and curve values.",
+      "reason": "Weight field is taken from Player, so the ORDER BY picks the heaviest player; selecting finishing and curve from the joined row gives the requested data. Although a player can have many attribute rows, the question does not specify a date, so any one of those rows is a reasonable interpretation. All required anchors (max weight, finishing, curve) are respected.",
+      "verdict": true,
+      "evidence": "sql_result columns: finishing=13, curve=13 for row 0 (player with heaviest weight)."
+    }
+  },
+  {
+    "question_id": 1175,
+    "result": {
+      "expected_answer": "Return the patient’s age at the exam with the maximum hemoglobin (year(Examination Date) – year(Birthday)) together with that patient’s diagnosis.",
+      "sql_description": "Joins Laboratory with Patient, orders rows by HGB descending and takes the first row; outputs patient.description – patient.birthday (a subtraction of two dates) and diagnosis.",
+      "reason": "Age is computed from Patient.Description (first-record date) instead of the examination date, violating the required anchor for age calculation. Therefore the query does not deliver the requested age at examination, even though it picks a high-HGB row.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 1001,
+    "result": {
+      "expected_answer": "Full name (forename, surname) of the driver with the fastest Q3 time – i.e., ranked 1st in the Q3 session – at the Marina Bay Street Circuit race in 2008.",
+      "sql_description": "Returns the forename and surname of drivers whose qualifying position is 3 for the 2008 Marina Bay Street Circuit race, then orders that single-row subset by q3 time and takes the first result.",
+      "reason": "The query imposes qualifying.position = 3, so it only considers the third-place qualifier. The question asks for the 1st-ranked driver in Q3 (minimum q3), which could be any position. Therefore the query can miss the true fastest driver and does not satisfy the required anchor.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 1145,
+    "result": {
+      "expected_answer": "The names of the four leagues that hosted the highest number of matches during the 2015/2016 season.",
+      "sql_description": "Counts how many 2015/2016 matches each team appears in (home or away) and returns the single team_long_name with the highest count.",
+      "reason": "Question requires top 4 leagues, but the query groups by team, not league, joins no League table, and returns only one row. Missing required anchors: aggregation by league and top-4 limit.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 1149,
+    "result": {
+      "expected_answer": "Identify whether there are more male in-patients (Admission='+') or male out-patients (Admission='-'), and give the percentage deviation between the two counts (e.g., (count_male_in - count_male_out)/count_male_out * 100 or similar).",
+      "sql_description": "Calculates (total in-patients – total out-patients) ÷ total male patients *100, ignoring sex in the numerator and providing no indication of which group is larger.",
+      "reason": "Numerator is not restricted to male patients, so required SEX='M' anchor is missing. Query also returns only a number without stating which group is larger.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 1205,
+    "result": {
+      "expected_answer": "Return a single YES/NO indicating whether patient 57266’s uric-acid value is considered ‘within the normal range’ (UA>8.0 if male, UA>6.5 if female) according to the definition supplied.",
+      "sql_description": "Joins Patient and Laboratory, evaluates the rule for every laboratory record of patient 57266, returns a YES/NO flag per record (20 rows).",
+      "reason": "Question asks for a single determination, but the query outputs multiple determinations, some YES and some NO, giving contradictory results. It does not aggregate or otherwise decide the overall answer, so the requirement is not met.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 1031,
+    "result": {
+      "expected_answer": "The current ages of all players whose sprint_speed is at least 97 in any record dated between 2013-01-01 and 2015-12-31.",
+      "sql_description": "Joins Player and Player_Attributes, keeps rows where sprint_speed >=97 and the attribute date falls in 2013-2015, then returns strftime('%Y',CURRENT_TIMESTAMP) minus the birth-year of each matching player (one row per matching attribute record).",
+      "reason": "Query applies all required filters (sprint speed threshold and date range) and computes present age; duplicates per player are permissible because the question does not demand distinctness or aggregation.",
+      "verdict": true,
+      "evidence": "Result column strftime('%Y', CURRENT_TIMESTAMP) - strftime('%Y', player.birthday) shows ages (e.g., 35 in rows 0-19)."
+    }
+  },
+  {
+    "question_id": 1169,
+    "result": {
+      "expected_answer": "A numeric ratio: (number of male patients whose uric-acid value is abnormal according to the male threshold) divided by (number of female patients whose uric-acid value is abnormal according to the female threshold).",
+      "sql_description": "Joins Laboratory with Patient, keeps only rows whose UA value is BETWEEN 8 AND 6.5, then divides the count of rows with SEX='M' by the count with SEX='F'.",
+      "reason": "1) The WHERE clause uses BETWEEN 8 AND 6.5 (upper < lower), which selects no rows. 2) It ignores the sex-specific abnormal thresholds (male UA>8.0, female UA>6.5 per evidence). 3) It counts laboratory rows, not distinct patients. Therefore the query does not compute the requested ratio.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 1225,
+    "result": {
+      "expected_answer": "For each sex (M or F), return a grouped list (GROUP_CONCAT DISTINCT IDs) of patients whose total bilirubin (T-BIL) value is 2.0 or higher (outside the normal range).",
+      "sql_description": "Joins Laboratory with Patient, keeps rows where T-BIL < 2.0 (inside normal range), groups by sex, and returns only the sex column (no patient list).",
+      "reason": "Wrong filter direction (uses < 2.0 instead of >= 2.0) and does not list patient IDs. Missing required anchor: list of IDs of patients with abnormal T-BIL.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 1232,
+    "result": {
+      "expected_answer": "List each patient’s ID, sex, and age where at least one laboratory record shows blood glucose ≥ 180 (out-of-range) AND total cholesterol < 250 (within range).",
+      "sql_description": "Joins Patient with Laboratory on ID, filters rows with T-CHO < 250 and GLU ≥ 180, then outputs patient.id, patient.sex, and the year-based age. Returns one row per qualifying lab record (duplicates possible).",
+      "reason": "Query applies the correct numeric thresholds for GLU and T-CHO and returns the requested columns, so every output row satisfies the question’s conditions; duplicates do not invalidate correctness.",
+      "verdict": true,
+      "evidence": "sql_result columns: ID, SEX, age (rows show GLU≥180 & T-CHO<250 satisfied, e.g., ID 57266 …)."
+    }
+  },
+  {
+    "question_id": 1209,
+    "result": {
+      "expected_answer": "A list of disease diagnoses for all patients whose ALT (GPT) value exceeds 60, ordered from the oldest to the youngest patient according to their birthday.",
+      "sql_description": "Joins Laboratory and Patient tables, keeps rows where GPT > 60, then outputs Patient.Diagnosis ordered by Patient.Birthday ascending.",
+      "reason": "Query applies the correct GPT > 60 filter, selects the requested diagnosis field, and orders by birthday ASC as required. While patients with multiple abnormal tests may appear multiple times, the question does not explicitly require deduplication, so this is acceptable.",
+      "verdict": true,
+      "evidence": "sql_result shows a single column \"Diagnosis\" with values such as MRA, SLE, RA, Adult STILL, SJS in some ascending-birthday sequence, confirming the expected output structure."
+    }
+  },
+  {
+    "question_id": 1241,
+    "result": {
+      "expected_answer": "Two numbers (or their difference): 1) how many patients have platelet counts below 100 (low abnormal); 2) how many patients have platelet counts above 400 (high abnormal), allowing the reader to compare the two counts.",
+      "sql_description": "Counts rows in Laboratory table where PLT<100 and PLT>400, returning the sums as low and high.",
+      "reason": "Question asks for number of PATIENTS, not number of test rows. The table can contain multiple laboratory dates per patient, so counts must use DISTINCT ID. SQL counts rows, inflating totals. Missing required anchor: distinct patients.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 1068,
+    "result": {
+      "expected_answer": "The numerical average of the overall_rating values for all player attribute records dated from 2010 through 2015 (inclusive) belonging to players whose height is greater than 170 cm.",
+      "sql_description": "Joins Player and Player_Attributes, keeps rows where Player.height > 170 and the attribute date year is between 2010 and 2015, then returns AVG(overall_rating) over those rows.",
+      "reason": "Query applies the required height (>170) and date (2010-2015 inclusive) filters and computes the average overall_rating. Row-level averaging is a reasonable interpretation since the question does not specify per-player aggregation.",
+      "verdict": true,
+      "evidence": "sql_result shows single column avg(player_attributes.overall_rating) with value 68.901357."
+    }
+  },
+  {
+    "question_id": 1229,
+    "result": {
+      "expected_answer": "The number of distinct patients who have at least one triglyceride (TG) value >= 200 and whose age is greater than 50 years.",
+      "sql_description": "Counts (without DISTINCT) all rows from Laboratory joined to Patient where TG > 200 and the year difference between current date and Birthday exceeds 50.",
+      "reason": "1) Missing DISTINCT so patients with multiple lab records are over-counted, violating the explicit DISTINCT anchor. 2) Uses TG > 200, excluding records where TG = 200, conflicting with the ≥200 requirement. Therefore the query does not correctly compute the requested patient count.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 1256,
+    "result": {
+      "expected_answer": "Number of distinct patients whose lab record shows an abnormal CRP (CRP = '+') and whose Description in Patient is NULL (data not recorded).",
+      "sql_description": "Counts all rows after joining Patient and Laboratory where CRP is '+' OR '-' OR <1 and Patient.Description is NULL; does not use DISTINCT, so duplicates per patient remain.",
+      "reason": "Fails two required anchors: 1) abnormal CRP should be CRP='+' only, but query also includes '-' and numeric <1 (normal). 2) Counts lab rows, not distinct patients, so may over-count.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 1171,
+    "result": {
+      "expected_answer": "A single number: the count of under-age patients (age < 18) who had at least one examination whose Examination Date fell between 1990 and 1993 inclusive.",
+      "sql_description": "Counts every examination row whose Examination Date year is between 1990 and 1993 and whose patient’s birth-year value is numerically less than 18, returning COUNT(patient.id) without DISTINCT.",
+      "reason": "1) Under-age is implemented incorrectly: it compares birth year to 18 instead of comparing age at exam (<18) or birth year relative to exam year. 2) It counts examination rows, not distinct patients, so it can overcount. Required anchors therefore not met.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 1270,
+    "result": {
+      "expected_answer": "A single number: the count of distinct patients whose anti-scl70 is normal (SC170 in ('negative', '0')), who are female (SEX = 'F'), and whose Symptoms field is NULL.",
+      "sql_description": "Counts distinct patient IDs where SC170 is '-' or '+-', patient sex is 'M', and Symptoms equals 'vertigo'.",
+      "reason": "Fails required anchors: selects males instead of females, filters on a specific symptom value rather than requiring no symptoms (NULL). Therefore it does not answer the question.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 1092,
+    "result": {
+      "expected_answer": "The name of the league with the highest number of matches during the 2008/2009 season.",
+      "sql_description": "Joins League with Match, keeps rows where Match.season = '2008/2009', groups by league name, counts matches per league, orders by that count descending, returns the top league name.",
+      "reason": "All required anchors are satisfied: uses 2008/2009 season, counts matches, selects league with maximum count and returns its name. Logic matches the question.",
+      "verdict": true,
+      "evidence": "sql_result shows one row with column name = 'Spain LIGA BBVA', matching the requested output."
+    }
+  },
+  {
+    "question_id": 1243,
+    "result": {
+      "expected_answer": "A single numeric value: the percentage of abnormal PT (>=14) records belonging to female patients among all abnormal PT records for patients older than 55.",
+      "sql_description": "Joins Patient and Laboratory, keeps rows where patient age (based on current year minus birth year) exceeds 55 and PT is at least 14; counts those rows and the subset where SEX='F'; returns 100*female_rows/total_rows.",
+      "reason": "Query applies the age>55 and PT>=14 filters, then computes the female-share percentage exactly as the evidence formula (row-level counts). Distinctness is not mandated by the evidence; row-level interpretation is acceptable. No required anchor is missing.",
+      "verdict": true,
+      "evidence": "Result column \"cast(sum(...)/count(patient.id))\" yields 78.36%, one row."
+    }
+  },
+  {
+    "question_id": 1189,
+    "result": {
+      "expected_answer": "Count of distinct patients whose examination shows Thrombosis = 2 and ANA Pattern = 'S', with their aCL IgM value exceeding the overall average aCL IgM by at least 20 % (i.e. aCL IgM > 1.2 × AVG(aCL IgM)).",
+      "sql_description": "Counts patient.id rows (not DISTINCT) where Thrombosis = 2 and ANA Pattern = 'S' and where aCL IgM * 1.2 is greater than the overall average aCL IgM.",
+      "reason": "Threshold is wrong: it checks aCL IgM * 1.2 > AVG, which is equivalent to aCL IgM > 0.83 × AVG, not 1.2 × AVG. Therefore it does not select only those 20 % above average. It also may double-count patients, but the incorrect threshold alone violates a required anchor.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 1220,
+    "result": {
+      "expected_answer": "List every patient (id, sex, birthday) whose laboratory record shows a urea nitrogen (UN) value equal to 29 – i.e., patients right at the passing borderline.",
+      "sql_description": "Joins Laboratory with Patient on patient id and returns the id, sex and birthday for rows where UN = 29.",
+      "reason": "Query contains the required anchor UN = 29 and returns the requested columns. Duplicates may appear due to multiple lab dates but the question does not explicitly require distinct patients, so this is acceptable.",
+      "verdict": true,
+      "evidence": "sql_result rows show columns [ID, SEX, Birthday] for patients whose UN=29, e.g., first row (27654, F, 1936-03-25)."
+    }
+  },
+  {
+    "question_id": 1102,
+    "result": {
+      "expected_answer": "Name of the player whose birthday is earliest (oldest) among those whose overall_rating = 77 in Player_Attributes records dated on 2016-06-23 (any time).",
+      "sql_description": "Joins Player and Player_Attributes, restricts to overall_rating 77 and date exactly '2016-06-23' (no time), orders by birthday ascending, returns first name.",
+      "reason": "Required date anchor should match all records on 2016-06-23 regardless of time; equality to '2016-06-23' misses the timestamp portion, yielding no rows. Thus the query does not evaluate the correct set of players and cannot identify the oldest.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 1110,
+    "result": {
+      "expected_answer": "Return the Build Up Play Passing Class (a textual category such as Short, Mixed, Long) for the team FC Lorient on the date 2010-02-22 (any timestamp on that day).",
+      "sql_description": "Gets buildUpPlayPassingClass for FC Lorient where Team_Attributes.date equals the literal string '2010-02-22'.",
+      "reason": "The question requires any record dated 2010-02-22, but the Team_Attributes.date column includes a time component (e.g., '2010-02-22 00:00:00'). Comparing to the shorter literal omits those rows, so the essential date anchor is mishandled and relevant rows are excluded. Therefore the query may miss the required answer (empty result shown).",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 1254,
+    "result": {
+      "expected_answer": "A single integer: the number of distinct patients whose IgA value is strictly greater than 80 and strictly less than 500 and whose first-visit date is after 1990-01-01 (>= 1990 calendar year is acceptable).",
+      "sql_description": "Counts (without DISTINCT) patient.id for all patient–laboratory joined rows where IgA is BETWEEN 80 AND 500 (inclusive) and the year part of First Date is ≥ 1990.",
+      "reason": "1) IgA filter is inclusive (>=80, <=500) while the question explicitly requires it to be strictly >80 and <500. This violates an explicit anchor.\n2) The query does not use DISTINCT on patient.id; if a patient has several laboratory rows it will over-count patients, contradicting the request to count patients.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 1116,
+    "result": {
+      "expected_answer": "The name(s) of player(s) whose height equals the maximum height among all players (rank = 1).",
+      "sql_description": "Fetches the names of the five tallest players by ordering heights descending and limiting to the first 5 rows.",
+      "reason": "Question/evidence requires only players at rank 1 (the absolute tallest). Query returns the top 5 heights, so it may include players shorter than the tallest and omits any additional players tied for tallest beyond the first five. Missing required anchor of rank = 1.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 1231,
+    "result": {
+      "expected_answer": "A single integer: the count of distinct male patients born between 1936 and 1956 (inclusive) whose creatinine phosphokinase (CPK) value is at least 250 (>=250).",
+      "sql_description": "Joins Patient and Laboratory, filters male patients whose birth year is between 1936 and 1956, and whose CPK value is strictly greater than 250, then counts all matching patient.id rows without DISTINCT.",
+      "reason": "Two required anchors are mishandled: (1) It omits DISTINCT, so patients with multiple abnormal CPK records are over-counted; (2) it uses CPK > 250 instead of the inclusive >= 250 specified. Therefore the result can be wrong.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 1265,
+    "result": {
+      "expected_answer": "A single integer: the count of distinct patients whose anti-ribonuclear protein (RNP) value is either '-' or '+-' (normal) and whose Admission field is '+'.",
+      "sql_description": "Counts distinct patient IDs where Admission is '+' and RNP equals '-' only.",
+      "reason": "The query omits the '+-' RNP value, which the question explicitly includes as normal. Missing required anchor (RNP '+-').",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 1133,
+    "result": {
+      "expected_answer": "Return the number of players whose birthday year is later than 1990 (i.e., born in 1991 or later) and whose first name starts with \"Aaron\".",
+      "sql_description": "Counts rows in Player where the first four characters of birthday (the year) are greater than '1990' and player_name begins with 'Aaron'.",
+      "reason": "Matches both anchors: year > 1990 and name starting with Aaron. Uses count to answer \"how many\"; duplicates unlikely since each player is a unique row.",
+      "verdict": true,
+      "evidence": "sql_result shows count(player_name)=6 (row 0)."
+    }
+  },
+  {
+    "question_id": 1359,
+    "result": {
+      "expected_answer": "A numeric ratio indicating how many times the total Advertisement budget for the \"Yearly Kickoff\" event exceeds the total Advertisement budget for the \"October Meeting\" event, i.e., SUM(amount for Yearly Kickoff)/SUM(amount for October Meeting).",
+      "sql_description": "Counts Advertisement-budget rows for \"Yearly Kickoff\", counts rows for \"October Meeting\", then subtracts the latter count from the former (row-count difference).",
+      "reason": "Query ignores the budget amounts (uses 1 per row), performs subtraction instead of division; thus it does not compute the requested \"how many times larger\" ratio.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 1239,
+    "result": {
+      "expected_answer": "For each patient: their ID and current age, but only for those who have at least two (≥2) laboratory records where the Hematocrit (HCT) value is 52 or higher.",
+      "sql_description": "Finds patients whose laboratory rows have HCT > 52, groups by patient, and returns the ID and age for those having strictly more than two such rows (count > 2).",
+      "reason": "Anchor mismatch: the question requires patients with two or more qualifying examinations (count ≥ 2); the SQL demands strictly more than two (count > 2), excluding cases with exactly two examinations, so it does not fully satisfy the requirement.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 1322,
+    "result": {
+      "expected_answer": "The number of events whose type is 'Meeting' and which have more than 10 attendance records (i.e., events attended by more than 10 members). Should be a single scalar count of such events.",
+      "sql_description": "For each event it counts the attendance rows, filters to those with count > 10 and type = 'Meeting', then outputs that per-event attendance count; one row per qualifying event (e.g., 23, 25, 30, 27).",
+      "reason": "It returns the attendance counts per event instead of counting how many events satisfy the conditions. The question asks for the number of qualifying meeting events, not the size of each event’s attendance.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 1247,
+    "result": {
+      "expected_answer": "A single integer: the number of distinct male patients (Sex='M') whose laboratory records show a normal white-blood-cell count (3.5 < WBC < 9.0) and an abnormal fibrinogen level (FG <= 150 OR FG >= 450). Each patient should be counted at most once, regardless of how many qualifying lab records they have.",
+      "sql_description": "Joins Patient with Laboratory, filters for male sex, WBC between 3.5 and 9.0, and abnormal FG, then counts all resulting patient.id rows (COUNT(patient.id)).",
+      "reason": "The query counts rows, not distinct patients. If a patient has multiple qualifying lab dates, they will be counted multiple times, violating the explicit instruction \"Don't compute repetitive ones.\" A DISTINCT (or GROUP BY) is required but missing.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 1338,
+    "result": {
+      "expected_answer": "Determine, for the expenses associated with the event called \"October Meeting\" that occurred on 2019-10-08, whether each such expense was approved (true/false) – effectively answering if all of them were approved or listing their approval status.",
+      "sql_description": "Finds expenses whose expense_date is 2019-10-08 made by members who attended an event named \"October Meeting\", then returns the distinct approved values of those expenses.",
+      "reason": "The query omits the explicit anchor that the event itself is on 2019-10-08 (it filters by expense_date instead of event.event_date). If there are multiple \"October Meeting\" events on other dates, the join can pair a 2019-10-08 expense with the wrong event, so it does not guarantee it is limited to the specified event date.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 1267,
+    "result": {
+      "expected_answer": "The number of distinct patients whose anti-SM result is normal ('-' or '+-') and whose thrombosis value equals 0 (no thrombosis).",
+      "sql_description": "Counts examination rows after joining laboratory and examination on ID where SM is normal but thrombosis equals 1 (has thrombosis). Uses COUNT(examination.id) without DISTINCT.",
+      "reason": "Uses thrombosis = 1 instead of 0, and counts rows not patients. Both violate required anchors (no thrombosis, patient level).",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 1141,
+    "result": {
+      "expected_answer": "The buildUpPlaySpeedClass (Slow / Balanced / Fast) for team_long_name = 'KSV Cercle Brugge', usually taken from the most relevant single record (commonly the latest by date).",
+      "sql_description": "Returns buildUpPlaySpeedClass for ALL historical Team_Attributes rows of KSV Cercle Brugge without choosing a specific record, producing multiple (duplicate and conflicting) classes.",
+      "reason": "Question implies a single speed class, but query yields several different classes because it ignores the date anchor needed to pick one record. Therefore it does not decisively answer which class the team has.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 1323,
+    "result": {
+      "expected_answer": "Names of events whose attendee count is greater than 20 and whose type is not 'fundraiser'.",
+      "sql_description": "Counts attendance rows per event, returns event_name for events with count>20; does not filter on event type.",
+      "reason": "Required anchor \"not fundraisers\" is omitted, so fund-raiser events could appear in the result.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 1152,
+    "result": {
+      "expected_answer": "A single numeric value representing (number of SLE-diagnosed patients whose Admission='-') divided by (number of SLE-diagnosed patients whose Admission='+' ). Each patient should be counted only once.",
+      "sql_description": "Counts rows in the joined Patient-Examination table where examination.diagnosis='SLE'; sums the rows with Admission='-' and divides by the sum with Admission='+'.",
+      "reason": "Uses row counts instead of distinct patient IDs, so patients with multiple Examination records are over-counted. Question asks about patients, not examination rows. Required anchor: distinct patients.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 1339,
+    "result": {
+      "expected_answer": "The average amount (mean of cost values) that Elijah Allen spent on expenses whose dates fall in September or October.",
+      "sql_description": "Joins expense with member, keeps rows where first_name='Elijah' and last_name='Allen' and the month extracted via strftime('%m') is either '9' or '10', then returns AVG(cost).",
+      "reason": "All required anchors are present: member identified by first and last name, month restricted to September (9) or October (10), and the query computes the average of the cost field, matching the question’s request for the average cost spent. Result set is a single value fulfilling the request.",
+      "verdict": true,
+      "evidence": "Result has one column avg(expense.cost) with value 13.1 (row 0)."
+    }
+  },
+  {
+    "question_id": 1387,
+    "result": {
+      "expected_answer": "Name of the single student who is specifically assigned the role of managing the budget for the event called \"Yearly Kickoff\".",
+      "sql_description": "Returns every member who appears in the attendance table for the event \"Yearly Kickoff\"; i.e., all attendees’ first and last names (20 rows).",
+      "reason": "The query ignores the required anchor \"entrusted to manage the budget\" and simply lists all attendees. No role/responsibility filtering is applied, so it does not identify the budget manager.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 1401,
+    "result": {
+      "expected_answer": "The monetary amount(s) recorded for expenses whose description is \"Posters\" and that are associated with the event named \"September Speaker\". Either a list of each matching cost or their aggregate would satisfy.",
+      "sql_description": "Finds all expense rows whose description is 'Posters' and whose submitting member appears in the attendance list for the event 'September Speaker'; returns the cost column from those expenses (six rows: 67.81, 54.25, 54.25, 74.59, 54.25, 67.81).",
+      "reason": "The query enforces both required anchors—event name and poster expense—and returns the corresponding cost values. Listing individual costs is a reasonable interpretation of “indicate the cost” since the question does not specify aggregation.",
+      "verdict": true,
+      "evidence": "sql_result rows: cost column values (e.g., 0:67.81, 1:54.25, 3:74.59)."
+    }
+  },
+  {
+    "question_id": 1168,
+    "result": {
+      "expected_answer": "Return two values: 1) the date on which the medical laboratory tests were carried out for the oldest patient diagnosed with SJS, and 2) that patient’s age (First Date year – Birthday year) when they first came to the hospital.",
+      "sql_description": "Joins Patient and Laboratory, keeps SJS rows, orders by the earliest Birthday (oldest patient) and returns one laboratory Date together with YEAR(laboratory.Date) – YEAR(Birthday) (patient age at lab date).",
+      "reason": "Age is required at the time of initial hospital arrival (First Date), but the query computes age at the lab date. Anchor ‘age at initial arrival’ is therefore missing/incorrect. The chosen lab date row inside the join is also unspecified but this alone is secondary.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 1404,
+    "result": {
+      "expected_answer": "For the event called 'October Meeting', return each expense type (expense_description) along with the summed cost of all approved expenses associated with that event.",
+      "sql_description": "Finds all members who attended the event named 'October Meeting', looks up their expenses that are marked approved='true', groups those expenses by description, and outputs each description with SUM(cost).",
+      "reason": "All explicit anchors are handled: event name filter, approved-only expenses, expense type output, and summed cost. Mapping expenses to the event through attending members is a reasonable interpretation given the schema’s lack of a direct link, so the query meets the question’s intent.",
+      "verdict": true,
+      "evidence": "sql_result shows columns expense_description and sum(expense.cost) with 12 grouped rows, matching the requested information."
+    }
+  },
+  {
+    "question_id": 1179,
+    "result": {
+      "expected_answer": "Return the aCL IgM concentration value for the patient whose Patient.Description = '1994-02-19' and (Patient or Examination) Diagnosis = 'SLE', specifically from the examination that took place on Examination Date = '1993-11-12'.",
+      "sql_description": "Joins Patient and Examination, but selects aCL IgM where Patient.Description equals '1993-11-12' and Examination.Diagnosis equals 'SLE'; it does not restrict by Examination Date and uses the wrong date for Patient description.",
+      "reason": "The query omits the required patient anchor (Description = '1994-02-19') and the examination-date anchor (Examination Date = '1993-11-12'). It therefore targets the wrong records and cannot guarantee the requested patient or examination.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 1208,
+    "result": {
+      "expected_answer": "List of patient IDs (one per patient is sufficient) for male (SEX = 'M') patients who have at least one laboratory result where GPT ≥ 60, i.e., GPT value above the normal range.",
+      "sql_description": "Joins Laboratory and Patient, keeps rows with Patient.sex = 'M' and Laboratory.gpt ≥ 60, then returns the patient.id column (not deduplicated).",
+      "reason": "All required anchors are present: sex filter (M) and GPT ≥ 60. Returning patient IDs satisfies the question; duplicates do not violate requirements because the question does not demand uniqueness.",
+      "verdict": true,
+      "evidence": "sql_result shows IDs column with male patients (e.g., 81043, 444499, 915768, 1137040, 1513136, 1618929) that satisfy GPT ≥ 60."
+    }
+  },
+  {
+    "question_id": 1399,
+    "result": {
+      "expected_answer": "A yes/no response indicating whether the member named Maya Mclean appears in attendance records for the event called 'Women's Soccer'.",
+      "sql_description": "Joins event, attendance, and member tables; filters to the event with name 'Women's Soccer' and the member whose first_name='Maya' and last_name='Mclean'. Counts matching rows and returns 'Yes' if at least one match exists, otherwise 'No'.",
+      "reason": "Query checks both required anchors (specific member and specific event) and correctly derives attendance presence via count>0. Logic aligns with the question’s yes/no requirement.",
+      "verdict": true,
+      "evidence": "Result column \"CASE WHEN count(event.event_id) > 0 THEN 'Yes' ELSE 'No' END\" row0='Yes'"
+    }
+  },
+  {
+    "question_id": 1472,
+    "result": {
+      "expected_answer": "Customer ID(s) in segment LAM whose total consumption summed over all 2012 records is the lowest among LAM customers.",
+      "sql_description": "Gets all 2012 rows for LAM customers, orders by the single-row consumption value ascending, returns the customer ID of the row with the minimal monthly consumption.",
+      "reason": "Question asks for the least consumption in 2012 per customer, implying aggregation across the year. Query ignores aggregation and picks the minimum individual month value, which can lead to a different customer than the one with the lowest yearly total.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 1480,
+    "result": {
+      "expected_answer": "The month (e.g., 01-12 or its name) of 2013 in which total gas consumption across all SME customers was highest.",
+      "sql_description": "Finds the single SME record in 2013 with the largest individual Consumption value and returns that record’s month.",
+      "reason": "Question asks for the peak month for the SME segment as a whole, which requires aggregating consumption per month across all SME customers. Predicted SQL orders by individual rows without aggregation, so it can misidentify the peak month.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 1476,
+    "result": {
+      "expected_answer": "A numeric value: total 2012 consumption of CZK-currency customers minus that of EUR-currency customers.",
+      "sql_description": "Joins customers to yearmonth, keeps only CZK or EUR customers, filters rows whose strftime('%Y', Date) = '2012', sums 2012 consumption for CZK customers and subtracts sum for EUR customers.",
+      "reason": "Date values are stored as plain text like 'YYYYMM'; strftime on such strings returns NULL, so the 2012 filter removes all rows and the sums return NULL. Required 2012 anchor is therefore not satisfied, producing no meaningful result.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 1482,
+    "result": {
+      "expected_answer": "Identify, among the segments SME, LAM, and KAM (considering only customers whose payments are in EUR), which segment shows the greatest percentage increase in total consumption from 2012 to 2013 and which shows the smallest (possibly negative) percentage increase.",
+      "sql_description": "Returns the segment of the single customer-row with the highest raw consumption value in either 2012 or 2013, after filtering to EUR currency and the three segments, without computing year-over-year percentage changes or aggregating by segment.",
+      "reason": "Query never calculates 2012 vs 2013 differences, never computes percentages, never aggregates by segment, and only returns one segment. Required anchors (percentage increase comparison across segments; biggest and lowest) are missing.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 1498,
+    "result": {
+      "expected_answer": "A single numeric value: the maximum Consumption value recorded for any row dated in 2012.",
+      "sql_description": "Filters rows whose Date starts with '2012' (i.e., year 2012) and returns the maximum Consumption among them.",
+      "reason": "Includes required anchor year=2012. Computes MAX on Consumption, which under the natural interpretation of each row representing a monthly record gives the highest monthly consumption. Alternate interpretation (summing per month first) is not mandated by the question, so the query is acceptable.",
+      "verdict": true,
+      "evidence": "max(consumption)=445279.69 (row 0)."
+    }
+  },
+  {
+    "question_id": 1435,
+    "result": {
+      "expected_answer": "Names (event_name) of events where status is Closed, type is Game, and event_date falls between 2019-03-15 and 2020-03-20 inclusive.",
+      "sql_description": "Selects event_name from event table for rows with status='Closed', type='Game', and event_date between '2019-03-15' and '2020-03-20'.",
+      "reason": "All anchors—status Closed, type Game, date range—are present. Query returns only the requested field, satisfying the question.",
+      "verdict": true,
+      "evidence": "Result shows column event_name with 3 rows (e.g., Women's Soccer, Football game …) that meet the specified conditions."
+    }
+  },
+  {
+    "question_id": 1501,
+    "result": {
+      "expected_answer": "A set of distinct country names for gas stations that recorded any transaction during June 2013.",
+      "sql_description": "Joins transactions_1k with gasstations, keeps rows where the transaction date starts with '201306' (June 2013), and returns distinct gasstations.country values.",
+      "reason": "Query applies the correct June-2013 filter, links to gas stations, and outputs distinct countries, matching the question’s requirements.",
+      "verdict": true,
+      "evidence": "Result has column Country (0 rows), indicating no qualifying stations in sample, but structure is correct."
+    }
+  },
+  {
+    "question_id": 1242,
+    "result": {
+      "expected_answer": "All patient identifiers who had laboratory examinations in 1984, whose platelet count was within the normal range (100–400) and who were under 50 years old.",
+      "sql_description": "Joins Patient and Laboratory, keeps rows where the laboratory test year is 1984, PLT is between 100 and 400, and the exam year is less than the patient’s birth-year plus 50 (i.e., age at exam < 50). Returns the patient IDs.",
+      "reason": "All explicit anchors—1984 exam year, normal platelet range, patient age < 50—are present and correctly enforced. Using age at exam instead of current age is a reasonable interpretation and not contradicted by the prompt.",
+      "verdict": true,
+      "evidence": "sql_result shows column [ID] (no rows), matching the expected output schema."
+    }
+  },
+  {
+    "question_id": 1533,
+    "result": {
+      "expected_answer": "For each customer who purchased product 5 at a unit price greater than 29.00, return that customer’s Consumption value (consumption status) for the month 201208.",
+      "sql_description": "Aggregates all transactions of product 5 across all dates, computes the sum of price/amount for all those rows, and returns the single label ‘high’ if that overall sum exceeds 29, otherwise ‘low’. No per-customer results, no August-2012 filter, and no Consumption field.",
+      "reason": "Query omits required anchors: (1) filter to August 2012, (2) unit-price >29 filter, (3) per-customer granularity, (4) retrieval of Consumption status. It produces a single ‘high/low’ label unrelated to requested consumption values.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 1514,
+    "result": {
+      "expected_answer": "The currency code(s) used by customer(s) who made a payment on 2012-08-24 at 16:25:00.",
+      "sql_description": "Joins customers with transactions_1k, filters transactions occurring on 2012-08-24 at 16:25:00, and returns the customers’ Currency.",
+      "reason": "All required anchors (date 2012-08-24 and time 16:25:00) are applied and the query outputs the currency value(s). Duplicates do not violate the question.",
+      "verdict": true,
+      "evidence": "sql_result shows Currency column with three rows, all \"CZK\"."
+    }
+  },
+  {
+    "question_id": 1525,
+    "result": {
+      "expected_answer": "Percentage (0-100%) of customers whose currency is EUR among all customers that have the date 2012-08-25 associated with them.",
+      "sql_description": "Computes the share of rows in customers table whose Currency='EUR' over all rows, without any date filtering.",
+      "reason": "Mandatory anchor on date 2012-08-25 is ignored; the query uses the entire table, so result is not limited to the specified day.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 1524,
+    "result": {
+      "expected_answer": "The nationality (as stored in the customers table – represented by the Currency field) of the customer whose transaction(s) on 2012-08-24 amounted to 548.4.",
+      "sql_description": "Joins customers with transactions, keeps rows dated 2012-08-24 where the Price equals 548.4, and returns the customers.Currency value(s).",
+      "reason": "Assuming \"nationality\" is stored as Currency (the only relevant field), and that the amount spent is recorded in the Price column, all required anchors (date 2012-08-24, amount 548.4, customer linkage) are satisfied. Therefore the query yields the requested nationality.",
+      "verdict": true,
+      "evidence": "Currency column returned 1 row: CZK (row 0)."
+    }
+  },
+  {
+    "question_id": 1531,
+    "result": {
+      "expected_answer": "Identify the customer whose overall spending is the highest (largest SUM of transaction value). For that customer compute the average unit price: total spending divided by total quantity purchased, and also report the currency used.",
+      "sql_description": "Per customer it (1) computes AVG(price/amount), (2) orders customers by SUM(price/amount), and (3) returns the customer with the largest SUM(price/amount) together with the AVG(price/amount) and currency.",
+      "reason": "The required anchor \"top spending customer\" must be determined by highest total spend (sum of price or price*amount). The query instead orders by the sum of price/amount, which is a unit-price metric, not total spend, so it may pick a different customer. Moreover the requested average unit price should be total(price)/total(amount); the query uses AVG(price/amount), a different calculation. Therefore it does not satisfy the question.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 1257,
+    "result": {
+      "expected_answer": "Number of distinct patients whose laboratory creatinine (CRE) value is at least 1.5 and whose age (today minus birth year) is less than 70.",
+      "sql_description": "Counts distinct patient IDs where laboratory.CRP is not '+' or '-' and patient age is under 18.",
+      "reason": "Misses both required anchors: uses CRP instead of CRE for abnormal creatinine and applies age < 18 instead of age < 70. Therefore it does not target the requested cohort.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 1529,
+    "result": {
+      "expected_answer": "Two numeric totals for customer 38508: (1) the total amount (money) spent at gas stations in all his transactions; (2) the amount spent specifically in January 2012 (Date ‑- '201201').",
+      "sql_description": "Calculates SUM(price) and SUM(amount) for customer 38508 but only for rows whose Date starts with '201201' (January 2012). It ignores spending outside that month and the JOIN adds no further restriction.",
+      "reason": "The query provides only the January 2012 spending, not the overall lifetime spending, so it misses one of the two requested figures. Therefore it does not fully answer the question.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 1275,
+    "result": {
+      "expected_answer": "The count of distinct male patients (Sex='M') whose lab records show anti-centromere and anti-SSB values within the normal set ('-', '+-').",
+      "sql_description": "Joins Patient and Laboratory, filters for Sex='M' and CENTROMEA/SSB in ('-', '+-'), then counts patient.id across all matching lab rows without DISTINCT.",
+      "reason": "Question explicitly requires counting distinct patients; evidence states “Should consider DISTINCT in the final result.” The query counts rows, so patients with multiple qualifying lab entries would be over-counted. Missing required DISTINCT anchor.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 1352,
+    "result": {
+      "expected_answer": "A single number: the count of club members whose major is \"Business\" and whose t_shirt_size is \"Medium\".",
+      "sql_description": "Counts member_id rows after joining member and major where major_name is 'Human Development and Family Studies' and t_shirt_size is 'Large'.",
+      "reason": "Query filters on the wrong major ('Human Development and Family Studies') and wrong shirt size ('Large'); therefore it does not answer the question.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 1427,
+    "result": {
+      "expected_answer": "All unique budget categories for events that are located at \"MU 215\", have type \"Guest Speaker\", and whose budget record shows spent = 0.",
+      "sql_description": "Joins budget to event, filters events with location = 'MU 215' and type = 'Guest Speaker', keeps only budget rows where spent = 0, then returns distinct budget.category values.",
+      "reason": "Query applies every stated constraint (location, type, spent = 0) and returns the requested field (budget.category).",
+      "verdict": true,
+      "evidence": "sql_result shows column category with 4 rows (Speaker Gifts, Food, Parking, Advertisement)—exact output requested."
+    }
+  },
+  {
+    "question_id": 1473,
+    "result": {
+      "expected_answer": "A single numeric value: the average monthly consumption for all customers in the SME segment during the year 2013 (i.e., take the mean of 2013 consumption figures for SME customers, then divide by 12).",
+      "sql_description": "Joins customers with yearmonth, filters to SME customers and rows whose date is in 2013, sums all consumption values across those rows, then divides the grand total by 12.",
+      "reason": "The query computes TOTAL 2013 consumption (sum) instead of the AVERAGE of consumption values before dividing by 12, so it yields total-per-month rather than average-per-customer monthly consumption required. Thus anchor on averaging across customers is missing/wrong.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 1481,
+    "result": {
+      "expected_answer": "Three numbers, each the difference (SME-LAM, LAM-KAM, KAM-SME) of the 2013 annual average consumption of the customers with the lowest consumption in each segment who paid in CZK.",
+      "sql_description": "Computes a single value: total 2013 CZK consumption of all SME customers minus total 2013 CZK consumption of all LAM customers.",
+      "reason": "Ignores the 'lowest-consumption customers' requirement, uses totals instead of annual averages, omits KAM segment, and returns only one difference instead of three.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 1486,
+    "result": {
+      "expected_answer": "Need to determine if the count of SME customers whose payment currency is CZK exceeds the count of SME customers whose payment currency is EUR, and if so, report the numerical difference (CZK-count minus EUR-count).",
+      "sql_description": "Computes the difference between the number of ALL customers paying in CZK and the number paying in EUR, without restricting to SMEs.",
+      "reason": "Missing required SME segment filter; result mixes all customer segments, so it does not answer the SME-specific question.",
+      "verdict": false
+    }
+  }
+]

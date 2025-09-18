@@ -75,7 +75,7 @@ def main():
             pass
 
     input_stem = re.sub(r'(-result)$', '', os.path.splitext(os.path.basename(input_path))[0])
-    out_dir = os.path.join(base, 'output', f'EX-{input_stem}-eval')
+    out_dir = os.path.join(base, 'output', input_stem, f'EX-{input_stem}-eval')
     os.makedirs(out_dir, exist_ok=True)
     out_file = os.path.join(out_dir, 'eval_results.json')
 

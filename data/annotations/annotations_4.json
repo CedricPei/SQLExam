@@ -6,7 +6,7 @@
     "predicted_sql": "SELECT (`Free Meal Count (Ages 5-17)` / `Enrollment (Ages 5-17)`) AS EligibleFreeRate FROM frpm INNER JOIN schools ON frpm.CDSCode = schools.CDSCode WHERE schools.SOCType = 'Continuation School' ORDER BY EligibleFreeRate ASC LIMIT 3",
     "gold_sql": "SELECT `Free Meal Count (Ages 5-17)` / `Enrollment (Ages 5-17)` FROM frpm WHERE `Educational Option Type` = 'Continuation School' AND `Free Meal Count (Ages 5-17)` / `Enrollment (Ages 5-17)` IS NOT NULL ORDER BY `Free Meal Count (Ages 5-17)` / `Enrollment (Ages 5-17)` ASC LIMIT 3",
     "label": false,
-    "reason": "Should use school.EdOpsCode='CON' or frpm.Educational Option Type = 'Continuation School' as the filter condition",
+    "reason": "Because evidence has shown the calculation of \"EligibleFreeRate\", so it should use school.EdOpsCode='CON' or frpm.Educational Option Type = 'Continuation School' as the filter condition",
     "evidence": "Eligible free rates for students aged 5-17 = `Free Meal Count (Ages 5-17)` / `Enrollment (Ages 5-17)`"
   },
   {
@@ -26,7 +26,7 @@
     "predicted_sql": "SELECT T2.School, T2.DOCType FROM frpm AS T1 INNER JOIN schools AS T2 ON T1.CDSCode = T2.CDSCode WHERE T2.FundingType = 'Locally funded' AND T1.`Enrollment (K-12)` - T1.`Enrollment (Ages 5-17)` > ( SELECT AVG(T1.`Enrollment (K-12)` - T1.`Enrollment (Ages 5-17)`) FROM frpm AS T1 INNER JOIN schools AS T2 ON T1.CDSCode = T2.CDSCode WHERE T2.FundingType = 'Locally funded' )",
     "gold_sql": "SELECT T2.School, T2.DOC FROM frpm AS T1 INNER JOIN schools AS T2 ON T1.CDSCode = T2.CDSCode WHERE T2.FundingType = 'Locally funded' AND (T1.`Enrollment (K-12)` - T1.`Enrollment (Ages 5-17)`) > (SELECT AVG(T3.`Enrollment (K-12)` - T3.`Enrollment (Ages 5-17)`) FROM frpm AS T3 INNER JOIN schools AS T4 ON T3.CDSCode = T4.CDSCode WHERE T4.FundingType = 'Locally funded')",
     "label": true,
-    "reason": "Ambiguous question (Ambiguous output format)",
+    "reason": "AMBIGUOUS QUESTION: DOCType and DOC all ok.",
     "evidence": "Difference between K-12 enrollment and 15-17 enrollment can be computed by `Enrollment (K-12)` - `Enrollment (Ages 5-17)`"
   },
   {
@@ -46,7 +46,7 @@
     "predicted_sql": "SELECT CAST(SUM(CASE WHEN FundingType = 'Locally funded' THEN 1 ELSE 0 END) AS REAL) * 100 / COUNT(*) FROM schools WHERE County = 'Santa Clara'",
     "gold_sql": "SELECT CAST(SUM(CASE WHEN FundingType = 'Locally funded' THEN 1 ELSE 0 END) AS REAL) * 100 / SUM(CASE WHEN FundingType != 'Locally funded' THEN 1 ELSE 0 END) FROM schools WHERE County = 'Santa Clara' AND Charter = 1",
     "label": false,
-    "reason": "Missing a filter condition: Charter = 1\nNote: ambiguous question (how to calculate?)",
+    "reason": "Missing a filter condition: Charter = 1\nNote: AMBIGUOUS QUESTION, the evidence is against the question.",
     "evidence": "Ratio in percentage = (count(locally funded schools in Santa Clara) / count(all funding type schools in Santa Clara) * 100%"
   },
   {
@@ -86,7 +86,7 @@
     "predicted_sql": "SELECT AVG(A12) AS avg_1995, AVG(A13) AS avg_1996 FROM district",
     "gold_sql": "SELECT DISTINCT IIF(AVG(A13) > AVG(A12), '1996', '1995') FROM district",
     "label": true,
-    "reason": "Ambiguous question (Ambiguous output)",
+    "reason": "AMBIGUOUS QUESTION  (Ambiguous column returned)",
     "evidence": "A12 refers to unemploymant rate 1995; A13 refers to unemploymant rate 1996"
   },
   {
@@ -185,8 +185,8 @@
     "question": "What percentage of clients who opened their accounts in the district with an average salary of over 10000 are women?",
     "predicted_sql": "SELECT CAST(SUM(CASE WHEN T1.gender = 'F' THEN 1 ELSE 0 END) AS REAL) * 100 / COUNT(T1.gender) FROM client AS T1 INNER JOIN disp AS T2 ON T1.client_id = T2.client_id INNER JOIN account AS T3 ON T2.account_id = T3.account_id INNER JOIN district AS T4 ON T3.district_id = T4.district_id WHERE T4.A11 > 10000",
     "gold_sql": "SELECT CAST(SUM(T2.gender = 'F') AS REAL) * 100 / COUNT(T2.client_id) FROM district AS T1 INNER JOIN client AS T2 ON T1.district_id = T2.district_id WHERE T1.A11 > 10000",
-    "label": true,
-    "reason": "GOLD FALSE: the filter condition of with an average salary of over 10000 should be on district (Ambiguous question)",
+    "label": false,
+    "reason": "JOIN unrelated tables.",
     "evidence": "Female refers to gender = 'F'; Woman and female are closed; Average salary can be found in A11"
   },
   {
@@ -216,7 +216,7 @@
     "predicted_sql": "SELECT DISTINCT T2.label FROM molecule AS T2 WHERE T2.molecule_id NOT IN (SELECT T1.molecule_id FROM atom AS T1 WHERE T1.element = 'Sn')",
     "gold_sql": "SELECT DISTINCT T2.label FROM atom AS T1 INNER JOIN molecule AS T2 ON T1.molecule_id = T2.molecule_id WHERE T1.element != 'sn'",
     "label": false,
-    "reason": "Both predicted and gold SQL are incorrect",
+    "reason": "False Positive, error WHERE condition \"T1.element = 'Sn'\"",
     "evidence": "tin refers to element ! = 'sn'; label = '+' mean molecules are carcinogenic; label = '-' means molecules are non-carcinogenic"
   },
   {
@@ -245,8 +245,8 @@
     "question": "What is the average number of bonds the atoms with the element iodine have?",
     "predicted_sql": "SELECT AVG(bond_count) FROM (     SELECT a.atom_id, COUNT(c.bond_id) as bond_count     FROM atom a     JOIN connected c ON a.atom_id = c.atom_id     WHERE a.element = 'i'     GROUP BY a.atom_id ) as iodine_atoms",
     "gold_sql": "SELECT CAST(COUNT(T2.bond_id) AS REAL) / COUNT(T1.atom_id) FROM atom AS T1 INNER JOIN connected AS T2 ON T1.atom_id = T2.atom_id WHERE T1.element = 'i'",
-    "label": false,
-    "reason": "Pred does not consider the other side of the bond",
+    "label": true,
+    "reason": "",
     "evidence": "atoms with the element iodine refers to element = 'i'; average = DIVIDE(COUND(bond_id), COUNT(atom_id)) where element = 'i'"
   },
   {
@@ -296,7 +296,7 @@
     "predicted_sql": "SELECT CAST(SUM(CASE WHEN T1.label = '+' AND T2.element = 'h' THEN 1 ELSE 0 END) AS REAL) * 100 / COUNT(DISTINCT T1.molecule_id) FROM molecule AS T1 INNER JOIN atom AS T2 ON T1.molecule_id = T2.molecule_id",
     "gold_sql": "SELECT CAST(COUNT(CASE WHEN T1.element = 'h' AND T2.label = '+' THEN T2.molecule_id ELSE NULL END) AS REAL) * 100 / COUNT(T2.molecule_id) FROM atom AS T1 INNER JOIN molecule AS T2 ON T1.molecule_id = T2.molecule_id",
     "label": false,
-    "reason": "Predicted SQL: Missing DISTINCT keyword. GOLD FALSE: Missing DISTINCT keyword. Note: Ambiguous question",
+    "reason": "Predicted SQL: Missing DISTINCT keyword. \nGOLD FALSE: Missing DISTINCT keyword. \nNote: Ambiguous question",
     "evidence": "hydrogen refers to element = 'h'; label = '+' mean molecules are carcinogenic; percentage = DIVIDE(SUM(label = '+' and element = 'h'), COUNT(molecule_id)) * 100.0"
   },
   {
@@ -306,7 +306,7 @@
     "predicted_sql": "SELECT element FROM atom WHERE molecule_id = 'TR186'",
     "gold_sql": "SELECT T.atom_id FROM atom AS T WHERE T.molecule_id = 'TR186'",
     "label": true,
-    "reason": "Ambiguous question (ambiguous output)",
+    "reason": "AMBIGUOUS QUESTION (both columns are acceptable)",
     "evidence": "TR186 is a molecule id"
   },
   {
@@ -346,7 +346,7 @@
     "predicted_sql": "SELECT molecule_id FROM atom WHERE atom_id IN ('TR000_2', 'TR000_4')",
     "gold_sql": "SELECT T1.molecule_id FROM bond AS T1 INNER JOIN connected AS T2 ON T1.bond_id = T2.bond_id WHERE T2.atom_id = 'TR000_2' AND T2.atom_id2 = 'TR000_4'",
     "label": true,
-    "reason": "Ambiguous question caused by 'AND' operator.",
+    "reason": "AMBIGUOUS QUESTION  caused by 'AND' operator.",
     "evidence": ""
   },
   {
@@ -366,7 +366,7 @@
     "predicted_sql": "SELECT cards.name FROM cards WHERE cards.cardKingdomId IS NOT NULL AND cards.cardKingdomFoilId = cards.cardKingdomId;",
     "gold_sql": "SELECT id FROM cards WHERE cardKingdomFoilId IS NOT NULL AND cardKingdomId IS NOT NULL",
     "label": false,
-    "reason": "Wrong filter condition\nAmbiguous question (output format)",
+    "reason": "Wrong filter condition",
     "evidence": "incredibly poweful foils refers to cardKingdomFoilId is not null AND cardKingdomId is not null"
   },
   {
@@ -416,7 +416,7 @@
     "predicted_sql": "SELECT type FROM cards WHERE name = 'Benalish Knight'",
     "gold_sql": "SELECT DISTINCT T1.type FROM cards AS T1 INNER JOIN foreign_data AS T2 ON T1.uuid = T2.uuid WHERE T1.name = 'Benalish Knight'",
     "label": true,
-    "reason": "GOLD FALSE: should not use foreign_data.name as filter condition",
+    "reason": "",
     "evidence": "Benalish Knight' is the name of card;"
   },
   {
@@ -486,7 +486,7 @@
     "predicted_sql": "SELECT artist FROM cards WHERE uuid = ( SELECT uuid FROM foreign_data WHERE text = 'Das perfekte Gegenmittel zu einer dichten Formation' )",
     "gold_sql": "SELECT DISTINCT T1.artist FROM cards AS T1 INNER JOIN foreign_data AS T2 ON T1.uuid = T2.uuid WHERE T2.flavorText LIKE '%DAS perfekte Gegenmittel zu einer dichten Formation%'",
     "label": false,
-    "reason": "Note: Ambiguous question (Ambiguous column)",
+    "reason": "AMBIGUOUS QUESTION: We do not know the difference of \"text\" vs. \"flavorText\"",
     "evidence": ""
   },
   {
@@ -536,7 +536,7 @@
     "predicted_sql": "SELECT CAST(SUM(CASE WHEN T2.isOnlineOnly = 1 THEN 1 ELSE 0 END) AS REAL) * 100 / COUNT(T2.isOnlineOnly) FROM foreign_data AS T1 INNER JOIN cards AS T2 ON T1.uuid = T2.uuid WHERE T1.language = 'Chinese Simplified'",
     "gold_sql": "SELECT CAST(SUM(CASE WHEN T2.language = 'Chinese Simplified' AND T1.isOnlineOnly = 1 THEN 1 ELSE 0 END) AS REAL) * 100 / COUNT(*) FROM sets AS T1 INNER JOIN set_translations AS T2 ON T1.code = T2.setCode",
     "label": false,
-    "reason": "Wrong calculation\nGOLD FALSE: Should use DISTINCT inside the sum and count functions\nNote: wrong evidence provided\nAmbiguous question (how to calculate)",
+    "reason": "EVIDENCE FALSE: ambiguous `isOnelineOnly`\nGOLD FALSE: Should use DISTINCT inside the sum and count functions\nNote: wrong evidence provided\nAmbiguous question (how to calculate)",
     "evidence": "are only available for online games refers to isOnlineOnly = 1; percentage = DIVIDE(COUNT(isOnlineOnly = 1),COUNT(isOnlineOnly))*100"
   },
   {
@@ -686,7 +686,7 @@
     "predicted_sql": "SELECT T2.DisplayName, T2.Reputation FROM posts AS T1 INNER JOIN users AS T2 ON T1.OwnerUserId = T2.Id WHERE T1.Id = 1",
     "gold_sql": "SELECT T2.Id, T2.Reputation FROM comments AS T1 INNER JOIN users AS T2 ON T1.UserId = T2.Id WHERE T1.PostId = 1",
     "label": true,
-    "reason": "Ambiguous output",
+    "reason": "AMBIGUOUS QUESTION: DisplayName or Id are both acceptable",
     "evidence": ""
   },
   {
@@ -956,7 +956,7 @@
     "predicted_sql": "SELECT T2.name FROM constructorStandings AS T1 INNER JOIN constructors AS T2 ON T1.constructorId = T2.constructorId WHERE T1.position = 1",
     "gold_sql": "SELECT DISTINCT T2.name FROM results AS T1 INNER JOIN constructors AS T2 on T1.constructorId = T2.constructorId WHERE T1.rank = 1",
     "label": true,
-    "reason": "GOLD FALSE",
+    "reason": "AMBIGUOUS SCHEMA",
     "evidence": ""
   },
   {
@@ -1206,7 +1206,7 @@
     "predicted_sql": "SELECT CAST(COUNT(*) * 100.0 / (SELECT COUNT(*) FROM Patient WHERE Patient.SEX = 'F') AS REAL) as percentage FROM Patient INNER JOIN Laboratory ON Patient.ID = Laboratory.ID WHERE Patient.SEX = 'F' AND (Laboratory.TP < 6.0 OR Laboratory.TP > 8.5);",
     "gold_sql": "SELECT CAST(SUM(CASE WHEN T1.SEX = 'F' AND (T2.TP < 6.0 OR T2.TP > 8.5) THEN 1 ELSE 0 END) AS REAL) * 100 / COUNT(*) FROM Patient AS T1 INNER JOIN Laboratory AS T2 ON T1.ID = T2.ID WHERE T1.SEX = 'F'",
     "label": false,
-    "reason": "Predicted SQL miss DISTINCT in the count function. GOLD FALSE: COUNT(*) is the total number of female patient lab records, but we should use the total number of female patients as the denominator",
+    "reason": "Predicted SQL miss DISTINCT in the count function. \nGOLD FALSE: COUNT(*) is the total number of female patient lab records, but we should use the total number of female patients as the denominator",
     "evidence": "female refers to sex = 'F'; total protein not within the normal range refers to TP < '6.0' or TP > '8.5'; calculation = DIVIDE((ID where sex = 'F' and TP < '6.0' or TP > '8.5'), COUNT(ID)) * 100"
   },
   {
