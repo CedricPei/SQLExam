@@ -1,0 +1,395 @@
+[
+  {
+    "question_id": 41,
+    "result": {
+      "expected_answer": "List the names of exclusively virtual schools (Virtual='F') that rank in the top 5 within their county (partitioned by County) based on average reading scores (AvgScrRead). Must return only schools with non-null scores.",
+      "sql_description": "Retrieves school names and reading scores for exclusively virtual schools, orders them globally by reading score descending, and returns the top 5 overall.",
+      "reason": "The question mandates ranking schools within their respective counties (anchor: PARTITION BY County per evidence), but the SQL performs global ranking without county partitioning. This fails to enforce the 'respective counties' requirement. Additionally, null scores (e.g., Dunlap Leadership Academy) are included without filtering, contradicting the ranking basis.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 133,
+    "result": {
+      "expected_answer": "List of district names (A2) and branch locations (district_id) for districts with the highest unemployment rate (A13) in 1996",
+      "sql_description": "Selects district names (A2) where the 1996 unemployment rate (A13) matches the maximum A13 value in the district table",
+      "reason": "The question explicitly requires both branch location (district_id) and district name (A2). The predicted SQL omits district_id, violating this anchor requirement. The evidence confirms district_id represents branch location.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 141,
+    "result": {
+      "expected_answer": "List of distinct district names (d.a2) that have at least one transaction in 1997 exceeding $10,000 USD.",
+      "sql_description": "Retrieves unique district names by joining trans, account, and district tables, filtering for transactions in 1997 with amount > 10000.",
+      "reason": "The query satisfies all anchors: (1) filters transactions > 10000 USD (matching USS$10,000 per column description), (2) restricts to 1997 via date extraction, and (3) correctly maps districts through account-district relationships. Ambiguity regarding transaction direction or duplicates is irrelevant here since the question only requires existence of qualifying transactions. DISTINCT appropriately handles potential duplicate districts.",
+      "verdict": true,
+      "evidence": "Result shows 20 distinct districts including 'Hl.m. Praha', 'Kolin', 'Brno - mesto' (positions 0/1/5/11 etc.) confirming qualifying transactions exist."
+    }
+  },
+  {
+    "question_id": 124,
+    "result": {
+      "expected_answer": "List loan ID, district identifier or name, and average salary for loans with duration of 60 months. Accepts district_id representation due to ambiguity in 'district' meaning (id vs. name).",
+      "sql_description": "Retrieves loan_id, district_id, and A11 (average salary) by joining loan, account, and district tables, filtered by loan.duration=60.",
+      "reason": "Correctly selects loan_id and A11 (average salary). Ambiguity in 'district' allows district_id representation. Explicit duration=60 anchor is satisfied. Result structure matches question requirements.",
+      "verdict": true,
+      "evidence": "20 rows with columns loan_id, district_id, A11 (e.g., row0: loan_id=4967, district_id=20, A11=8547; row1: loan_id=5041, district_id=47, A11=9538)."
+    }
+  },
+  {
+    "question_id": 51,
+    "result": {
+      "expected_answer": "The mailing street address and name of the school with the minimum average reading score (AvgScrRead) from the satscores table, joined with schools.",
+      "sql_description": "Joins satscores and schools on cds and cdscode, orders by average reading score ascending, and returns the mailing street and school name of the first row (lowest score).",
+      "reason": "The SQL correctly identifies the school with the lowest reading score by ordering and limiting, and retrieves the required mailing street address and school name. No missing anchors or contradictions; the join and column selections are appropriate.",
+      "verdict": true,
+      "evidence": "Execution result includes MailStreet and School columns with one row: MailStreet '1001 22nd Avenue, Suite 100' and School 'Aspire California College Preparatory Academy'."
+    }
+  },
+  {
+    "question_id": 31,
+    "result": {
+      "expected_answer": "The eligible free rates (Free Meal Count (K-12) / Enrollment (K-12)) for the 10th and 11th schools when sorted by highest K-12 enrolment descending.",
+      "sql_description": "Calculates the eligible free rate for each school and selects the 10th and 11th schools by descending K-12 enrolment.",
+      "reason": "The query correctly orders by enrolment, uses OFFSET and LIMIT to retrieve the specified schools, and calculates the rate as defined in the evidence. No missing anchors or contradictions with the question or evidence.",
+      "verdict": true,
+      "evidence": "Returns two rows: row 0 'El Camino Real Charter High' with rate 0.134436, row 1 'Eleanor Roosevelt High' with rate 0.290589."
+    }
+  },
+  {
+    "question_id": 77,
+    "result": {
+      "expected_answer": "List of schools in Los Angeles county with grade span served as Kindergarten to 9th grade (represented as 'K-9' in the database), along with their pre-calculated Percent Eligible FRPM for ages 5-17.",
+      "sql_description": "Selects school names and the percentage from the frpm table by inner joining schools and frpm on CDSCode, filtering for schools where GSserved is 'K-9' and County is 'Los Angeles'.",
+      "reason": "The query correctly applies the required filters for grade span and county, and retrieves the specified percentage directly from the frpm table, which aligns with the question's intent. The join on CDSCode is appropriate as it links school information to FRPM data.",
+      "verdict": true,
+      "evidence": "Result includes two schools: White Oak Elementary (row 0) with 0.037559%, and The Accelerated (row 1) with 0.976389%."
+    }
+  },
+  {
+    "question_id": 43,
+    "result": {
+      "expected_answer": "The average math score (a numerical value) and the county name for the school with the minimum sum of AvgScrMath, AvgScrRead, and AvgScrWrite, assuming all scores are non-NULL for a valid computation.",
+      "sql_description": "Selects the average math score and county from the joined satscores and schools tables, ordered by the sum of math, read, and write scores in ascending order, and returns the first row.",
+      "reason": "The predicted SQL does not filter out rows with NULL scores, and the execution result shows a NULL average math score, which is invalid for answering the question as it requires a numerical value. Schools with missing scores should not be considered for the lowest average since the average is undefined.",
+      "verdict": false,
+      "evidence": ""
+    }
+  },
+  {
+    "question_id": 30,
+    "result": {
+      "expected_answer": "A list of up to 5 distinct cities with the smallest total K-12 enrollment (sum of Enrollment (K-12) across all schools in each city).",
+      "sql_description": "Selects cities from the schools table joined with frpm on CDSCode, filters for non-null Enrollment (K-12), orders by individual school enrollment ascending, and limits to 5 rows, returning the cities associated with schools having the smallest enrollments.",
+      "reason": "The question requires identifying cities based on their total enrollment, implying aggregation by city, but the SQL uses individual school enrollment without grouping or summing, which does not correctly determine cities with the lowest total enrollment.",
+      "verdict": false,
+      "evidence": ""
+    }
+  },
+  {
+    "question_id": 174,
+    "result": {
+      "expected_answer": "The birth year of the client with client_id 130, extracted from the birth_date column.",
+      "sql_description": "Selects the year from the birth_date for the client where client_id is 130.",
+      "reason": "The SQL correctly filters by client_id 130 and extracts the year from birth_date, aligning with the question's intent. The mapping from 'account owner number' to client_id is reasonable given the schema description.",
+      "verdict": true,
+      "evidence": "Execution result returns year 1942 for the specified client."
+    }
+  },
+  {
+    "question_id": 141,
+    "result": {
+      "expected_answer": "A list of distinct district names where at least one transaction has amount greater than 10000 USD in the year 1997.",
+      "sql_description": "Selects distinct district names by joining transactions to accounts to districts, filtering for transaction amount > 10000 and year 1997.",
+      "reason": "The SQL correctly filters for the specified amount and year constraints, and the join path accurately links transactions to their respective districts via accounts. The use of DISTINCT ensures unique district names are returned.",
+      "verdict": true,
+      "evidence": "The SQL result shows district names in column A2, including rows with values such as Hl.m. Praha, Kolin, Prostejov, etc."
+    }
+  },
+  {
+    "question_id": 0,
+    "result": {
+      "expected_answer": "The maximum value of Free Meal Count (K-12) / Enrollment (K-12) for schools in Alameda County, as defined by the evidence.",
+      "sql_description": "Calculates the eligible free rate for each school by dividing Free Meal Count by Enrollment, joins with schools to filter for Alameda County, orders by rate descending, and returns the top rate.",
+      "reason": "The SQL correctly implements the rate calculation per evidence, filters for the specified county, and retrieves the maximum rate. The empty result may indicate no schools in Alameda County have valid frpm data or non-null rates, but the logic is sound and handles the intent.",
+      "verdict": true,
+      "evidence": "Empty result with column 'eligible_free_rate', suggesting no matching schools or all rates are null/undefined."
+    }
+  },
+  {
+    "question_id": 124,
+    "result": {
+      "expected_answer": "List of loan IDs, district identifier (such as district name or ID), and average salary (A11) for loans with a duration of 60 months.",
+      "sql_description": "Selects loan_id, district_id, and A11 (average salary) from loan joined with account and district tables, filtered for loans where duration is 60 months.",
+      "reason": "The query correctly retrieves loans with duration 60 and their associated district ID and average salary. While 'district' in the question could be interpreted as name, selecting district ID is a reasonable alternative as it uniquely identifies the district, and evidence does not specify which attribute to use.",
+      "verdict": true,
+      "evidence": "Result includes loan_id, district_id, and A11 columns with 20 rows, e.g., row 0: loan_id 4967, district_id 20, A11 8547."
+    }
+  },
+  {
+    "question_id": 173,
+    "result": {
+      "expected_answer": "For the first part, the count of transactions for account_id=3 where k_symbol indicates a statement request (e.g., 'SLUZBY' based on schema description). For the second part, the k_symbol value for debit transactions (type='VYDAJ') where the amount involved is 3539 (interpreted as a specific transaction amount due to ambiguity in 'in total'), as the aim refers to the purpose.",
+      "sql_description": "The query counts the number of transactions for account_id=3 with k_symbol='statement' and counts the number of transactions for account_id=3 with amount=3539 and k_symbol='payment', returning two counts via UNION ALL.",
+      "reason": "The SQL does not adequately answer the question. For the first part, k_symbol='statement' may not match the expected value (e.g., 'SLUZBY') per schema description. For the second part, it returns a count instead of the aim (k_symbol), omits the debit constraint (type='VYDAJ'), and uses k_symbol='payment' which may not be a valid value per schema.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 126,
+    "result": {
+      "expected_answer": "The percentage of accounts from the 'Decin' district that were opened in 1993. (Interpretation: among accounts in Decin district, the proportion opened in 1993.)",
+      "sql_description": "Calculates the percentage of accounts in the 'Decin' district with a date starting with '1993' (indicating year 1993) out of all accounts in the 'Decin' district.",
+      "reason": "The question is ambiguous: it could mean the percentage of Decin accounts opened in 1993 or the percentage of 1993 accounts from Decin. The predicted SQL clearly commits to the first interpretation, which is reasonable and not contradicted by evidence. The SQL includes required anchors for 'Decin' district and year 1993, and the result supports the interpretation.",
+      "verdict": true,
+      "evidence": "The SQL execution result shows a single column with a value of approximately 30.61%, representing the calculated percentage."
+    }
+  },
+  {
+    "question_id": 264,
+    "result": {
+      "expected_answer": "The carcinogenic labels ('+' for carcinogenic, '-' for non-carcinogenic) for molecule IDs TR000, TR001, and TR002.",
+      "sql_description": "Selects the label from the molecule table for the specified molecule IDs TR000, TR001, and TR002.",
+      "reason": "The SQL correctly filters for the three molecule IDs mentioned in the question and retrieves their labels, which aligns with the question's intent. The execution result includes all three labels, confirming the query's adequacy.",
+      "verdict": true,
+      "evidence": "SQL result shows three rows with labels: row 0: '+', row 1: '+', row 2: '-', corresponding to the labels for the molecules."
+    }
+  },
+  {
+    "question_id": 252,
+    "result": {
+      "expected_answer": "List of all atom_id values that are bonded to any atom with element 'pb' (lead), considering that bonds may be stored with lead in either atom_id or atom_id2 column of the connected table to account for undirected bonding relationships.",
+      "sql_description": "Selects atom_id2 from the connected table where the corresponding atom_id (from the atom table) has element 'pb', meaning it finds atoms connected to lead only when lead is the first atom in the bond record.",
+      "reason": "The SQL only considers bonds where lead is in the atom_id column, but it may miss bonds where lead is in atom_id2. The question requires all atoms bonded to lead, which should include bonds in both directions, as bonding is typically undirected and the evidence does not specify otherwise. Thus, the SQL is incomplete.",
+      "verdict": false,
+      "evidence": ""
+    }
+  },
+  {
+    "question_id": 80,
+    "result": {
+      "expected_answer": "The school type (SOCType), school name (School), and latitude coordinates (Latitude) of the school with the highest latitude value.",
+      "sql_description": "Retrieves SOCType, School, and Latitude from the schools table, orders by Latitude descending to find the highest value, and limits to the first row.",
+      "reason": "The SQL correctly uses ORDER BY and LIMIT to identify the school with the highest latitude and returns all required columns. No anchors or constraints are missing, and the approach is standard for superlative queries.",
+      "verdict": true,
+      "evidence": "SQL result shows SOCType as 'High Schools (Public)', School as 'Leggett Valley High', and Latitude as 44.219305 in row 0."
+    }
+  },
+  {
+    "question_id": 220,
+    "result": {
+      "expected_answer": "List the distinct chemical elements associated with the toxicology of molecule TR000, ordered alphabetically, and return the first three (or all if fewer than three distinct elements exist).",
+      "sql_description": "Selects element values from the atom table for molecule_id 'TR000', orders them alphabetically, and returns the first three rows, which may include duplicate elements.",
+      "reason": "The question asks for 'elements', which in context likely implies distinct element types, but the SQL returns individual atoms' elements including duplicates. The result shows only two distinct elements (c and cl) but lists cl twice, failing to provide three distinct elements as suggested by 'top three'. No ranking criteria for 'top' are available in the schema, but distinctness is reasonable for listing elements.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 177,
+    "result": {
+      "expected_answer": "The balance amount of the account owned by client 4 after transaction 851 (interpreted as a point-in-time value, such as the balance from the first transaction after trans_id 851 for that account), and the gender of the account owner (which should be client 4's gender if client 4 is the owner).",
+      "sql_description": "The SQL sums the balance values from all transactions with trans_id greater than 851 for accounts where client 4 has any disposition (not necessarily owner), and returns the sum along with client 4's gender.",
+      "reason": "The predicted SQL sums the balance column for multiple transactions, which does not represent the account's balance at a point in time as intended; it should retrieve a single balance value. Additionally, it does not filter for the account owner (disp.type = 'OWNER'), risking incorrect gender if client 4 is not the owner, and the trans_id filter is applied globally without account specificity.",
+      "verdict": false,
+      "evidence": ""
+    }
+  },
+  {
+    "question_id": 257,
+    "result": {
+      "expected_answer": "The expected answer is a list of atom_id2 values from the connected table where the atom with id atom_id2 has element 's'.",
+      "sql_description": "The SQL selects atom_id2 from connected joined with atom on connected.atom_id = atom.atom_id where atom.element = 's', which retrieves the second atom ids for connections where the first atom is sulfur.",
+      "reason": "The question requires listing atom_id2 for atoms that are sulfur, meaning the element condition should apply to the atom referenced by atom_id2. The predicted SQL incorrectly applies the condition to the atom referenced by atom_id (the first atom), not atom_id2, so it does not correctly implement the requirement. The evidence does not suggest an alternative interpretation.",
+      "verdict": false,
+      "evidence": ""
+    }
+  },
+  {
+    "question_id": 344,
+    "result": {
+      "expected_answer": "List the names of all card printings (individual printing entries) that have rarity 'mythic' and are banned in the gladiator format, as per the evidence constraints.",
+      "sql_description": "Selects card names by joining the cards and legalities tables on uuid, filtering for rarity 'mythic', status 'Banned', and format 'gladiator'.",
+      "reason": "The query includes all required anchors (rarity, status, format) and correctly joins the tables. The duplicates in the result (e.g., multiple 'Oko, Thief of Crowns') are acceptable under the interpretation that 'print cards' refers to individual printings, not unique card names, which is reasonable given the evidence and schema.",
+      "verdict": true,
+      "evidence": "SQL result shows card names including 'Oko, Thief of Crowns' (rows 0,1,3,4) and 'Nexus of Fate' (row 2) from the name column, indicating multiple printings meet the criteria."
+    }
+  },
+  {
+    "question_id": 425,
+    "result": {
+      "expected_answer": "A list of card numbers where the card does not have multiple faces (side is null) and has both 'Angel' and 'Wizard' in its subtypes, interpreted as the subtypes text containing both words.",
+      "sql_description": "Selects card numbers from the cards table where side is null and the subtypes text contains 'Angel' and 'Wizard' using LIKE operators.",
+      "reason": "The SQL correctly filters for cards without multiple faces (side IS NULL) and checks for the presence of both 'Angel' and 'Wizard' in the subtypes text, which aligns with the question's requirements and evidence. The use of LIKE is reasonable given the textual storage of subtypes.",
+      "verdict": true,
+      "evidence": "SQL result returns card numbers: 97, 226p, 226s, 226, 368 from the number column."
+    }
+  },
+  {
+    "question_id": 309,
+    "result": {
+      "expected_answer": "A list of all atom IDs for molecule 'TR346', each with the count of distinct bond types the atom is involved in (considering both atom_id and atom_id2 in the connected table to capture all connections). Atoms with no bonds should have a count of 0.",
+      "sql_description": "The query selects atom_id and counts distinct bond types by inner joining atom to connected on atom_id and bond on bond_id, filtered for molecule_id='TR346', grouped by atom_id. It only considers connections where the atom is atom_id in connected, not atom_id2, and excludes atoms with no bonds due to the inner join.",
+      "reason": "The query misses bonds where the atom is the second atom (atom_id2) in connections and excludes atoms with no bonds, which should be included. The question requires listing all atoms belonging to TR346 with their bond type counts.",
+      "verdict": false,
+      "evidence": ""
+    }
+  },
+  {
+    "question_id": 447,
+    "result": {
+      "expected_answer": "Retrieve the set codes from the sets table where the type is 'commander', interpreting 'expansion commander type' as matching the 'commander' value in the type column.",
+      "sql_description": "Selects the code column from the sets table where the type equals 'commander'.",
+      "reason": "The question asks for set codes with expansion commander type, which aligns with the 'commander' type in the schema. The predicted SQL correctly filters for this type and returns the relevant codes.",
+      "verdict": true,
+      "evidence": "The result includes codes like C13, C14, C15, etc., from the code column, indicating sets with type 'commander'."
+    }
+  },
+  {
+    "question_id": 218,
+    "result": {
+      "expected_answer": "The percentage of carcinogenic molecules (label='+') that do not contain any fluorine atoms (element='f'), calculated as (number of such molecules / total carcinogenic molecules) * 100.",
+      "sql_description": "Calculates the percentage by first counting distinct carcinogenic molecules with fluorine atoms, then subtracting from the total distinct carcinogenic molecules to find the percentage without fluorine.",
+      "reason": "The SQL correctly handles carcinogenic constraint with WHERE label='+', uses LEFT JOIN to include molecules with no atoms, and counts distinct molecules to avoid atom-level duplicates. The calculation aligns with the question intent, and the evidence's 'distinct atoms' note is addressed by DISTINCT on molecule_id.",
+      "verdict": true,
+      "evidence": "The result column 'percentage' has a value of approximately 99.34."
+    }
+  },
+  {
+    "question_id": 451,
+    "result": {
+      "expected_answer": "Count of cards where availability contains 'paper' and hand is exactly '3', as per evidence definition.",
+      "sql_description": "Counts cards where availability contains 'paper' and hand starts with a '+' character.",
+      "reason": "Evidence explicitly defines 'positive starting maximum hand size' as hand = '3', but predicted SQL uses hand LIKE '+%', which does not match this required anchor.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 453,
+    "result": {
+      "expected_answer": "The value from the 'manaCost' column for the card where name is 'Ancestor`s Chosen', representing the unconverted mana cost (e.g., a string like '{5}{W}{W}').",
+      "sql_description": "Retrieves the converted mana cost values for cards with the name 'Ancestor's Chosen'.",
+      "reason": "The question asks for the unconverted mana cost, which the schema indicates is stored in the 'manaCost' column, but the predicted SQL queries 'convertedManaCost' instead, missing the required column anchor.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 465,
+    "result": {
+      "expected_answer": "Check if there exists at least one card with name 'Ancestor's Chosen' that has a Korean language entry in foreign_data, indicating a Korean version.",
+      "sql_description": "Checks if the count of rows from joining cards and foreign_data on uuid is greater than zero, where cards.name is 'Ancestor's Chosen' and foreign_data.language is 'Korean'.",
+      "reason": "The SQL correctly uses the anchors specified in the evidence (name and language) and the join on uuid is appropriate. The boolean expression COUNT(*) > 0 adequately answers the existence question.",
+      "verdict": true,
+      "evidence": "sql_result has one row with column 'COUNT(*) > 0' value 0, meaning no Korean version was found."
+    }
+  },
+  {
+    "question_id": 508,
+    "result": {
+      "expected_answer": "The distinct values of the 'availability' column for cards where artist is 'Aleksi Briclot' and isTextless is 1, representing the available printing types.",
+      "sql_description": "Selects the availability column from the cards table filtered by artist 'Aleksi Briclot' and isTextless = 1.",
+      "reason": "The SQL correctly implements the required filters (artist and isTextless) and selects the availability column as specified in the evidence. The result includes the available printing types ('paper' and 'mtgo'), and while duplicates are present, the question does not explicitly require distinct values, and the information is conveyed.",
+      "verdict": true,
+      "evidence": "Column 'availability' with values 'paper' (rows 0 and 1) and 'mtgo' (rows 2 and 3), indicating the available printing types are paper and mtgo."
+    }
+  },
+  {
+    "question_id": 868,
+    "result": {
+      "expected_answer": "The latitude and longitude (lat, lng) of the circuit where races named 'Malaysian Grand Prix' are held, based on joining races and circuits on circuitId.",
+      "sql_description": "Selects latitude and longitude from circuits by joining with races on circuitId, filtered for races with name 'Malaysian Grand Prix'.",
+      "reason": "The SQL correctly implements the join and filter as per evidence, returning the coordinates. Multiple rows with identical values do not affect the answer since the question seeks coordinates, not a count.",
+      "verdict": true,
+      "evidence": "SQL result shows all rows with lat=2.76083 and lng=101.738, indicating consistent location coordinates."
+    }
+  },
+  {
+    "question_id": 281,
+    "result": {
+      "expected_answer": "A count of elements for the 4th atoms of carcinogenic molecules (label '+'), where the 4th atom is identified by substr(atom_id, 7, 1) = '4'.",
+      "sql_description": "Joins atom and molecule tables, filters for carcinogenic molecules and atoms with the 4th position in atom_id, groups by element, and counts the number of such atoms.",
+      "reason": "The SQL correctly filters for carcinogenic molecules and the 4th atom as specified in the evidence, then tallies the elements. The interpretation aligns with the question's intent.",
+      "verdict": true,
+      "evidence": "SQL result shows element counts: column 'element' with values like 'c' (145), 'h' (59), and COUNT(*) with corresponding frequencies."
+    }
+  },
+  {
+    "question_id": 606,
+    "result": {
+      "expected_answer": "The distinct names of badges obtained at the exact datetime '2010-07-19 19:39:08.0'.",
+      "sql_description": "Selects distinct badge names from the badges table where the date equals '2010-07-19 19:39:08.0'.",
+      "reason": "The SQL correctly filters by the specified datetime and returns distinct badge names, which is a reasonable interpretation for listing unique badge names obtained at that time, as the question does not specify handling duplicates. The evidence confirms the date format, and all required anchors are present.",
+      "verdict": true,
+      "evidence": "The result includes distinct badge names in the Name column: Student (row 0), Editor (row 1), Organizer (row 2)."
+    }
+  },
+  {
+    "question_id": 711,
+    "result": {
+      "expected_answer": "The count of distinct users aged 40 who have made comments with score 0 that are related to products. However, the schema does not define 'product-related comments', making this requirement unvalidatable with the provided database information.",
+      "sql_description": "Counts the number of distinct users aged 40 who have any comment with a score of 0, without filtering for product-related comments.",
+      "reason": "The question specifies 'among products comments', which implies a required anchor for comments related to products. The predicted SQL does not include any condition to address this (e.g., joining or filtering based on a products table or attribute), and the provided schema lacks information to define or validate 'product-related comments'.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 860,
+    "result": {
+      "expected_answer": "The nationality of the driver who recorded a Q2 time of '0:01:40' in raceId 355.",
+      "sql_description": "Selects nationality from the drivers table joined with the qualifying table on driverId, filtering for records where raceId is 355 and q2 time is exactly '0:01:40'.",
+      "reason": "The SQL correctly implements the required anchors from the question and evidence: raceId=355 and q2='0:01:40'. The empty execution result is valid and indicates no driver matches the criteria, which is a possible outcome.",
+      "verdict": true,
+      "evidence": "Empty result: no rows returned in the 'nationality' column, indicating no driver with the specified Q2 time in race 355."
+    }
+  },
+  {
+    "question_id": 872,
+    "result": {
+      "expected_answer": "The abbreviated code of the driver who participated in raceId 45 and has a q3 time matching the pattern '1:33%' (minutes:seconds, as per evidence interpretation).",
+      "sql_description": "Selects the driver code by joining qualifying, races, and drivers, filtering for raceId 45 and exact q3 time '0:01:33'.",
+      "reason": "The evidence specifies that 'had the Q3 time as 0:0M:SS refers to q3 LIKE 'M:SS%'', so for '0:01:33', it should use pattern matching like '1:33%'. The predicted SQL uses exact equality instead, which may not correctly identify the intended driver due to potential time format differences in the database.",
+      "verdict": false,
+      "evidence": null
+    }
+  },
+  {
+    "question_id": 507,
+    "result": {
+      "expected_answer": "The percentage of foreign_data entries with language 'Portuguese (Brazil)' where the corresponding card has isOnlineOnly = 1, calculated as (SUM of indicators for isOnlineOnly=1) / (count of such entries) * 100, based on evidence interpretation.",
+      "sql_description": "Joins foreign_data and cards on uuid, filters for language 'Portuguese (Brazil)', sums cases where isOnlineOnly is 1, divides by the count of entries, and multiplies by 100 to get the percentage.",
+      "reason": "The evidence explicitly defines the calculation using SUM, implying a row-based approach per translation entry. The predicted SQL commits to this interpretation by counting rows without DISTINCT, which is reasonable given the evidence, despite the question's phrasing about 'set of cards'.",
+      "verdict": true,
+      "evidence": "The result shows a value of 0.0 in the 'percentage' column, indicating that no Brazil Portuguese translation entries correspond to online-only cards."
+    }
+  },
+  {
+    "question_id": 999,
+    "result": {
+      "expected_answer": "The name of the race where the minimum fastestLapTime was recorded by any racer, as 'fastest lap speed' refers to MIN(fastestLapTime) per evidence.",
+      "sql_description": "Joins results and races tables on raceId, orders by fastestLapTime in ascending order to find the smallest value, and selects the corresponding race name with LIMIT 1.",
+      "reason": "The predicted SQL correctly implements the requirement to find the race with the minimum fastestLapTime, as specified by the evidence. It uses ORDER BY ASC and LIMIT 1 to retrieve the race associated with the smallest fastestLapTime, addressing the question's intent.",
+      "verdict": true,
+      "evidence": "SQL result shows 'Malaysian Grand Prix' in the name column at row 0."
+    }
+  },
+  {
+    "question_id": 861,
+    "result": {
+      "expected_answer": "The driver number where q3 time starts with '1:54' for raceId 903. Since the question uses singular phrasing but multiple results are possible if times match the pattern, as per evidence.",
+      "sql_description": "Retrieves the number column from qualifying where q3 begins with '1:54' and raceId is 903.",
+      "reason": "The SQL correctly implements the pattern match for q3 time (LIKE '1:54%') as specified in evidence, and filters by raceId=903. The question allows for multiple results due to possible ties or similar times, and no explicit uniqueness requirement is stated.",
+      "verdict": true,
+      "evidence": "Column 'number' with values 3 and 1 in rows 0 and 1, indicating two drivers with q3 times matching the pattern."
+    }
+  },
+  {
+    "question_id": 948,
+    "result": {
+      "expected_answer": "The maximum points value achieved by constructors with nationality 'British'.",
+      "sql_description": "Calculates the average points for British constructors.",
+      "reason": "The SQL uses AVG aggregation instead of MAX, which contradicts the explicit evidence requirement for maximum points.",
+      "verdict": false,
+      "evidence": null
+    }
+  }
+]

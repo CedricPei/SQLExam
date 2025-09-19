@@ -141,12 +141,22 @@ if __name__ == "__main__":
 	parser.add_argument("method", nargs='?', type=str, default=None)
 	parser.add_argument("--skip", action="store_true")
 	args = parser.parse_args()
-	if args.method:
-		method_dir = os.path.join("output", args.method)
+	if args.mode == "l":
+		if args.method is not None:
+			raise SystemExit("Label mode does not take a method argument. Use: python analyze.py l")
+		method_dir = os.path.join("output", "test")
 		res = analyze_method(method_dir, mode=args.mode, skip=args.skip)
 		os.makedirs(method_dir, exist_ok=True)
-		out_file = os.path.join(method_dir, f"statistics_by_{'difficulty' if args.mode=='d' else 'label'}.json")
+		out_file = os.path.join(method_dir, "statistics_by_label.json")
 		with open(out_file, 'w', encoding='utf-8') as f:
 			json.dump(res, f, ensure_ascii=False, indent=2)
 	else:
-		analyze_results_all(mode=args.mode, skip=args.skip)
+		if args.method:
+			method_dir = os.path.join("output", args.method)
+			res = analyze_method(method_dir, mode=args.mode, skip=args.skip)
+			os.makedirs(method_dir, exist_ok=True)
+			out_file = os.path.join(method_dir, "statistics_by_difficulty.json")
+			with open(out_file, 'w', encoding='utf-8') as f:
+				json.dump(res, f, ensure_ascii=False, indent=2)
+		else:
+			analyze_results_all(mode=args.mode, skip=args.skip)

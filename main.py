@@ -3,7 +3,7 @@ import os
 import argparse
 import re
 from concurrent.futures import ThreadPoolExecutor
-from typing import Dict, Any, List, Optional
+from typing import List
 from evaluators.PartialGrader import PartialScoringPipeline
 from evaluators.utils import execute_sql, write_result_to_file, run_with_timeout, compare_result
 from tqdm import tqdm
@@ -59,7 +59,7 @@ if __name__ == "__main__":
     parser.add_argument("--threads", type=int, default=1)
     parser.add_argument("--input", type=str, default="sample.json")
     args = parser.parse_args()
-    reasoning_model = "o4-mini"
+    reasoning_model = "deepseek-reasoner"
     instruct_model = "deepseek-chat"
     partial = False
 
@@ -97,22 +97,24 @@ if __name__ == "__main__":
     to_process = len(questions)
     print(f"Input total: {total_input}, To process: {to_process}")
 
+    progress = tqdm(total=to_process, dynamic_ncols=True, mininterval=0.5)
+
     def worker(idx):
         local_problems = []
         slice_questions = questions[idx::num_threads]
-        bar = tqdm(total=len(slice_questions), position=idx, leave=False, desc=f"T{idx}")
         for q in slice_questions:
             pid = _process_question(q)
             if pid:
                 local_problems.append(pid)
-            bar.update(1)
-        bar.close()
+            progress.update(1)
         return local_problems
 
     with ThreadPoolExecutor(max_workers=num_threads) as executor:
         futures = [executor.submit(worker, i) for i in range(num_threads)]
         for f in futures:
             problem_ids.extend(f.result())
+
+    progress.close()
 
     if len(problem_ids) > 0:
         os.makedirs(method_root_dir, exist_ok=True)
