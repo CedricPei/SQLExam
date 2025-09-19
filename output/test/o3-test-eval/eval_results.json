@@ -3375,5 +3375,170 @@
     "prover_result": true,
     "refuter_result": false,
     "label": true
+  },
+  {
+    "question_id": 275,
+    "question": "Give me the molecule ID of the double bond type.",
+    "evidence": "double bond refers to bond_type = ' = ';",
+    "gold_sql": "SELECT DISTINCT T.molecule_id FROM bond AS T WHERE T.bond_type = '='",
+    "predicted_sql": "SELECT molecule_id FROM bond WHERE bond_type = '='",
+    "score": 1.0,
+    "prover_result": true,
+    "refuter_result": false,
+    "label": true
+  },
+  {
+    "question_id": 376,
+    "question": "What are the card layout of cards with keyword of flying?",
+    "evidence": "",
+    "gold_sql": "SELECT layout FROM cards WHERE keywords = 'Flying'",
+    "predicted_sql": "SELECT layout FROM cards WHERE keywords LIKE '%Flying%'",
+    "score": 1.0,
+    "prover_result": true,
+    "refuter_result": false,
+    "label": true
+  },
+  {
+    "question_id": 205,
+    "question": "Identify by their ID the molecules in which there is carbon.",
+    "evidence": "carbon refers to element = 'c';",
+    "gold_sql": "SELECT T.molecule_id FROM atom AS T WHERE T.element = 'c'",
+    "predicted_sql": "SELECT atom.molecule_id FROM atom WHERE atom.element = 'si';",
+    "score": 0.0,
+    "prover_result": false,
+    "refuter_result": null,
+    "label": false
+  },
+  {
+    "question_id": 1433,
+    "question": "Which countries have zip codes with post office boxes?",
+    "evidence": "zip codes that have post office boxes refers to type = 'PO Box'",
+    "gold_sql": "SELECT DISTINCT county FROM zip_code WHERE type = 'PO Box' AND county IS NOT NULL",
+    "predicted_sql": "SELECT DISTINCT county FROM zip_code WHERE type = 'PO Box'",
+    "score": 1.0,
+    "prover_result": true,
+    "refuter_result": false,
+    "label": true
+  },
+  {
+    "question_id": 1214,
+    "question": "List ID, sex and date of birth of patient whose total protein (TP) below the lower range of the normal index.",
+    "evidence": "total protein (TP) below the lower range of the normal index refers to TP < 6.0",
+    "gold_sql": "SELECT DISTINCT T1.ID, T1.SEX, T1.Birthday FROM Patient AS T1 INNER JOIN Laboratory AS T2 ON T1.ID = T2.ID WHERE T2.TP < 6.0",
+    "predicted_sql": "SELECT Patient.ID, Patient.SEX, Patient.Birthday FROM Patient INNER JOIN Laboratory ON Patient.ID = Laboratory.ID WHERE Laboratory.TP < 6.0",
+    "score": 1.0,
+    "prover_result": true,
+    "refuter_result": false,
+    "label": true
+  },
+  {
+    "question_id": 1159,
+    "question": "For patient with albumin level lower than 3.5, list their ID, sex and diagnosis.",
+    "evidence": "albumin level lower than 3.5 refers to ALB < 3.5;",
+    "gold_sql": "SELECT DISTINCT T1.ID, T1.SEX, T1.Diagnosis FROM Patient AS T1 INNER JOIN Laboratory AS T2 ON T1.ID = T2.ID WHERE T2.ALB < 3.5",
+    "predicted_sql": "SELECT T1.ID, T1.SEX, T1.Diagnosis FROM Patient AS T1 JOIN Laboratory AS T2 ON T1.ID = T2.ID WHERE T2.ALB < 3.5",
+    "score": 1.0,
+    "prover_result": true,
+    "refuter_result": false,
+    "label": true
+  },
+  {
+    "question_id": 483,
+    "question": "Please list the Italian text ruling of all the cards in the set Coldsnap.",
+    "evidence": "card set Coldsnap refers to name = 'Coldsnap'; Italian refers to language = 'Italian'",
+    "gold_sql": "SELECT DISTINCT T1.text FROM foreign_data AS T1 INNER JOIN cards AS T2 ON T2.uuid = T1.uuid INNER JOIN sets AS T3 ON T3.code = T2.setCode WHERE T3.name = 'Coldsnap' AND T1.language = 'Italian'",
+    "predicted_sql": "SELECT fd.text FROM sets AS s INNER JOIN cards AS c ON c.setcode = s.code INNER JOIN foreign_data AS fd ON fd.uuid = c.uuid WHERE s.name = 'Coldsnap' AND fd.language = 'Italian'",
+    "score": 1.0,
+    "prover_result": true,
+    "refuter_result": false,
+    "label": true
+  },
+  {
+    "question_id": 1034,
+    "question": "List the players' api id who had the highest above average overall ratings in 2010.",
+    "evidence": "highest above average overall ratings refers to MAX(overall_rating); in 2010 refers to substr(date,1,4) = '2010';",
+    "gold_sql": "SELECT p.player_api_id FROM Player_Attributes AS p WHERE SUBSTR(p.date, 1, 4) = '2010' AND p.overall_rating = (SELECT MAX(pa.overall_rating) FROM Player_Attributes AS pa WHERE SUBSTR(pa.date, 1, 4) = '2010')",
+    "predicted_sql": "SELECT player_api_id FROM Player_Attributes WHERE date LIKE '2010%' AND overall_rating > ( SELECT AVG(overall_rating) FROM Player_Attributes WHERE date LIKE '2010%' )",
+    "score": 0.0,
+    "prover_result": false,
+    "refuter_result": null,
+    "label": false
+  },
+  {
+    "question_id": 464,
+    "question": "Please list the names of the cards in the set \"Hauptset Zehnte Edition\".",
+    "evidence": "card set \"Hauptset Zehnte Edition\" refers to translation = 'Hauptset Zehnte Edition'",
+    "gold_sql": "SELECT DISTINCT T1.name FROM cards AS T1 INNER JOIN set_translations AS T2 ON T2.setCode = T1.setCode WHERE T2.translation = 'Hauptset Zehnte Edition'",
+    "predicted_sql": "SELECT T2.name FROM set_translations AS T1 INNER JOIN cards AS T2 ON T1.setCode = T2.setCode WHERE T1.translation = 'Hauptset Zehnte Edition'",
+    "score": 1.0,
+    "prover_result": true,
+    "refuter_result": false,
+    "label": true
+  },
+  {
+    "question_id": 399,
+    "question": "Lists all types of cards available in arena.",
+    "evidence": "all types refer to subtypes and supertypes\n\navailble in arena refers to availability = 'arena'",
+    "gold_sql": "SELECT DISTINCT subtypes, supertypes FROM cards WHERE availability = 'arena' AND subtypes IS NOT NULL AND supertypes IS NOT NULL",
+    "predicted_sql": "SELECT subtypes, supertypes FROM cards WHERE availability = 'arena'",
+    "score": 0.0,
+    "prover_result": true,
+    "refuter_result": true,
+    "label": true
+  },
+  {
+    "question_id": 102,
+    "question": "State different accounts who have account opening date before 1997 and own an amount of money greater than 3000USD",
+    "evidence": "",
+    "gold_sql": "SELECT DISTINCT T2.account_id FROM trans AS T1 INNER JOIN account AS T2 ON T1.account_id = T2.account_id WHERE STRFTIME('%Y', T2.date) < '1997' AND T1.amount > 3000",
+    "predicted_sql": "SELECT DISTINCT T1.account_id FROM account AS T1 INNER JOIN trans AS T2 ON T1.account_id = T2.account_id WHERE T1.date < '1997-01-01' AND T2.balance > 3000",
+    "score": 1.0,
+    "prover_result": true,
+    "refuter_result": false,
+    "label": true
+  },
+  {
+    "question_id": 546,
+    "question": "Please list the display names of all the users who owns a post that is well-finished.",
+    "evidence": "the post that is well-finished refers to ClosedDate IS NOT Null",
+    "gold_sql": "SELECT T2.DisplayName FROM posts AS T1 INNER JOIN users AS T2 ON T1.OwnerUserId = T2.Id WHERE T1.ClosedDate IS NOT NULL",
+    "predicted_sql": "SELECT DISTINCT users.displayname FROM users INNER JOIN posts ON users.id = posts.owneruserid WHERE NOT posts.closeddate IS NULL",
+    "score": 1.0,
+    "prover_result": true,
+    "refuter_result": false,
+    "label": true
+  },
+  {
+    "question_id": 1235,
+    "question": "What are the patient's diagnosis for those who has lower red blood blood cell? State their ID and age.",
+    "evidence": "patient's diagnosis refers to Diagnosis; lower red blood cell refers to RBC < 3.5; age = SUBTRACT(year(current_timestamp), year(Birthday)); ",
+    "gold_sql": "SELECT DISTINCT T1.Diagnosis, T1.ID , STRFTIME('%Y', CURRENT_TIMESTAMP) -STRFTIME('%Y', T1.Birthday) FROM Patient AS T1 INNER JOIN Laboratory AS T2 ON T1.ID = T2.ID WHERE T2.RBC < 3.5",
+    "predicted_sql": "SELECT T1.ID, T1.Diagnosis, STRFTIME('%Y', CURRENT_TIMESTAMP) - STRFTIME('%Y', T1.Birthday) AS Age FROM Patient AS T1 JOIN Laboratory AS T2 ON T1.ID = T2.ID WHERE T2.RBC < 3.5",
+    "score": 1.0,
+    "prover_result": true,
+    "refuter_result": false,
+    "label": true
+  },
+  {
+    "question_id": 952,
+    "question": "Which constructors have been ranked 1?",
+    "evidence": "",
+    "gold_sql": "SELECT DISTINCT T2.name FROM results AS T1 INNER JOIN constructors AS T2 on T1.constructorId = T2.constructorId WHERE T1.rank = 1",
+    "predicted_sql": "SELECT T2.name FROM constructorStandings AS T1 INNER JOIN constructors AS T2 ON T1.constructorId = T2.constructorId WHERE T1.position = 1",
+    "score": 1.0,
+    "prover_result": true,
+    "refuter_result": false,
+    "label": true
+  },
+  {
+    "question_id": 1249,
+    "question": "Please list the disease names of the patients that have a proteinuria level higher than normal.",
+    "evidence": "disease names refers to Diagnosis; proteinuria level higher than normal refers to `U-PRO` > = 30;",
+    "gold_sql": "SELECT T1.Diagnosis FROM Patient AS T1 INNER JOIN Laboratory AS T2 ON T1.ID = T2.ID WHERE T2.`U-PRO` >= 30",
+    "predicted_sql": "SELECT DISTINCT patient.diagnosis FROM patient INNER JOIN laboratory ON patient.id = laboratory.id WHERE laboratory.\"U-PRO\" >= 30",
+    "score": 1.0,
+    "prover_result": true,
+    "refuter_result": false,
+    "label": true
   }
 ]

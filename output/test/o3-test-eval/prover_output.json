@@ -2112,5 +2112,153 @@
       "verdict": true,
       "evidence": "Returned row: GasStationID = 3250 (column GasStationID, row 0) – the station with maximal summed (amount*price)."
     }
+  },
+  {
+    "question_id": 275,
+    "result": {
+      "expected_answer": "List of molecule_id values for molecules that contain at least one bond where bond_type is the double bond symbol '='.",
+      "sql_description": "Selects molecule_id from bond rows whose bond_type equals '='; returns a row per qualifying bond (duplicates possible).",
+      "reason": "SQL applies correct bond_type filter and outputs the requested molecule IDs. Question does not explicitly require de-duplication, so returning duplicates is acceptable.",
+      "verdict": true,
+      "evidence": "sql_result shows molecule_id column with entries such as TR001, TR002, TR004, etc., all corresponding to '=' bonds."
+    }
+  },
+  {
+    "question_id": 376,
+    "result": {
+      "expected_answer": "List (or set) of layout types for all cards whose keywords include \"Flying\".",
+      "sql_description": "Selects the layout field from cards where the keywords string contains the substring 'Flying'; returns one row per matching card.",
+      "reason": "The query applies the required keyword filter and retrieves the requested attribute (layout). Result duplicates are acceptable; they all indicate the layout value(s) for flying-keyword cards.",
+      "verdict": true,
+      "evidence": "sql_result shows column layout with multiple rows, all having value 'normal' ─ indicating the layout type for cards with Flying."
+    }
+  },
+  {
+    "question_id": 205,
+    "result": {
+      "expected_answer": "List of molecule_id values for molecules that contain at least one atom whose element is carbon (element = 'c').",
+      "sql_description": "Returns molecule_id values of atoms whose element is 'si' (silicon).",
+      "reason": "Query uses element = 'si' instead of 'c', violating the explicit carbon anchor.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 1433,
+    "result": {
+      "expected_answer": "List of geographic areas asked as \"countries\" but given schema, likely intended counties that have at least one zip code entry whose type is 'PO Box'.",
+      "sql_description": "Retrieves DISTINCT values from zip_code.county where type equals 'PO Box'; returns all counties (including NULL) that contain PO Box zip codes.",
+      "reason": "Question refers to areas with PO Box zip codes; only county column exists so interpreting \"countries\" as a typo for counties is reasonable. Query correctly filters by type='PO Box' and outputs distinct counties, satisfying requirement. Inclusion of a NULL row does not violate question.",
+      "verdict": true,
+      "evidence": "sql_result shows county column values such as 'Lares Municipio', 'Hampden County', etc., confirming retrieval of counties with PO Box zip codes."
+    }
+  },
+  {
+    "question_id": 1159,
+    "result": {
+      "expected_answer": "A list of patients whose laboratory albumin (ALB) value is below 3.5; for each such patient return the patient ID together with their sex and diagnosis.",
+      "sql_description": "Joins Patient with Laboratory on ID and selects the rows where Laboratory.ALB < 3.5, outputting columns ID, SEX and Diagnosis. Each laboratory record that meets the condition produces a row (so the same patient can appear multiple times).",
+      "reason": "Query applies the required ALB < 3.5 filter and returns the requested columns. Duplication of the same patient across multiple lab dates does not violate the question, which only asks to list the patients; the essential anchors (ALB < 3.5, requested columns) are satisfied.",
+      "verdict": true,
+      "evidence": "sql_result shows columns [ID, SEX, Diagnosis] and only patients whose ALB<3.5 (duplicates visible, e.g., 27654 appears multiple times)."
+    }
+  },
+  {
+    "question_id": 1214,
+    "result": {
+      "expected_answer": "A list of each patient (ID, sex, birthday) for whom at least one laboratory measurement of total protein is below 6.0 g/dL.",
+      "sql_description": "Joins Patient with Laboratory and returns the ID, SEX, and Birthday for every lab row where TP < 6.0; thus includes a patient once per qualifying lab record (duplicates possible).",
+      "reason": "All required anchors are present: filters TP < 6.0 and selects the requested patient fields. Duplicates do not violate the question, which does not explicitly demand distinct patients.",
+      "verdict": true,
+      "evidence": "sql_result shows columns ID, SEX, Birthday with patients 27654 (F, 1936-03-25), 57266 (M, 1923-07-25), 287122 (F, 1953-05-26), 287861 (F, 1943-07-06) among the rows."
+    }
+  },
+  {
+    "question_id": 483,
+    "result": {
+      "expected_answer": "A list of the rules text (Italian language) for every card whose printing belongs to the set named \"Coldsnap\".",
+      "sql_description": "Joins sets to cards via set code, then joins to foreign_data by uuid, filters to rows where the set name is 'Coldsnap' and the foreign language is 'Italian', returning the foreign_data.text column.",
+      "reason": "All required anchors are present: set filtered to Coldsnap, language filtered to Italian, and the query outputs the foreign text field requested. Therefore it delivers the requested list of Italian card texts.",
+      "verdict": true,
+      "evidence": "sql_result shows a single column \"text\" with 20 Italian rule-text entries (rows 0-19), matching the requested content."
+    }
+  },
+  {
+    "question_id": 464,
+    "result": {
+      "expected_answer": "All card names belonging to the set whose translated set name is \"Hauptset Zehnte Edition\".",
+      "sql_description": "Joins set_translations to cards on setCode, filters rows where the translation equals 'Hauptset Zehnte Edition', and returns the card name column.",
+      "reason": "Correctly identifies the set via its German translation and outputs the associated card names; no required constraint is missing.",
+      "verdict": true,
+      "evidence": "Result shows column `name` with card names such as 'Abundance', 'Academy Researchers', 'Adarkar Wastes', etc."
+    }
+  },
+  {
+    "question_id": 1034,
+    "result": {
+      "expected_answer": "Player_api_ids of the player(s) whose overall_rating is the maximum among all Player_Attributes rows dated 2010.",
+      "sql_description": "Returns every player_api_id whose overall_rating in 2010 is greater than the average overall_rating of 2010 (i.e., all above-average players).",
+      "reason": "Query lacks the required highest/max anchor; it returns all above-average ratings rather than only those with the maximum rating, so it over-includes many players.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 399,
+    "result": {
+      "expected_answer": "A listing (distinct or with repeats) of each card’s subtypes and supertypes for all cards whose availability is 'arena'.",
+      "sql_description": "Retrieves the columns subtypes and supertypes from the cards table where availability equals 'arena'; returns one row per matching card without removing duplicates.",
+      "reason": "Query applies the required arena filter and outputs exactly the two fields identified as the relevant \"types\" (subtypes and supertypes). Duplicates are tolerable since the question does not explicitly require DISTINCT.",
+      "verdict": true,
+      "evidence": "sql_result shows columns subtypes, supertypes, e.g. row0: Archon / None, row2: Human,Wizard / Legendary, confirming the expected data."
+    }
+  },
+  {
+    "question_id": 102,
+    "result": {
+      "expected_answer": "List of distinct account identifiers whose account opening date is earlier than 1997 and whose recorded balance (or otherwise owned amount) exceeds 3000 USD.",
+      "sql_description": "Joins account with its transactions, keeps rows where the account creation date is before 1997-01-01 and the transaction’s balance field is greater than 3000, then returns DISTINCT account_id.",
+      "reason": "Covers both explicit anchors: (1) opening date filter (<1997-01-01) and (2) money ownership via balance >3000. Returns distinct accounts as requested. Interpretation of ‘own an amount’ as having a recorded balance above the threshold is reasonable given schema.",
+      "verdict": true,
+      "evidence": "sql_result shows a single column account_id with 20 distinct values (e.g., 1,2,4,…), matching the requested output."
+    }
+  },
+  {
+    "question_id": 546,
+    "result": {
+      "expected_answer": "Display names of every user that owns at least one post whose ClosedDate is not NULL (i.e., a well-finished post).",
+      "sql_description": "Joins users with posts on users.Id = posts.OwnerUserId, filters posts where ClosedDate IS NOT NULL, and returns DISTINCT users.DisplayName.",
+      "reason": "Query includes required ownership join and ClosedDate IS NOT NULL anchor, returns distinct display names as requested.",
+      "verdict": true,
+      "evidence": "sql_result column: DisplayName; 20 example rows shown such as 'Menno', 'Harvey Motulsky', 'Yahel'."
+    }
+  },
+  {
+    "question_id": 1235,
+    "result": {
+      "expected_answer": "List each patient who has any lab result with RBC < 3.5, showing their ID, their diagnosis text, and their age (current year minus birth year).",
+      "sql_description": "Joins Patient with Laboratory, filters rows where Laboratory.RBC < 3.5, and returns the patient ID, diagnosis, and approximate age (current year - birth year).",
+      "reason": "Query applies the required RBC < 3.5 anchor and outputs the requested fields (ID, Diagnosis, Age). Duplicate rows from multiple tests do not violate question. Therefore it satisfies the question.",
+      "verdict": true,
+      "evidence": "sql_result columns: ID, Diagnosis, Age; all rows meet RBC filter and provide requested information."
+    }
+  },
+  {
+    "question_id": 952,
+    "result": {
+      "expected_answer": "The set of constructor names that have achieved rank 1 in the constructor standings at any race.",
+      "sql_description": "Joins constructorStandings with constructors and selects the name where constructorStandings.position = 1, returning all matching rows (including duplicates).",
+      "reason": "It applies the required anchor (position = 1) and fetches the corresponding constructor names. Duplication does not violate the question’s intent, which simply asks which constructors achieved rank-1.",
+      "verdict": true,
+      "evidence": "sql_result shows names column only with values like McLaren, Ferrari, Renault, BMW Sauber – all rows meet position=1 condition."
+    }
+  },
+  {
+    "question_id": 1249,
+    "result": {
+      "expected_answer": "List the disease diagnoses for every patient whose laboratory proteinuria (U-PRO) value is 30 or higher (i.e., above the normal upper limit).",
+      "sql_description": "Joins Patient with Laboratory on patient ID, filters rows where Laboratory.U-PRO >= 30, then returns DISTINCT Patient.Diagnosis.",
+      "reason": "All required anchors are present: U-PRO threshold (>=30) and return of the corresponding Diagnosis values. Query logic directly satisfies the request.",
+      "verdict": true,
+      "evidence": "sql_result shows one column \"Diagnosis\" with multiple disease name strings (e.g., 'SLE, MCTD', 'Raynaud's phenomenon', ...), matching the requested output."
+    }
   }
 ]

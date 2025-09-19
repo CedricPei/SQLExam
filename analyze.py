@@ -6,18 +6,6 @@ import numpy as np
 from sklearn.metrics import cohen_kappa_score
 
 
-def _resolve_method_dir(method_name: str) -> str:
-	candidates = [
-		os.path.join("output", method_name),
-		os.path.join("output", method_name.upper()),
-		os.path.join("output", method_name.lower()),
-	]
-	for path in candidates:
-		if os.path.isdir(path):
-			return path
-	return os.path.join("output", method_name)
-
-
 def _load_eval_results(eval_dir: str) -> list:
 	eval_file = os.path.join(eval_dir, "eval_results.json")
 	if not os.path.exists(eval_file):
@@ -26,8 +14,18 @@ def _load_eval_results(eval_dir: str) -> list:
 		return json.load(f)
 
 
-def analyze_results_for_dir(eval_dir: str, mode: str, name: str = None, write_files: bool = True):
+def analyze_results_for_dir(eval_dir: str, mode: str, name: str = None, skip: bool = False):
 	data = _load_eval_results(eval_dir)
+	if skip:
+		method_dir = os.path.dirname(eval_dir)
+		problem_file = os.path.join(method_dir, "problem_question_ids.json")
+		if os.path.exists(problem_file):
+			try:
+				with open(problem_file, 'r', encoding='utf-8') as pf:
+					problem_ids = set(str(x) for x in json.load(pf))
+				data = [item for item in data if str(item.get("question_id")) not in problem_ids]
+			except Exception:
+				pass
 	name = name or os.path.basename(eval_dir)
 	
 	total_items = len(data)
@@ -37,25 +35,21 @@ def analyze_results_for_dir(eval_dir: str, mode: str, name: str = None, write_fi
 	os.makedirs(stats_dir, exist_ok=True)
 
 	if mode == "l":
-		has_label = any(item.get("label") in (True, False, "true", "false", "True", "False") for item in data)
-		stats_file = os.path.join(stats_dir, f"{name}_statistics_by_label.json")
-
+		has_label = any(item.get("label") in (True, False, "true", "false") for item in data)
 		if not has_label:
-			raise ValueError("Label mode selected but no label found in eval_results.json")
+			return None
+		def is_true_label(item):
+			return item.get("label") in (True, "true")
+		def is_false_label(item):
+			return item.get("label") in (False, "false")
+		if total_items == 0:
+			accuracy = 0
+			tp = tn = fp = fn = 0
+			precision = recall = f1_score = mcc = kappa = 0
 		else:
-			def is_true_label(item):
-				label = item.get("label")
-				return label is True or label == "true" or label == "True"
-			
-			def is_false_label(item):
-				label = item.get("label")
-				return label is False or label == "false" or label == "False"
-
 			label_true_score_0 = [item for item in data if is_true_label(item) and item.get("score") == 0.0]
 			label_false_score_1 = [item for item in data if is_false_label(item) and item.get("score") == 1.0]
-			correct_predictions = len([item for item in data if 
-									  (is_true_label(item) and item.get("score") == 1.0) or 
-									  (is_false_label(item) and item.get("score") == 0.0)])
+			correct_predictions = len([item for item in data if (is_true_label(item) and item.get("score") == 1.0) or (is_false_label(item) and item.get("score") == 0.0)])
 			accuracy = correct_predictions / total_items if total_items > 0 else 0
 			labels = [1 if is_true_label(item) else 0 for item in data]
 			scores = [1 if item.get("score") == 1.0 else 0 for item in data]
@@ -72,51 +66,45 @@ def analyze_results_for_dir(eval_dir: str, mode: str, name: str = None, write_fi
 				mcc = ((tp * tn) - (fp * fn)) / (mcc_den ** 0.5)
 			else:
 				mcc = 0
-			stats = {
-				"total_items": total_items,
-				"accuracy": round(accuracy, 4),
-				"confusion_matrix": {
-					"tp": tp,
-					"tn": tn,
-					"fp": fp,
-					"fn": fn
-				},
-				"performance_metrics": {
-					"precision": round(precision, 4),
-					"recall": round(recall, 4),
-					"f1_score": round(f1_score, 4),
-					"mcc": round(mcc, 4),
-					"cohen_kappa": round(kappa, 4)
-				}
+		stats = {
+			"total_items": total_items,
+			"confusion_matrix": {
+				"tp": tp,
+				"tn": tn,
+				"fp": fp,
+				"fn": fn
+			},
+			"performance_metrics": {
+				"accuracy": f"{accuracy * 100:.2f}%",
+				"cohen_kappa": f"{kappa * 100:.2f}%",
+				"mcc": f"{mcc * 100:.2f}%",
+				"f1_score": f"{f1_score * 100:.2f}%"
 			}
-			if write_files:
-				with open(stats_file, 'w', encoding='utf-8') as f:
-					json.dump(stats, f, ensure_ascii=False, indent=2)
-			return stats
+			}
+		return stats
 
 	def _simple_summary(items: list) -> dict:
 		n = len(items)
 		if n == 0:
-			return {"count": 0, "score_rate": 0}
+			return {"count": 0, "score_rate": "0.00%"}
 		score_rate = sum(1 for x in items if x.get("score") == 1.0) / n
-		return {"count": n, "score_rate": round(score_rate, 4)}
+		return {"count": n, "score_rate": f"{score_rate * 100:.2f}%"}
 
 	if mode == "d":
 		buckets = {}
+		any_difficulty = any("difficulty" in item for item in data)
+		if not any_difficulty:
+			return None
 		for item in data:
 			diff = item.get("difficulty", "unknown")
 			buckets.setdefault(diff, []).append(item)
 		by_diff = {diff: _simple_summary(items) for diff, items in buckets.items()}
 		overall_rate = (score_1_count / total_items) if total_items else 0
-		by_diff["overall"] = {"count": total_items, "score_rate": round(overall_rate, 4)}
-		if write_files:
-			by_diff_file = os.path.join(stats_dir, f"{name}_statistics_by_difficulty.json")
-			with open(by_diff_file, 'w', encoding='utf-8') as f:
-				json.dump(by_diff, f, ensure_ascii=False, indent=2)
+		by_diff["overall"] = {"count": total_items, "score_rate": f"{overall_rate * 100:.2f}%"}
 		return by_diff
 
 
-def analyze_method(method_dir: str, mode: str) -> dict:
+def analyze_method(method_dir: str, mode: str, skip: bool = False) -> dict:
 	result = {}
 	if not os.path.isdir(method_dir):
 		return result
@@ -124,14 +112,14 @@ def analyze_method(method_dir: str, mode: str) -> dict:
 	for var in variants:
 		eval_dir = os.path.join(method_dir, var)
 		try:
-			res = analyze_results_for_dir(eval_dir, mode, name=var, write_files=False)
+			res = analyze_results_for_dir(eval_dir, mode, name=var, skip=skip)
 			result[var] = res
 		except Exception:
 			continue
 	return result
 
 
-def analyze_results_all(mode: str):
+def analyze_results_all(mode: str, skip: bool = False):
 	out_root = "output"
 	results = {}
 	if not os.path.isdir(out_root):
@@ -141,7 +129,7 @@ def analyze_results_all(mode: str):
 		method_dir = os.path.join(out_root, method)
 		if not os.path.isdir(method_dir):
 			continue
-		results[method] = analyze_method(method_dir, mode)
+		results[method] = analyze_method(method_dir, mode, skip=skip)
 	out_file = os.path.join(out_root, f"statistics_by_{'difficulty' if mode=='d' else 'label'}.json")
 	with open(out_file, 'w', encoding='utf-8') as f:
 		json.dump(results, f, ensure_ascii=False, indent=2)
@@ -151,14 +139,14 @@ if __name__ == "__main__":
 	parser = argparse.ArgumentParser()
 	parser.add_argument("mode", type=str, choices=["l", "d"], help="l: by label, d: by difficulty")
 	parser.add_argument("method", nargs='?', type=str, default=None)
+	parser.add_argument("--skip", action="store_true")
 	args = parser.parse_args()
 	if args.method:
-		method_dir = _resolve_method_dir(args.method)
-		res = analyze_method(method_dir, mode=args.mode)
-		out_root = _resolve_method_dir(args.method)
-		os.makedirs(out_root, exist_ok=True)
-		out_file = os.path.join(out_root, f"statistics_by_{'difficulty' if args.mode=='d' else 'label'}.json")
+		method_dir = os.path.join("output", args.method)
+		res = analyze_method(method_dir, mode=args.mode, skip=args.skip)
+		os.makedirs(method_dir, exist_ok=True)
+		out_file = os.path.join(method_dir, f"statistics_by_{'difficulty' if args.mode=='d' else 'label'}.json")
 		with open(out_file, 'w', encoding='utf-8') as f:
 			json.dump(res, f, ensure_ascii=False, indent=2)
 	else:
-		analyze_results_all(mode=args.mode)
+		analyze_results_all(mode=args.mode, skip=args.skip)
