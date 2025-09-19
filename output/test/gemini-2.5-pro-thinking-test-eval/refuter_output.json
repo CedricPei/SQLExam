@@ -2284,5 +2284,135 @@
       "ambiguity": "na",
       "gold_correct": false
     }
+  },
+  {
+    "question_id": 275,
+    "result": {
+      "judgement": "The prediction fails to return distinct molecule IDs as implicitly required by the question \"Give me the molecule ID of the double bond type\", which asks for a set of molecules, not a list of all bonds.",
+      "verdict": true,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 376,
+    "result": {
+      "judgement": "The prediction correctly uses a `LIKE` clause which is more robust for finding the keyword 'Flying' within a list of keywords, while the gold's use of `=` would only match if 'Flying' was the sole keyword.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": false
+    }
+  },
+  {
+    "question_id": 1159,
+    "result": {
+      "judgement": "The predicted query is incorrect because it fails to use DISTINCT, resulting in duplicate patient information. The question asks to list patients, which implies a distinct list of individuals, not a list of every lab record that meets the criteria.",
+      "verdict": true,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 464,
+    "result": {
+      "judgement": "The predicted query correctly retrieves the names of the cards but fails to remove duplicates, which is a necessary step when listing unique entities like card names in a set.",
+      "verdict": true,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 483,
+    "result": {
+      "judgement": "The predicted SQL is logically equivalent to the gold standard; the only difference is the use of DISTINCT, which is not strictly required by the question to list all text rulings and does not alter the execution result.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 1235,
+    "result": {
+      "judgement": "The predicted SQL is incorrect because it fails to list all patients who meet the criteria, returning only a subset of the correct results.",
+      "verdict": true,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 1214,
+    "result": {
+      "judgement": "The prediction is incorrect because it fails to use DISTINCT to list unique patients, resulting in duplicate rows for patients who had multiple lab tests meeting the criteria.",
+      "verdict": true,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 399,
+    "result": {
+      "differences": [
+        {
+          "explanation": "The predicted query selects all combinations of `subtypes` and `supertypes` for every card that meets the criteria, resulting in many duplicate rows and rows with NULL values. The gold query selects only the `DISTINCT` combinations and adds filters to exclude any rows where either `subtypes` or `supertypes` is NULL.",
+          "gold_query_component": "SELECT DISTINCT, WHERE clause",
+          "predicted_query_component": "SELECT, WHERE clause"
+        }
+      ],
+      "analysis": {
+        "semantically_similar": false,
+        "correctness_explanation": "The question asks to 'list all types', which implies a unique or distinct list of types. The predicted query fails to do this by omitting the `DISTINCT` keyword, resulting in a long, repetitive list of types for every single card, rather than a summary of available types. The gold standard's use of `DISTINCT` is more aligned with the user's intent. However, the gold standard is also flawed because its `AND subtypes IS NOT NULL AND supertypes IS NOT NULL` condition is overly restrictive. A card can have a subtype but no supertype (e.g., a non-legendary creature), and this condition would incorrectly exclude it from the list of available types. Despite the gold's flaw, the prediction is fundamentally incorrect for not providing a distinct list as requested."
+      },
+      "classification": "na",
+      "decision": {
+        "judgement": "The predicted SQL is incorrect. The question \"Lists all types...\" implies a unique, summary list, not a row-by-row dump of every card's types. The absence of `DISTINCT` makes the query's output not useful for the user's request and fails to meet the common-sense interpretation of such a question.",
+        "verdict": true,
+        "gold_correct": false
+      }
+    }
+  },
+  {
+    "question_id": 952,
+    "result": {
+      "judgement": "The prediction incorrectly uses the `constructorStandings` table with `position = 1` which refers to the final standing in a race, instead of the `results` table with `rank = 1` which refers to the starting rank based on the fastest lap, as implied by the term 'ranked'.",
+      "verdict": true,
+      "ambiguity": "na",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 546,
+    "result": {
+      "judgement": "The predicted query correctly lists the unique display names of users with well-finished posts, which is a reasonable interpretation of the question. The gold query lists display names for each well-finished post, resulting in duplicates.",
+      "verdict": false,
+      "ambiguity": "ambiguous question",
+      "gold_correct": true
+    }
+  },
+  {
+    "question_id": 1249,
+    "result": {
+      "judgement": "The prediction correctly lists the distinct disease names as requested, while the gold query returns duplicate entries for the same disease.",
+      "verdict": false,
+      "ambiguity": "na",
+      "gold_correct": false
+    }
+  },
+  {
+    "question_id": 399,
+    "result": {
+      "judgement": "The prediction is incorrect because it fails to list all types of cards, instead returning pairs of subtypes and supertypes, and it includes null values which are not types. The gold standard correctly filters for non-null values for both types but also incorrectly returns pairs rather than a single unified list of types.",
+      "verdict": true,
+      "ambiguity": "na",
+      "gold_correct": false
+    }
+  },
+  {
+    "question_id": 102,
+    "result": {
+      "judgement": "The question is ambiguous about what 'own an amount of money' refers to. The prediction's interpretation of using the 'balance' column is a valid alternative to the gold's interpretation of using the transaction 'amount' column.",
+      "verdict": false,
+      "ambiguity": "ambiguous question",
+      "gold_correct": true
+    }
   }
 ]

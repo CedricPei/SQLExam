@@ -18,7 +18,7 @@ from evaluators.Prover import Prover
 def _process_question(question, prover, output_dir):
     pred_sql = question["predicted_sql"]
     db_id = question["db_id"]
-    pred_res = run_with_timeout(execute_sql, db_id, pred_sql, timeout=45)
+    pred_res = run_with_timeout(execute_sql, db_id, pred_sql, timeout=60)
     score = 0.0
     prover_verdict = None
 
@@ -40,7 +40,7 @@ def main():
     parser.add_argument("--threads", type=int, default=1, help="Number of threads")
     parser.add_argument("--input", type=str, default="sample.json", help="Input file path")
     args = parser.parse_args()
-    reasoning_model = "deepseek-reasoner"
+    reasoning_model = "gemini-2.5-pro-thinking"
 
     input_stem = re.sub(r"(-result)$", "", os.path.splitext(os.path.basename(args.input))[0])
     output_dir = f"output/{input_stem}/{reasoning_model}-ProverOnly-{input_stem}-eval"

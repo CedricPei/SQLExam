@@ -40,7 +40,8 @@ def execute_sql(db: str | Path, sql: str) -> pd.DataFrame | bool:
     try:
         with sqlite3.connect(db_path) as conn:
             return pd.read_sql_query(sql, conn)
-    except Exception:
+    except Exception as e:
+        print(f"SQL execution failed for db={db}, sql={sql[:100]}..., error: {e}")
         return False
 
 def compare_result(df1: pd.DataFrame, df2: pd.DataFrame) -> bool:

@@ -2321,5 +2321,205 @@
       "verdict": true,
       "evidence": "The `GasStationID` column in the first row shows the ID of the gas station with the highest revenue, which is 3250."
     }
+  },
+  {
+    "question_id": 275,
+    "result": {
+      "expected_answer": "The request asks for the molecule IDs associated with bonds of type 'double bond'. Based on the evidence, this corresponds to a `bond_type` of '='.",
+      "sql_description": "The SQL query selects the `molecule_id` from the `bond` table for all records where the `bond_type` column has the value '='.",
+      "reason": "The query correctly translates the question's requirement. 'double bond type' is correctly mapped to `bond_type = '='` as per the evidence. The query retrieves the `molecule_id` as requested.",
+      "verdict": true,
+      "evidence": "The `sql_result` contains a single column named `molecule_id` with values such as 'TR001', 'TR002', 'TR004', etc."
+    }
+  },
+  {
+    "question_id": 376,
+    "result": {
+      "expected_answer": "A list of the card layouts for cards that have the keyword 'Flying'.",
+      "sql_description": "The SQL query selects the `layout` for each card where the `keywords` column contains the substring 'Flying'.",
+      "reason": "The query correctly identifies cards with the 'Flying' keyword using a `LIKE` predicate and retrieves the corresponding `layout` for each, directly answering the question.",
+      "verdict": true,
+      "evidence": "The `sql_result` shows the 'layout' column with values such as 'normal' in rows 0 through 19."
+    }
+  },
+  {
+    "question_id": 1159,
+    "result": {
+      "expected_answer": "A list of patient IDs, sexes, and diagnoses for all patients who have had at least one laboratory test showing an albumin (ALB) level less than 3.5.",
+      "sql_description": "The SQL query joins the `Patient` table with the `Laboratory` table on the patient `ID` and filters the results to include only those records where the albumin (ALB) value in the `Laboratory` table is less than 3.5. It then selects the patient's ID, sex, and diagnosis for these matching records.",
+      "reason": "The query correctly joins the `Patient` and `Laboratory` tables to access the required information. It accurately applies the filter for albumin level lower than 3.5 (`T2.ALB < 3.5`) as specified in the question and evidence. The selected columns (`ID`, `SEX`, `Diagnosis`) match the question's requirements. The duplicate rows in the result are acceptable as the question asks to 'list' patients and does not specify uniqueness; each row represents a distinct lab result meeting the criteria.",
+      "verdict": true,
+      "evidence": {
+        "columns": [
+          "ID",
+          "SEX",
+          "Diagnosis"
+        ],
+        "rows": [
+          {
+            "row_number": 1,
+            "ID": "27654",
+            "SEX": "F",
+            "Diagnosis": "RA, SLE susp"
+          },
+          {
+            "row_number": 11,
+            "ID": "57266",
+            "SEX": "M",
+            "Diagnosis": "RA"
+          },
+          {
+            "row_number": 12,
+            "ID": "287122",
+            "SEX": "F",
+            "Diagnosis": "SLE"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "question_id": 464,
+    "result": {
+      "expected_answer": "A list of the names of all cards that are part of the set named 'Hauptset Zehnte Edition'.",
+      "sql_description": "The SQL query joins the `set_translations` table with the `cards` table on the `setCode` column. It filters the results to only include rows where the `translation` in the `set_translations` table is 'Hauptset Zehnte Edition' and then selects the `name` from the corresponding rows in the `cards` table.",
+      "reason": "The query correctly identifies the set by its translated name in the `set_translations` table and then joins it with the `cards` table using the common `setCode` to retrieve the names of the cards belonging to that set. This directly and accurately answers the user's question.",
+      "verdict": true,
+      "evidence": "The SQL result is a list of card names, such as 'Abundance' (row 0), 'Academy Researchers' (row 1), and 'Adarkar Wastes' (row 2), which aligns with the request to list the names of cards in the specified set."
+    }
+  },
+  {
+    "question_id": 1433,
+    "result": {
+      "question": "Which countries have zip codes with post office boxes?",
+      "expected_answer": "The user is asking for the names of countries. The provided database schema for the `zip_code` table does not contain a 'country' column. Therefore, this question is unanswerable with the given data.",
+      "sql_analysis": "The SQL query selects the distinct values from the `county` column in the `zip_code` table where the `type` is 'PO Box'. This query will return a list of county names, not country names.",
+      "sql_correctness": "Incorrect",
+      "explanation": "The SQL query is incorrect because it selects the `county` column, but the question explicitly asks for `country`. The database schema does not have a 'country' column, which means the question cannot be answered with the available data. The query provides the closest related information but fails to answer the specific question asked."
+    }
+  },
+  {
+    "question_id": 483,
+    "result": {
+      "expected_answer": "A list of the 'text' rulings for all cards that belong to the 'Coldsnap' set and have their language as 'Italian'.",
+      "sql_description": "Selects the 'text' column from the `foreign_data` table by joining `sets`, `cards`, and `foreign_data` tables. It filters for sets where the name is 'Coldsnap' and for foreign data where the language is 'Italian'.",
+      "reason": "The SQL query correctly identifies the required information by joining the necessary tables and applying the specified filters for the set name ('Coldsnap') and language ('Italian'). It successfully retrieves the text rulings as requested.",
+      "verdict": true,
+      "evidence": "The result is a list of text rulings, as shown in the 'text' column. For example, the first row is 'Volare, cautela\\n{T}: Quando una creatura bers...' which corresponds to the Italian text ruling for a card in the Coldsnap set."
+    }
+  },
+  {
+    "question_id": 1235,
+    "result": {
+      "expected_answer": "A list of patient IDs, their diagnoses, and their calculated ages for patients who have had a red blood cell (RBC) count less than 3.5 at any point.",
+      "sql_description": "The SQL query joins the `Patient` and `Laboratory` tables on the patient `ID`. It filters for records where the `RBC` column in the `Laboratory` table is less than 3.5. For these records, it selects the patient's ID, Diagnosis, and calculates their age by subtracting the birth year from the current year.",
+      "reason": "The query correctly implements all components of the question. It joins the necessary tables to link patient information with lab results. It correctly filters for patients with `RBC < 3.5` as specified in the evidence. It also correctly calculates the patient's age and returns the requested columns (ID, Diagnosis, Age). The presence of duplicate rows is acceptable as the question asks 'What are the patient's diagnosis' for each instance of a low RBC test, not for distinct patients.",
+      "verdict": true,
+      "evidence": "The SQL result contains the required columns `ID`, `Diagnosis`, and `Age` for patients who meet the condition. For example, the first row shows Patient ID `27654` with Diagnosis `RA, SLE susp` and Age `89`."
+    }
+  },
+  {
+    "question_id": 205,
+    "result": {
+      "expected_answer": "The query should return the distinct `molecule_id`s for all molecules containing at least one atom with the element 'c' (carbon).",
+      "sql_description": "The SQL query selects the `molecule_id` from the `atom` table where the element is 'si' (silicon).",
+      "reason": "The predicted SQL incorrectly filters for the element 'si' (silicon) instead of 'c' (carbon) as required by the question and evidence. This is a direct contradiction of a key constraint.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 1214,
+    "result": {
+      "expected_answer": "A list of patients (ID, sex, and date of birth) who have had at least one laboratory test result where their Total Protein (TP) was less than 6.0.",
+      "sql_description": "Selects the ID, SEX, and Birthday from the Patient table for every laboratory record where the TP value is less than 6.0, joining the Patient and Laboratory tables on the patient ID.",
+      "reason": "The query correctly identifies patients based on the condition that their TP is below the lower range of the normal index, which is defined in the evidence as TP < 6.0. It retrieves the required columns (ID, SEX, Birthday). The presence of duplicate patient entries is acceptable as the question asks to list patient information for each instance where the condition is met, not for a distinct list of patients.",
+      "verdict": true,
+      "evidence": "The SQL result contains columns `ID`, `SEX`, and `Birthday` for patients who meet the condition."
+    }
+  },
+  {
+    "question_id": 399,
+    "result": {
+      "expected_answer": "A list of the subtypes and supertypes for all cards available in the 'arena'.",
+      "sql_description": "Selects the 'subtypes' and 'supertypes' columns from the 'cards' table for all rows where the 'availability' column is equal to 'arena'.",
+      "reason": "The SQL query correctly selects the 'subtypes' and 'supertypes' columns as specified in the evidence for 'all types'. It also correctly applies the filter for cards 'available in arena' using `WHERE availability = 'arena'`, perfectly matching the user's request.",
+      "verdict": true,
+      "evidence": "The result set includes the columns 'subtypes' and 'supertypes' with values such as 'Archon', 'Human,Wizard', and 'Legendary' for cards that meet the 'arena' availability criteria."
+    }
+  },
+  {
+    "question_id": 102,
+    "result": {
+      "reasoning": "The user wants to find accounts that meet two criteria: 1) opened before 1997 and 2) have an amount greater than 3000 USD. The predicted SQL query correctly joins the `account` and `trans` tables. The `WHERE` clause has two conditions. The first condition, `T1.date < '1997-01-01'`, correctly filters for accounts opened before 1997 using the `date` column from the `account` table. The second condition, `T2.balance > 3000`, correctly interprets 'own an amount of money' as the account's balance from the `trans` table. By selecting `DISTINCT T1.account_id`, the query returns a unique list of accounts that have satisfied both conditions at least once, which perfectly answers the user's question.",
+      "judgment": "CORRECT"
+    }
+  },
+  {
+    "question_id": 1034,
+    "result": {
+      "expected_answer": "A list of player API IDs for players who had the maximum overall rating in 2010, provided that this maximum rating was also above the average overall rating for 2010.",
+      "sql_description": "The SQL query selects the `player_api_id` from the `Player_Attributes` table for all records where the date is in 2010 and the `overall_rating` is greater than the average `overall_rating` for all records in 2010.",
+      "reason": "The question asks for the players with the 'highest' rating that is above average. The predicted SQL correctly filters for ratings in 2010 and ensures they are above the 2010 average, but it fails to find the players with the 'highest' (i.e., maximum) rating among that group. It returns all players with above-average ratings, not just the ones with the highest rating.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 952,
+    "result": {
+      "expected_answer": "A list of the names of constructors who have achieved a rank or position of 1.",
+      "sql_description": "The SQL query joins the `constructorStandings` and `constructors` tables on `constructorId`. It then filters for records in `constructorStandings` where the `position` is 1 and returns the corresponding constructor's name.",
+      "reason": "The query correctly identifies the necessary tables, joins them on the appropriate key (`constructorId`), and filters for the specified rank (`position = 1`). It selects the constructor's name as requested by the question. The query is a direct and accurate translation of the user's request.",
+      "verdict": true,
+      "evidence": "The SQL result contains a single column 'name' with values like 'McLaren', 'BMW Sauber', and 'Ferrari', which are the names of constructors ranked 1."
+    }
+  },
+  {
+    "question_id": 546,
+    "result": {
+      "expected_answer": "A list of unique display names for users who have authored at least one post where the 'ClosedDate' is not null.",
+      "sql_description": "The SQL query retrieves the unique display names of users by joining the 'users' and 'posts' tables on the user ID. It then filters for posts where the 'closeddate' column is not null.",
+      "reason": "The query correctly translates the question's requirements. It properly joins the 'users' and 'posts' tables to link users to the posts they own. It also correctly interprets 'well-finished' based on the provided evidence, filtering for posts where 'closeddate IS NOT NULL'. The use of DISTINCT is appropriate to provide a unique list of users.",
+      "verdict": true,
+      "evidence": "The result is a single column named 'DisplayName' containing a list of user names, such as 'Menno' (row 0) and 'Harvey Motulsky' (row 1), which aligns with the question."
+    }
+  },
+  {
+    "question_id": 1249,
+    "result": {
+      "expected_answer": "A list of distinct disease names for patients whose proteinuria level (`U-PRO`) is greater than or equal to 30.",
+      "sql_description": "The SQL query retrieves the distinct diagnosis from the patient table for all patients that have a proteinuria level (`U-PRO`) of 30 or higher in the laboratory table by joining the two tables on the patient ID.",
+      "reason": "The query correctly identifies the target column 'Diagnosis' from the 'patient' table and applies the filter condition '`U-PRO` >= 30' as specified in the evidence. It joins the tables correctly and uses DISTINCT to provide a clean list of disease names as requested.",
+      "verdict": true,
+      "evidence": "The SQL result provides a single column 'Diagnosis' containing various disease names, which aligns with the query's objective."
+    }
+  },
+  {
+    "question_id": 399,
+    "result": {
+      "expected_answer": "A list of subtypes and supertypes for cards where the availability is 'arena', as specified by the evidence.",
+      "sql_description": "The query selects the 'subtypes' and 'supertypes' columns from the 'cards' table, filtering for rows where the 'availability' column is equal to 'arena'.",
+      "reason": "The query correctly implements the question's requirements. It selects the specified columns ('subtypes', 'supertypes') and applies the filter for cards available in the 'arena' (`availability = 'arena'`), as guided by the evidence.",
+      "verdict": true,
+      "evidence": "The SQL result is a table with two columns, 'subtypes' and 'supertypes', showing values like 'Archon', 'Human,Wizard', and 'Legendary' for cards available in the arena."
+    }
+  },
+  {
+    "question_id": 102,
+    "result": {
+      "expected_answer": "A list of distinct account IDs where the account opening date is before Jan 1, 1997, and the account has a balance over 3000 USD at some point.",
+      "sql_description": "The SQL query selects distinct account IDs by joining the 'account' and 'trans' tables. It filters for accounts created before '1997-01-01' and where any transaction resulted in a balance greater than 3000.",
+      "reason": "The query correctly identifies accounts opened before 1997. The phrase \"own an amount of money greater than 3000USD\" is ambiguous. The query's interpretation—that the balance in any transaction for that account must exceed 3000—is a reasonable one. The query correctly implements this interpretation, and both conditions from the question are met.",
+      "verdict": true,
+      "evidence": "The `account_id` column contains a list of accounts satisfying the conditions, starting with IDs 1, 2, 4, 6, etc."
+    }
+  },
+  {
+    "question_id": 1433,
+    "result": {
+      "expected_answer": "A list of countries where there are zip codes of type 'PO Box'.",
+      "sql_description": "The SQL query retrieves a distinct list of counties from the `zip_code` table where the zip code type is 'PO Box'.",
+      "reason": "The question asks for countries, but the predicted SQL query selects the 'county' column instead. This returns a list of counties, not countries.",
+      "verdict": false
+    }
   }
 ]

@@ -2648,5 +2648,545 @@
       "reason": "The query fails to address three critical requirements: (1) It does not filter for 'Multiple Provision Types' (impossible due to missing column), violating an explicit anchor; (2) It omits the total count of cities (a scalar value required by the question); (3) While it provides school counts per city, it does not fulfill parts (1) and (2) of the question.",
       "verdict": false
     }
+  },
+  {
+    "question_id": 275,
+    "result": {
+      "expected_answer": "List of molecule IDs that have a bond where bond_type is exactly ' = ' (with spaces) as defined by evidence.",
+      "sql_description": "Retrieves molecule IDs from bonds where bond_type equals '=' (without spaces).",
+      "reason": "The evidence unambiguously anchors 'double bond' to bond_type = ' = ' (with spaces). The predicted SQL uses bond_type='=' (without spaces), violating this explicit constraint. The missing space in the string literal constitutes a critical anchor mismatch.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 102,
+    "result": {
+      "expected_answer": "Distinct account IDs that satisfy two conditions: 1) account opening date (account.date) is strictly before 1997 (before 1997-01-01), and 2) the account owns >3000 USD at some point (implied by trans.balance > 3000).",
+      "sql_description": "Retrieves distinct account IDs by joining account and trans tables where account creation date is before 1997-01-01 and at least one transaction has a balance exceeding 3000.",
+      "reason": "The SQL satisfies both anchors: strict pre-1997 account opening date via T1.date < '1997-01-01' and ownership of >3000 USD via T2.balance > 3000. Ambiguity in interpreting 'own an amount' (current vs. historical balance) is resolved by the evidence-neutral approach of checking transaction balances, which is reasonable. DISTINCT ensures unique accounts.",
+      "verdict": true,
+      "evidence": "Result shows account_id column with 20 distinct values (e.g., positions 0-19: 1,2,4,6,7,8,9,10,11,14,15,18,19,20,22,23,24,25,26,27)."
+    }
+  },
+  {
+    "question_id": 483,
+    "result": {
+      "expected_answer": "The Italian text ruling (foreign_data.text) for every card in the set named 'Coldsnap', filtered to language = 'Italian'. Must include all matching entries without extraneous constraints.",
+      "sql_description": "Selects Italian text rulings from foreign_data by joining sets (name='Coldsnap') to cards (via setcode=code) and foreign_data (via uuid), filtered for Italian language.",
+      "reason": "The query correctly anchors to set name 'Coldsnap' and language 'Italian', using schema-consistent joins (sets.code=cards.setcode and cards.uuid=foreign_data.uuid). The foreign_data.text column explicitly stores 'the foreign text ruling of the card', satisfying the question's requirement. The INNER JOINs appropriately restrict results to cards with Italian rulings in the specified set. No missing anchors or extraneous constraints exist.",
+      "verdict": true,
+      "evidence": "Result contains 19 rows of Italian text rulings (column 'text'), e.g., row 0: 'Volare, cautela...', row 16: 'Volare\\n{W}, {T}: TAPpa...'"
+    }
+  },
+  {
+    "question_id": 599,
+    "result": {
+      "expected_answer": "The distinct PostHistoryTypeId values for post ID 3720 from the postHistory table and the count of distinct UserId values from the comments table for the same post ID.",
+      "sql_description": "Retrieves PostHistoryTypeId values for post ID 3720 from postHistory and appends the count of distinct UserId from comments for post ID 3720 as a single-column result set using UNION.",
+      "reason": "The query incorrectly combines two distinct result types (a set of IDs and a scalar count) into one column via UNION. This conflates the two required outputs, making the result ambiguous—the count appears as an extra row without context. The question explicitly demands two separate pieces of information: a list of history type IDs and a distinct user count. Combining them violates output integrity.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 546,
+    "result": {
+      "expected_answer": "List of distinct user display names who own at least one post with non-null ClosedDate (well-finished), as per evidence definition.",
+      "sql_description": "Retrieves distinct display names from users who own posts where ClosedDate is not null by joining users and posts tables.",
+      "reason": "The query satisfies all anchors: defines 'well-finished' as ClosedDate IS NOT NULL (per evidence), correctly joins users to posts via OwnerUserId, and returns distinct display names. No extraneous constraints are added, and DISTINCT appropriately handles user-level uniqueness.",
+      "verdict": true,
+      "evidence": "Result returns 20 distinct display names in column 'DisplayName', including: Menno (row0), Harvey Motulsky (row1), Yahel (row2), etc."
+    }
+  },
+  {
+    "question_id": 952,
+    "result": {
+      "expected_answer": "The question seeks constructor names that have achieved a rank of 1 in any race, as recorded in the constructorStandings table. Since the question does not specify distinct results or temporal constraints, duplicate entries for multiple occurrences are acceptable.",
+      "sql_description": "Retrieves the name of constructors from the constructors table joined with constructorStandings where the position equals 1, returning all matching records (including duplicates for multiple occurrences).",
+      "reason": "The query correctly identifies constructors with position=1 by joining the relevant tables. The question does not require distinct results or additional constraints (e.g., specific races/seasons), and the evidence does not contradict this interpretation. Duplicates reflect multiple rank-1 achievements, which aligns with the question's phrasing.",
+      "verdict": true,
+      "evidence": "Result includes column `name` with multiple rows: McLaren (rows 0,1,14), BMW Sauber (row 2), Ferrari (rows 3-13,15,16), Renault (rows 17-19)."
+    }
+  },
+  {
+    "question_id": 967,
+    "result": {
+      "expected_answer": "The expected answer should list the state code numbers (the 'code' column) of the top 3 youngest drivers (ordered by ascending dob) and provide a count of how many of these drivers have nationality in ('Netherlandic', 'Dutch').",
+      "sql_description": "The SQL retrieves an arbitrary code and a count of Netherlandic/Dutch drivers among the top 3 youngest drivers (based on dob ascending).",
+      "reason": "The query fails to return the required state code numbers for all top 3 drivers. It aggregates the inner query's results into a single row (losing individual codes), violating the explicit requirement to list the codes. The count of Netherlandic drivers is correctly computed, but the missing code list is an unresolved anchor requirement.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 1034,
+    "result": {
+      "expected_answer": "The player_api_id(s) of players with the maximum overall_rating in 2010. Evidence clarifies 'highest above average overall ratings' explicitly means MAX(overall_rating), implying the absolute highest rating(s), not merely above-average ratings.",
+      "sql_description": "Retrieves player_api_id for players with overall_rating above the 2010 average rating. Returns multiple players meeting this condition.",
+      "reason": "The SQL fails to enforce the explicit anchor from evidence: 'highest above average overall ratings' refers to MAX(overall_rating). It returns all above-average players instead of only those achieving the maximum rating. Missing constraint: players must have overall_rating = (SELECT MAX(overall_rating) FROM ...).",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 1225,
+    "result": {
+      "expected_answer": "Group patients by sex (M and F) and for each group, list distinct patient IDs where any laboratory record shows T-BIL >= 2.0 (not within normal range), using GROUP_CONCAT(DISTINCT ID) for aggregation.",
+      "sql_description": "Groups patients by sex and concatenates distinct patient IDs from laboratory records where T-BIL >= 2.0 after joining Laboratory and Patient tables.",
+      "reason": "The SQL satisfies all anchors: (1) Uses T-BIL >= 2.0 for abnormal range as specified in evidence, (2) Groups by sex and aggregates IDs with GROUP_CONCAT(DISTINCT) per evidence, (3) Handles duplicates correctly via DISTINCT in aggregation. No extraneous constraints are added.",
+      "verdict": true,
+      "evidence": "Result shows two groups: 'F' with IDs [250391, 1180510, 2308236, 2931207, 4862013] and 'M' with IDs [43003, 444499, 1137040, 2307640, 4618443]."
+    }
+  },
+  {
+    "question_id": 1455,
+    "result": {
+      "expected_answer": "The budget (via link_to_budget) that has an expense with description 'Water, chips, cookies' and the highest cost among such expenses. Must return the budget identifier(s).",
+      "sql_description": "Returns the maximum cost value for expenses with description 'Water, chips, cookies', but does not return any budget identifiers.",
+      "reason": "The question explicitly asks for 'which budget' allowed the highest cost for the specified expense. The predicted SQL fails to return the budget identifier (link_to_budget) required to answer this, instead only providing the cost value. This violates the anchor requirement to identify the budget.",
+      "verdict": false,
+      "evidence": ""
+    }
+  },
+  {
+    "question_id": 1458,
+    "result": {
+      "expected_answer": "The difference in percentage points between the proportion of members from New Jersey and the proportion from Vermont, relative to all members (position='Member'). Specifically: (count of NJ members / total members) - (count of VT members / total members), multiplied by 100.",
+      "sql_description": "Calculates the difference in percentage points between the proportion of members from Maine and Vermont (relative to all members), rounded to two decimal places.",
+      "reason": "The SQL incorrectly uses 'Maine' instead of 'New Jersey' for the first state condition. This violates the explicit anchor requirement for New Jersey specified in the question and evidence. The result (0.0) reflects Maine-Vermont comparison, not New Jersey-Vermont.",
+      "verdict": false,
+      "evidence": ""
+    }
+  },
+  {
+    "question_id": 934,
+    "result": {
+      "expected_answer": "The forename and surname of the driver who started in grid position 4 at the 1989 Australian Grand Prix.",
+      "sql_description": "Selects driver forename and surname by joining races, results, and drivers tables, filtering for the 1989 Australian Grand Prix and grid position 4.",
+      "reason": "The SQL satisfies all explicit anchors: race name ('Australian Grand Prix'), year (1989), and grid position (4) as defined by evidence. It correctly retrieves driver names without extraneous constraints or missing requirements.",
+      "verdict": true,
+      "evidence": "Result row: forename='Alessandro' (position 0), surname='Nannini' (position 0)"
+    }
+  },
+  {
+    "question_id": 1450,
+    "result": {
+      "expected_answer": "List the city and county (interpreting 'country' as 'county' based on schema) for events having over 40 associated income records. The evidence confirms 'more than forty incomes' means income count > 40. Income records are linked via attendance and members.",
+      "sql_description": "Groups event, attendance, income, and zip_code tables to count income records per event location. Returns location, city, and county for groups with >40 income records.",
+      "reason": "The query correctly anchors the income count threshold (>40) via HAVING COUNT(T3.income_id) > 40 and links events to incomes through attendance and members. The interpretation of 'country' as 'county' aligns with the schema. The result includes required city and county, and location is contextually related despite not being explicitly requested.",
+      "verdict": true,
+      "evidence": "Result columns: location, city, county. Returned 0 rows (empty), indicating no events met the >40 income threshold."
+    }
+  },
+  {
+    "question_id": 1419,
+    "result": {
+      "expected_answer": "The category (type) of the event occurring at the exact datetime 2020-03-24T12:00:00. The singular phrasing suggests one event is expected at this time.",
+      "sql_description": "Selects the type from the event table where event_date matches '2020-03-24T12:00:00'.",
+      "reason": "The query correctly anchors to the required datetime constraint per evidence. The result returns a single row, satisfying the singular expectation implied by the question. Ambiguity about event uniqueness is resolved by the execution result showing exactly one match.",
+      "verdict": true,
+      "evidence": "Column 'type' at row 0: 'Guest Speaker'"
+    }
+  },
+  {
+    "question_id": 1499,
+    "result": {
+      "expected_answer": "The maximum value of the per-customer average monthly consumption (computed as SUM(consumption)/12) among customers using 'EUR' currency.",
+      "sql_description": "Calculates the average monthly consumption per customer (by summing their total consumption and dividing by 12) for EUR customers, then returns the maximum of these averages.",
+      "reason": "The query adheres to the evidence defining monthly consumption as SUM(consumption)/12. It correctly filters EUR customers, groups by customer to compute individual averages, and finds the maximum. The result is a single value matching the question's requirement for the 'biggest' consumption.",
+      "verdict": true,
+      "evidence": "Result column MAX(MonthlyConsumption) shows row0: 85002.473333 as the maximum value."
+    }
+  },
+  {
+    "question_id": 381,
+    "result": {
+      "expected_answer": "List of artist names for cards available in Chinese Simplified language. The query should return distinct artist names without extraneous constraints.",
+      "sql_description": "Retrieves distinct artist names from the cards table by joining with foreign_data where language is 'Chinese Simplified', linked via uuid.",
+      "reason": "The query satisfies all anchors: (1) correctly filters for 'Chinese Simplified' language via JOIN with foreign_data, (2) selects artist names from the cards table, and (3) uses DISTINCT to avoid duplicate artists, which is acceptable as the question doesn't specify duplicate handling. The schema confirms uuid is a valid join key between cards and foreign_data.",
+      "verdict": true,
+      "evidence": "Result shows 20 distinct artist names in the 'artist' column (e.g., 'Pete Venters', 'Volkan Baǵa', 'Justin Sweet', etc.)."
+    }
+  },
+  {
+    "question_id": 399,
+    "result": {
+      "expected_answer": "Return all subtypes and supertypes for cards available in arena (availability='arena'), including cases where either may be NULL.",
+      "sql_description": "Selects subtypes and supertypes columns from cards table filtered by availability='arena'.",
+      "reason": "The query satisfies all anchors: availability='arena' filter matches evidence, and it returns subtypes/supertypes as specified. NULL values are acceptable per leniency rules since the question doesn't explicitly forbid them.",
+      "verdict": true,
+      "evidence": "Returns subtypes column (e.g., row0:'Archon', row2:'Human,Wizard') and supertypes column (e.g., row0:'None', row2:'Legendary') for 20 rows."
+    }
+  },
+  {
+    "question_id": 376,
+    "result": {
+      "expected_answer": "The layout values for all cards containing the keyword 'flying' in their keywords list.",
+      "sql_description": "Selects layout from cards where the keywords column contains the substring 'Flying'.",
+      "reason": "The SQL correctly anchors the requirement for 'flying' keyword using LIKE wildcards, which reasonably matches a keyword in the list format described in the schema. The question does not require DISTINCT layouts or prohibit duplicates, and NULL handling is not specified. The result shows multiple rows (all 'normal'), confirming cards with flying keywords exist.",
+      "verdict": true,
+      "evidence": "Column 'layout' returned 20 rows (indexes 0-19) all containing value 'normal'."
+    }
+  },
+  {
+    "question_id": 464,
+    "result": {
+      "expected_answer": "Retrieve the names of cards associated with the set whose translation is 'Hauptset Zehnte Edition'. The answer should list card names without deduplication unless specified.",
+      "sql_description": "Joins set_translations with cards via setCode and selects card names where the set translation matches 'Hauptset Zehnte Edition'.",
+      "reason": "The SQL correctly identifies the set via the translation anchor and retrieves associated card names. Duplicates in the result are acceptable as the question does not require distinct names. The evidence confirms the translation mapping is used properly.",
+      "verdict": true,
+      "evidence": "Result column 'name' shows card entries (e.g., 'Abundance' at row 0, 'Academy Researchers' at row 1, 'Air Elemental' duplicated at rows 6-7), confirming retrieval of cards for the specified set."
+    }
+  },
+  {
+    "question_id": 1214,
+    "result": {
+      "expected_answer": "List patient ID, sex, and birthday for patients with at least one laboratory record where TP < 6.0. Ambiguity note: The question allows returning multiple records per patient if they have multiple qualifying tests since it doesn't specify DISTINCT.",
+      "sql_description": "Retrieves ID, sex, and birthday from Patient table joined with Laboratory table where TP < 6.0, returning one row per qualifying laboratory record.",
+      "reason": "The SQL correctly implements TP < 6.0 as specified in evidence. The join condition aligns Patient.ID with Laboratory.ID. Duplicate patient entries are acceptable here since the question doesn't require DISTINCT patients and the result shows multiple lab records for the same patient (e.g., ID 27654 appears 16 times). No anchors are missing or violated.",
+      "verdict": true,
+      "evidence": "Result includes 20 rows: IDs 27654 (16×), 57266 (2×), 287122 (1×), 287861 (1×) with columns ID, SEX, Birthday as required. TP values are unverified but query logic matches evidence."
+    }
+  },
+  {
+    "question_id": 1433,
+    "result": {
+      "expected_answer": "The expected answer is a list of country names that have zip codes designated as post office boxes (type = 'PO Box'). However, the database schema contains county, state, and short_state columns but lacks a country column, making it impossible to directly retrieve country-level data without additional mapping information.",
+      "sql_description": "Returns distinct county names from the zip_code table where the type is 'PO Box'.",
+      "reason": "The question explicitly asks for countries, but the predicted SQL returns counties. The schema contains no country column, and there is no evidence suggesting counties should be interpreted as countries. This mismatch in entities (counties ≠ countries) violates the question's core requirement.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 421,
+    "result": {
+      "expected_answer": "List three card names that have unknown power (power IS NULL or power = '*') and contain the 'arenaleague' promo type, ordered alphabetically.",
+      "sql_description": "Selects card names satisfying unknown power conditions and containing 'arenaleague' in promoTypes, orders alphabetically, and returns top three.",
+      "reason": "The SQL correctly implements both anchors: unknown power (via power IS NULL OR power = '*') and arenaleague promo type (via LIKE '%arenaleague%'). Alphabetical ordering and limit 3 match requirements. Ambiguity in promoTypes format (list vs. exact) is resolved by LIKE as reasonable given evidence.",
+      "verdict": true,
+      "evidence": "Result shows three card names: 'Arc Lightning' (row0), 'Ashnod's Coupon' (row1), 'Bonesplitter' (row2)."
+    }
+  },
+  {
+    "question_id": 1022,
+    "result": {
+      "expected_answer": "The preferred_foot (from Player_Attributes) for all players who have the minimum potential value in the Player_Attributes table.",
+      "sql_description": "Selects the preferred_foot from Player_Attributes where potential equals the absolute minimum potential in the table.",
+      "reason": "The SQL correctly anchors to MIN(potential) as specified in evidence. It retrieves preferred_foot for all players tied at the minimum potential. The question's singular phrasing ('the player') doesn't forbid multiple results, and evidence doesn't require tie-breaking or uniqueness.",
+      "verdict": true,
+      "evidence": "Column 'preferred_foot': row0='right', row1='right'"
+    }
+  },
+  {
+    "question_id": 1509,
+    "result": {
+      "expected_answer": "A count of transactions made at gas stations in the Czech Republic (identified by Country='CZE') with a date after 2012-01-01.",
+      "sql_description": "Counts all transactions from transactions_1k that are linked to gas stations with Country='CZE' and have a date greater than '2012-01-01'.",
+      "reason": "The SQL correctly anchors on Czech gas stations (Country='CZE') and dates after 2012-01-01, and counts the transactions as specified, with no missing constraints or extraneous content.",
+      "verdict": true,
+      "evidence": "The result column COUNT(*) has a value of 933 at row 0, indicating the number of transactions meeting the criteria."
+    }
+  },
+  {
+    "question_id": 1273,
+    "result": {
+      "expected_answer": "A count of distinct patient IDs who have SSB value of '-' or '0' (normal anti-SSB) in the Laboratory table and Diagnosis 'SLE' in the Patient table.",
+      "sql_description": "The SQL joins Laboratory and Patient on ID, filters for SSB in ('-', '0') and Diagnosis 'SLE', and counts distinct patient IDs.",
+      "reason": "The predicted SQL correctly implements the evidence: it filters for normal SSB values ('-' or '0') and SLE diagnosis, uses DISTINCT to count unique patients, and the join ensures only relevant records are considered.",
+      "verdict": true,
+      "evidence": "The result shows a count of 7 distinct patients in the COUNT(DISTINCT T1.ID) column."
+    }
+  },
+  {
+    "question_id": 832,
+    "result": {
+      "expected_answer": "The name of the superhero with the maximum height (MAX(height_cm)). If multiple superheroes share the maximum height, returning any one is acceptable since tie-breaking isn't specified.",
+      "sql_description": "Retrieves the superhero name by ordering all superheroes by descending height and returning the first result.",
+      "reason": "The evidence explicitly defines 'tallest superhero' as MAX(height_cm). The query correctly identifies the maximum height via ordering and returns one name. Since the question doesn't require handling ties or excluding NULLs (and the result returned a valid name), it satisfies the requirements. Ambiguity in tie-breaking is resolved leniently.",
+      "verdict": true,
+      "evidence": "Returned one row: superhero_name = 'Surtur' (row 0)."
+    }
+  },
+  {
+    "question_id": 1152,
+    "result": {
+      "expected_answer": "The ratio of the count of outpatients (Admission = '-') to the count of inpatients (Admission = '+') among patients with Diagnosis='SLE'.",
+      "sql_description": "Calculates the ratio of outpatient visits to inpatient visits for SLE patients by counting outpatient cases (Admission='-') as numerator and inpatient cases (Admission='+') as denominator.",
+      "reason": "The predicted SQL correctly filters SLE patients and computes the outpatient/inpatient ratio as specified by the question. The evidence's DIVIDE parameter order (inpatient/outpatient) contradicts the question's explicit 'outpatient to inpatient' phrasing, so adherence to the question takes precedence. The schema confirms ID is primary key, so COUNT(*) reliably counts distinct patients without needing DISTINCT.",
+      "verdict": true,
+      "evidence": "Result: outpatient_to_inpatient_ratio=0.763636 (row 0, column 'outpatient_to_inpatient_ratio')"
+    }
+  },
+  {
+    "question_id": 1219,
+    "result": {
+      "expected_answer": "The average UA value for patients who have a normal UA (male: UA < 8.0, female: UA < 6.5) in their latest laboratory examination.",
+      "sql_description": "Calculates average UA by joining Patient and Laboratory tables, filtering to each patient's latest lab date, and applying sex-specific UA thresholds for normal range.",
+      "reason": "The query correctly implements all anchors: (1) uses MAX(date) subquery to isolate latest lab results, (2) applies sex-specific UA thresholds (<8.0 for males, <6.5 for females), and (3) computes AVG(UA) as required. The evidence-defined normal ranges are strictly enforced without extraneous constraints.",
+      "verdict": true,
+      "evidence": "Result row 0 contains AVG(l.ua) ≈4.298"
+    }
+  },
+  {
+    "question_id": 1159,
+    "result": {
+      "expected_answer": "List patient ID, sex, and diagnosis for those with at least one laboratory test showing albumin (ALB) < 3.5. Since the question says 'list their' and doesn't explicitly require distinct patients, duplicates from multiple tests are acceptable.",
+      "sql_description": "Retrieves patient ID, sex, and diagnosis by joining Patient with Laboratory tables, filtering for laboratory records where ALB < 3.5. Returns one row per qualifying laboratory test.",
+      "reason": "The query correctly implements ALB < 3.5 per evidence. Duplicate patient entries occur because a patient may have multiple low-albumin tests, but the question doesn't specify distinct results. This interpretation is reasonable without explicit distinctness requirement.",
+      "verdict": true,
+      "evidence": "Columns: ID, SEX, Diagnosis. Shows multiple entries per patient (e.g., ID 27654 appears 10 times with Diagnosis 'RA, SLE susp'; ID 444499 appears 8 times with 'MRA'), alongside single entries like ID 57266 (M, 'RA')."
+    }
+  },
+  {
+    "question_id": 1533,
+    "result": {
+      "expected_answer": "Retrieve consumption status (Consumption) from the yearmonth table for August 2012 (Date='201208') for all customers who had at least one transaction for product ID 5 where the unit price (Price/Amount) exceeded 29.00. Duplicates are acceptable as the question does not specify distinct results.",
+      "sql_description": "Selects Consumption from yearmonth joined with transactions_1k on CustomerID, filtering for product ID 5, unit price >29, and August 2012 ('201208').",
+      "reason": "The SQL satisfies all anchors: unit price calculation (Price/Amount >29), product ID 5, and August 2012. It correctly joins to retrieve consumption for qualifying customers. Duplicate consumption values (e.g., 126157.70 in rows 3-4 of the result) may occur if a customer has multiple qualifying transactions, but the question does not require distinct results.",
+      "verdict": true,
+      "evidence": "Result includes Consumption values: 10 rows (e.g., row0:1903.20, row1:88265.39, row2:1129.20, row3-4:126157.70, row5:58.19, etc.) from the yearmonth table for qualifying customers in August 2012."
+    }
+  },
+  {
+    "question_id": 168,
+    "result": {
+      "expected_answer": "The percentage of distinct clients (account owners) that are women (gender='F') among those who opened accounts in districts with average salary (A11) over 10000.",
+      "sql_description": "Calculates the percentage of rows (non-distinct) with gender='F' from clients linked to accounts in districts where A11>10000, without restricting to account owners.",
+      "reason": "The SQL misses two required anchors: (1) no filter for disp.type='OWNER' to ensure only account openers are considered, violating the 'opened their accounts' constraint; (2) no DISTINCT on client_id, risking duplicate counts for clients with multiple accounts.",
+      "verdict": false,
+      "evidence": null
+    }
+  },
+  {
+    "question_id": 298,
+    "result": {
+      "expected_answer": "Percentage of carcinogenic molecules (label='+') that contain at least one hydrogen atom (element='h'), computed as: (count of distinct carcinogenic molecules with hydrogen) / (total carcinogenic molecules) * 100",
+      "sql_description": "Computes: (total hydrogen atoms in carcinogenic molecules) * 100 / (total distinct molecules with atoms). Includes non-carcinogenic molecules in the denominator and counts atoms rather than molecules in the numerator.",
+      "reason": "The question requires counting carcinogenic molecules with hydrogen (molecule-level count), but the predicted SQL counts atoms (incorrect numerator) and includes non-carcinogenic/all molecules in the denominator. Evidence specifies molecule-level interpretation ('percentage of molecules'), and anchors (carcinogenic='+', hydrogen='h') are misapplied.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 27,
+    "result": {
+      "expected_answer": "List of school names, average writing scores (AvgScrWrite), and phone numbers (Phone) for schools that were opened in 1991 or later (after 1991 includes 1991) or closed in 1999 or earlier (before 2000). Includes schools even if phone number is missing.",
+      "sql_description": "Joins schools and satscores tables on CDSCode=cds, selects School, AvgScrWrite, and Phone where OpenDate year is >1991 OR ClosedDate year is <2000.",
+      "reason": "Violates anchor requirement: 'after 1991' must include 1991 per special note (on or after 1991), but SQL condition (year > 1991) excludes 1991. ClosedDate condition is correct but cannot compensate for OpenDate omission.",
+      "verdict": false,
+      "evidence": ""
+    }
+  },
+  {
+    "question_id": 363,
+    "result": {
+      "expected_answer": "The count of distinct cards that have at least one legality record with status exactly 'restricted' (as defined by evidence) and where the card is marked as part of a starter deck (isStarter = 1).",
+      "sql_description": "Counts the number of card IDs by joining cards and legalities tables using uuid, filtering for legalities.status = 'Restricted' and cards.isStarter = 1, without distinct aggregation.",
+      "reason": "The query violates two anchors: (1) Evidence explicitly requires status='restricted' (lowercase), but the query uses 'Restricted' (capitalized). (2) The absence of DISTINCT in COUNT(c.id) risks overcounting if cards have multiple legalities entries, contradicting the unambiguous requirement to count cards (not legalities).",
+      "verdict": false,
+      "evidence": null
+    }
+  },
+  {
+    "question_id": 500,
+    "result": {
+      "expected_answer": "The Japanese name of the set(s) containing the card 'Fellwar Stone'. Since the card may belong to multiple sets, return all distinct set translations where the language is Japanese.",
+      "sql_description": "Retrieves distinct Japanese translations of set names by joining the 'cards' and 'set_translations' tables on set codes, filtered for the card 'Fellwar Stone' and Japanese language.",
+      "reason": "The query satisfies explicit anchors: card name = 'Fellwar Stone' and language = 'Japanese'. It correctly links sets via setcode and returns distinct translations. Ambiguity exists on whether multiple sets are acceptable, but the question phrasing allows for multiple valid sets. The DISTINCT clause appropriately handles potential duplicates.",
+      "verdict": true,
+      "evidence": "Result includes 6 distinct set translations in the 'translation' column: row0='None', row1='第９版 基本セット', row2='Commander (2015 Edition)', row3='Commander (2016 Edition)', row4='Commander (2017 EDITION)', row5='Magic: the Gathering Commander'."
+    }
+  },
+  {
+    "question_id": 433,
+    "result": {
+      "expected_answer": "The percentage of cards with language 'Chinese Simplified' that have isOnlineOnly=1, relative to all such cards with non-null isOnlineOnly.",
+      "sql_description": "Computes the percentage of Chinese Simplified cards marked as online-only (isOnlineOnly=1) by joining foreign_data and cards tables on uuid, counting matching rows where isOnlineOnly=1 and dividing by the non-null count of isOnlineOnly.",
+      "reason": "The SQL correctly anchors on language='Chinese Simplified' and implements the evidence formula. The join ensures alignment between language data (foreign_data) and card attributes (cards). Counting rows is acceptable as the evidence formula does not specify DISTINCT, and the schema implies unique card-language mappings via uuid.",
+      "verdict": true,
+      "evidence": "Column: computed percentage; Row 0: 0.0"
+    }
+  },
+  {
+    "question_id": 411,
+    "result": {
+      "expected_answer": "The artist name for the card containing the exact text 'Das perfekte Gegenmittel zu einer dichten Formation' in its foreign language data, interpreted as being stored in the `text` column of the `foreign_data` table.",
+      "sql_description": "Retrieves the artist from the cards table where the UUID matches the UUID from foreign_data where the text column equals the specified German string.",
+      "reason": "The SQL correctly anchors to the exact text string and joins through UUID. Ambiguity exists whether 'text' refers to rules or flavor text, but using foreign_data.text is reasonable given the German context. The empty result doesn't invalidate the logic since it may reflect actual data absence.",
+      "verdict": true,
+      "evidence": "Empty result (no rows) for column: artist"
+    }
+  },
+  {
+    "question_id": 522,
+    "result": {
+      "expected_answer": "List the names of all cards with edhrecRank=1 and the play formats where they have a 'Banned' status.",
+      "sql_description": "Selects card names and banned formats by joining cards and legalities tables on uuid, filtering for edhrecRank=1 and status='Banned'.",
+      "reason": "The SQL correctly anchors on edhrecRank=1 and status='Banned' as per evidence. It maps name to card names and format to play formats. The result includes the required card and banned formats despite duplicates, which is acceptable since duplicates are not prohibited by the question.",
+      "verdict": true,
+      "evidence": "Card 'Sol Ring' (name) appears with banned formats 'duel' (rows 0,2,4,6,8,10,12,14,16,18) and 'legacy' (rows 1,3,5,7,9,11,13,15,17,19)."
+    }
+  },
+  {
+    "question_id": 1033,
+    "result": {
+      "expected_answer": "The average height calculated as the sum of heights divided by the total number of players (using COUNT(id) as per evidence) for players born between 1990-01-01 and 1995-12-31 (inclusive of 1990, exclusive of 1996).",
+      "sql_description": "Computes the average height (using AVG aggregate function) for players born within the specified birth date range.",
+      "reason": "The evidence explicitly requires average height = DIVIDE(SUM(height), COUNT(id)), meaning the denominator must count all players (including those with NULL height). The predicted SQL uses AVG(height), which computes SUM(height)/COUNT(height) (excluding NULLs). Since the schema allows NULL height values and the evidence mandates COUNT(id) as the denominator, the formulas are not equivalent. This violates the explicit anchor in the evidence.",
+      "verdict": false,
+      "evidence": ""
+    }
+  },
+  {
+    "question_id": 1041,
+    "result": {
+      "expected_answer": "List team_long_name for teams with at least one Team_Attributes record in January 2014 (date between '2014-01-01 00:00:00' and '2014-01-31 00:00:00') having buildUpPlayDribblingClass='Normal', where the team's average chanceCreationPassing (SUM(chanceCreationPassing)/COUNT(id)) is less than the overall average chanceCreationPassing (ambiguous population: either all records in January 2014 or only normal-dribbling teams; both acceptable). Results must be in descending order of the team's chance creation passing (ambiguous interpretation: average or aggregate; both acceptable).",
+      "sql_description": "Selects team_long_name after joining Team_Attributes and Team, filtering for buildUpPlayDribblingClass='Normal' and any 2014 date (via '2014%'). Groups by team_long_name and filters groups where the team's average chanceCreationPassing is below the overall 2014 average. Orders by SUM(chanceCreationPassing) descending.",
+      "reason": "The evidence explicitly anchors 'in 2014' to January 2014 (date range: '2014-01-01' to '2014-01-31'), but the predicted SQL uses 'LIKE \"2014%\"' which includes the entire year. This violates the explicit date anchor. Ambiguities in average computation and ordering metrics are acceptable under leniency rules, but the date anchor failure requires rejection.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 685,
+    "result": {
+      "expected_answer": "The total views (ViewCount) on the post whose history contains Text = 'Computer Game Datasets', and the DisplayName of the user who last edited it (based on LastEditorUserId or latest postHistory entry). The evidence specifies Text='Computer Game Datasets' identifies the post.",
+      "sql_description": "Retrieves ViewCount from posts and DisplayName of the original owner (via OwnerUserId) for posts linked to any postHistory record with Text='Computer Game Datasets'.",
+      "reason": "The predicted SQL incorrectly identifies the user as the original owner (OwnerUserId), but the question requires the user who 'posted it last time' (implying the last editor). The evidence does not resolve this ambiguity in favor of the original owner. Missing anchor: last editor requirement.",
+      "verdict": false,
+      "evidence": null
+    }
+  },
+  {
+    "question_id": 1050,
+    "result": {
+      "expected_answer": "The preferred_foot of the youngest player (defined by latest birthday). The result should be a singular value (any one if multiple players share the latest birthday).",
+      "sql_description": "Retrieves the preferred_foot by joining Player and Player_Attributes tables, orders players by birthday descending to get the youngest, and returns the top row's preferred_foot.",
+      "reason": "The query correctly anchors the youngest player via latest birthday and fetches the preferred_foot attribute. Ambiguities (multiple players with same birthday or multiple attribute records) are resolved arbitrarily, which is acceptable since the question/evidence doesn't specify tie-breaking or attribute versioning. The INNER JOIN ensures only players with attributes are considered.",
+      "verdict": true,
+      "evidence": "Row 0: preferred_foot = 'right'"
+    }
+  },
+  {
+    "question_id": 1071,
+    "result": {
+      "expected_answer": "The short name of the football team(s) with buildUpPlaySpeed=31, buildUpPlayDribbling=53, and buildUpPlayPassing=32. Multiple results are acceptable since the question says 'list', and duplicates may appear if multiple records exist for the same team.",
+      "sql_description": "Retrieves team_short_name by joining Team and Team_Attributes on team_api_id, filtering for rows where buildUpPlaySpeed=31, buildUpPlayDribbling=53, and buildUpPlayPassing=32.",
+      "reason": "The SQL correctly implements all required filters (speed=31, dribbling=53, passing=32) and selects the specified attribute (team_short_name). Duplicate team names are acceptable as the question does not require DISTINCT, and the evidence doesn't prohibit multiple records per team. The join condition uses the correct foreign key (team_api_id).",
+      "verdict": true,
+      "evidence": "Result shows two rows (index 0 and 1) with team_short_name 'GLA'."
+    }
+  },
+  {
+    "question_id": 1175,
+    "result": {
+      "expected_answer": "The age (computed as year of Examination Date minus year of Birthday) and diagnosis for the patient with the maximum HGB value at the exact time of the examination. Requires linking Examination and Laboratory records by both patient ID and date to ensure HGB corresponds to the examination.",
+      "sql_description": "Returns age (based on Examination Date and Birthday) and diagnosis for the patient with the highest HGB value in Laboratory, joined via patient ID only (without date matching). Orders by HGB descending and limits to 1 result.",
+      "reason": "Missing critical anchor: The query joins Examination and Laboratory only via patient ID, failing to enforce that the laboratory test date matches the examination date. This violates the requirement that HGB must be 'at the time of the examination'. Without date matching, the HGB value may come from a different time than the examination.",
+      "verdict": false,
+      "evidence": ""
+    }
+  },
+  {
+    "question_id": 1148,
+    "result": {
+      "expected_answer": "The percentage is computed as the number of distinct players with height < 180 cm who have at least one Player_Attributes record showing overall_rating > 70, divided by the total distinct players in the Player table (without conditions), multiplied by 100. This follows the evidence formula: DIVIDE(COUNT(height < 180 AND overall_rating > 70), COUNT(id)) * 100, where COUNT() implies counts of distinct players.",
+      "sql_description": "The query calculates (count of joined Player-Player_Attributes rows where height < 180 and overall_rating > 70) * 100 divided by (count of players with height < 180), without enforcing distinct player counts in the numerator.",
+      "reason": "The predicted SQL violates two anchors from the evidence: (1) The denominator must count all players (COUNT(id) without height filter), but the SQL restricts to players under 180 cm. (2) The numerator must count distinct players meeting both conditions, but the SQL counts attribute records (non-distinct), risking overcounting due to multiple Player_Attributes rows per player. The evidence requires distinct counts and an unrestricted denominator.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 1122,
+    "result": {
+      "expected_answer": "The name of the player(s) with the highest overall_rating from Player_Attributes. Since evidence defines 'strongest' as MAX(overall_rating), and the question uses singular phrasing ('the most strongest player'), returning one player name is acceptable even if multiple players share the maximum rating. Duplicate rows for the same player are extraneous.",
+      "sql_description": "Retrieves the top 10 player names (with potential duplicates) joined from Player and Player_Attributes, ordered by overall_rating descending.",
+      "reason": "The query returns 10 rows with duplicates (e.g., 'Lionel Messi' repeated) instead of distinct player names. While the highest-rated player is captured, the result includes extraneous rows violating the singular expectation. For superlatives, supersets (multiple rows) are unacceptable unless the question explicitly allows them.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 1338,
+    "result": {
+      "expected_answer": "A list of all expenses for the 'October Meeting' event on October 8, 2019 (interpreted as expenses by attending members), showing each expense_id and its approval status (where 'true' = approved, 'false' = not approved, NULL = unknown) to verify if every expense was approved.",
+      "sql_description": "Retrieves expense_id and approved status for expenses where the member incurring the expense attended the event named 'October Meeting' with event_date '2019-10-08T12:00:00'.",
+      "reason": "The SQL correctly joins tables to link expenses to the specified event via attending members. The timestamp condition matches the event per evidence (result confirms retrieval). Ambiguity in expense-to-meeting linkage (via attendance) is resolved by the schema, and the output format (list with statuses) sufficiently answers the 'each' requirement. The result includes one NULL approval (index 15), meaning not all expenses were approved.",
+      "verdict": true,
+      "evidence": "Result shows 20 rows. Row index 15 (expense_id 'recIudsuLiDpzK8Io') has approved=NULL; all others have 'true'."
+    }
+  },
+  {
+    "question_id": 1160,
+    "result": {
+      "expected_answer": "The percentage is calculated as the number of distinct female patients (ID) with at least one TP measurement outside [6.0, 8.5], divided by the total distinct female patients (ID), multiplied by 100.",
+      "sql_description": "Calculates percentage as (count of joined Patient-Laboratory rows for females with TP<6.0 or TP>8.5) divided by (count of all female patients) multiplied by 100.",
+      "reason": "The evidence requires counting distinct patient IDs for the numerator, but the predicted SQL uses COUNT(*) which counts laboratory records (not distinct patients). This violates the evidence's requirement of using IDs and overcounts patients with multiple abnormal records.",
+      "verdict": false,
+      "evidence": ""
+    }
+  },
+  {
+    "question_id": 1216,
+    "result": {
+      "expected_answer": "A distinct list of patient IDs (or patient identifiers) for male patients who have at least one laboratory test with albumin not within the normal range (ALB ≤ 3.5 or ALB ≥ 5.5), sorted by birthday in descending order. Duplicate patient entries are unacceptable as the question focuses on patients, not individual tests.",
+      "sql_description": "Retrieves patient IDs for every laboratory test record meeting the conditions (male and abnormal albumin), resulting in duplicate patient IDs for multiple qualifying tests, sorted by birthday descending.",
+      "reason": "The query fails to return distinct patients despite the question requiring a list of patients (not individual tests). Evidence unambiguously defines the albumin constraint and male filter, but duplicates violate the requirement for 'all patients' to appear once. Aggregation (e.g., DISTINCT) is necessary to satisfy the question's intent.",
+      "verdict": false
+    }
+  },
+  {
+    "question_id": 1168,
+    "result": {
+      "expected_answer": "The date of one of the oldest SJS patient's laboratory tests and their age at initial hospital arrival (computed as year of First Date minus year of Birthday), requiring: 1) diagnosis='SJS', 2) oldest patient by earliest birthday, and 3) any laboratory test date for that patient.",
+      "sql_description": "Retrieves a laboratory date and computed age (year difference between First Date and Birthday) for the oldest SJS patient (by ascending birthday), returning one arbitrary laboratory test row for that patient.",
+      "reason": "The query satisfies anchors: diagnosis='SJS' filter, oldest patient via ORDER BY birthday ASC LIMIT 1, and age computation method matches evidence. Laboratory date ambiguity is acceptable since the question doesn't specify which test to return. INNER JOIN ensures the patient has lab work.",
+      "verdict": true,
+      "evidence": "Row 0: Date = 1981-07-31, age = 69"
+    }
+  },
+  {
+    "question_id": 1235,
+    "result": {
+      "expected_answer": "List of distinct patient IDs, their diagnosis, and age (calculated as current year minus birth year) for patients with at least one laboratory record showing RBC < 3.5. Since diagnosis and age are per-patient attributes, each patient should appear only once.",
+      "sql_description": "Retrieves patient ID, diagnosis, and computed age by joining Patient and Laboratory tables, filtering for laboratory records with RBC < 3.5. Does not ensure unique patient entries, causing duplicates if a patient has multiple qualifying lab tests.",
+      "reason": "The query correctly implements the RBC anchor and age calculation, but returns duplicate patient rows (same ID, diagnosis, age) due to multiple lab records meeting the condition. The question requires listing patients (distinct entities), not individual lab tests. Duplicates violate the principle of no extraneous content, as the same patient diagnosis/age is repeated unnecessarily.",
+      "verdict": false,
+      "evidence": null
+    }
+  },
+  {
+    "question_id": 1387,
+    "result": {
+      "expected_answer": "The full name (first and last) of the student(s) entrusted to manage the budget for the 'Yearly Kickoff' event. Given schema ambiguity, 'entrusted to manage' is reasonably interpreted as students linked to expenses under that event's budget.",
+      "sql_description": "Retrieves distinct first and last names of members linked to expenses under the budget of the 'Yearly Kickoff' event.",
+      "reason": "The query correctly anchors the event name and returns full names. While 'entrusted to manage' isn't explicitly defined in the schema, the interpretation via expense linkage is reasonable and uncontradicted by evidence. The result includes multiple students, which is acceptable as the question doesn't specify singularity and the schema lacks a direct budget-manager relationship.",
+      "verdict": true,
+      "evidence": "Returned 2 rows: (Sacha, Harrison) and (Elijah, Allen) in positions 0 and 1."
+    }
+  },
+  {
+    "question_id": 1526,
+    "result": {
+      "expected_answer": "The consumption decrease rate for the customer who made a payment totaling exactly 634.8 on 2012-08-25. The rate is calculated as (total_2012_consumption - total_2013_consumption) / total_2012_consumption, where yearly consumption should be aggregated across all months.",
+      "sql_description": "Retrieves consumption values for December 2012 and December 2013 from the yearmonth table for the customer who had a transaction with Amount=634.8 on 2012-08-25, then calculates the decrease rate using only these two monthly values.",
+      "reason": "Fails two required anchors: 1) Uses Amount=634.8 (integer) instead of Amount*Price=634.8 to identify the customer, violating payment constraint. 2) Uses single-month consumption (December) instead of aggregating all months for yearly totals.",
+      "verdict": false,
+      "evidence": null
+    }
+  },
+  {
+    "question_id": 1253,
+    "result": {
+      "expected_answer": "The diagnosis of the patient with the highest Ig A value within the normal range (80 to 500, inclusive) as specified in the evidence. The question expects one diagnosis, though ties may exist arbitrarily.",
+      "sql_description": "Retrieves the diagnosis by joining Patient and Laboratory tables, filtering for IGA values between 80 and 500, ordering by IGA descending, and limiting to the top result.",
+      "reason": "The query correctly implements the evidence by filtering IGA within 80–500 (inclusive) and uses ORDER BY DESC LIMIT 1 to find the highest value. It returns a diagnosis as required. Ambiguity in tie-breaking is resolved arbitrarily per principles, and the schema confirms one diagnosis per patient. The evidence's explicit anchor (IGA range) is satisfied.",
+      "verdict": true,
+      "evidence": "Result row 0: Diagnosis = 'BEHCET'"
+    }
+  },
+  {
+    "question_id": 1195,
+    "result": {
+      "expected_answer": "The average albumin level (AVG(ALB)) from laboratory tests for female patients (SEX='F') diagnosed with SLE (Diagnosis='SLE') who have a platelet count (PLT) exceeding 400 in the same laboratory test record.",
+      "sql_description": "Computes the average ALB value from the Laboratory table by joining Patient records, filtering for female SLE patients with concurrent PLT measurements > 400.",
+      "reason": "The query satisfies all explicit anchors: SEX='F', Diagnosis='SLE', and PLT>400. It correctly averages ALB values exclusively from lab tests meeting the PLT condition. Ambiguity exists regarding whether PLT>400 should apply to the same test as ALB (as implemented) or to any patient history; the chosen interpretation is reasonable and aligns with evidence.",
+      "verdict": true,
+      "evidence": "Result shows one row at position 0 with AVG(T2.ALB)=3.912308"
+    }
   }
 ]
