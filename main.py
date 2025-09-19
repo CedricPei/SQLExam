@@ -59,7 +59,7 @@ if __name__ == "__main__":
     parser.add_argument("--threads", type=int, default=1)
     parser.add_argument("--input", type=str, default="sample.json")
     args = parser.parse_args()
-    reasoning_model = "o3"
+    reasoning_model = "deepseek-r1"
     instruct_model = "deepseek-chat"
     partial = False
 
@@ -74,7 +74,7 @@ if __name__ == "__main__":
     problem_ids: List[str] = []
     num_threads = max(1, int(args.threads))
     method_root_dir = os.path.join("output", input_stem)
-    problems_file_path = os.path.join(method_root_dir, "new_problem_question_ids.json")
+    problems_file_path = os.path.join(method_root_dir, "problem_question_ids.json")
     existing_results_path = os.path.join(output_dir, "eval_results.json")
 
     with open(args.input, "r", encoding="utf-8") as f:
