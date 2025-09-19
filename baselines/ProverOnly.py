@@ -4,7 +4,7 @@ import json
 import argparse
 import re
 from concurrent.futures import ThreadPoolExecutor
-from typing import Dict, Any, List, Optional
+from typing import List 
 from tqdm import tqdm
 
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
@@ -33,7 +33,7 @@ def _process_question(question, prover, output_dir):
         write_result_to_file(question, pred_sql, score, prover_verdict, None, output_dir)
         return None
 
-    prover_verdict, prover_reason = prover.call(question, pred_sql, pred_res)
+    prover_verdict, _ = prover.call(question, pred_sql, pred_res)
     if prover_verdict is None:
         return qid
     

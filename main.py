@@ -17,8 +17,8 @@ def _process_question(question):
     db_id = question["db_id"]
     gold_sql = question["gold_sql"]
 
-    pred_res = run_with_timeout(execute_sql, db_id, pred_sql, timeout=45)
-    gold_res = run_with_timeout(execute_sql, db_id, gold_sql, timeout=45)
+    pred_res = run_with_timeout(execute_sql, db_id, pred_sql, timeout=120)
+    gold_res = run_with_timeout(execute_sql, db_id, gold_sql, timeout=120)
 
     score = 0.0
     refuter_verdict = None
@@ -59,7 +59,7 @@ if __name__ == "__main__":
     parser.add_argument("--threads", type=int, default=1)
     parser.add_argument("--input", type=str, default="sample.json")
     args = parser.parse_args()
-    reasoning_model = "deepseek-r1"
+    reasoning_model = "o4-mini"
     instruct_model = "deepseek-chat"
     partial = False
 
