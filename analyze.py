@@ -16,9 +16,11 @@ def _load_eval_results(eval_dir: str) -> list:
 
 def analyze_results_for_dir(eval_dir: str, mode: str, name: str = None, skip: bool = False):
 	data = _load_eval_results(eval_dir)
-	if skip:
-		method_dir = os.path.dirname(eval_dir)
-		problem_file = os.path.join(method_dir, "problem_question_ids.json")
+	if skip and "test" in eval_dir:
+		test_dir = eval_dir
+		while not test_dir.endswith("test"):
+			test_dir = os.path.dirname(test_dir)
+		problem_file = os.path.join(test_dir, "problem_question_ids.json")
 		if os.path.exists(problem_file):
 			try:
 				with open(problem_file, 'r', encoding='utf-8') as pf:
@@ -35,53 +37,51 @@ def analyze_results_for_dir(eval_dir: str, mode: str, name: str = None, skip: bo
 	os.makedirs(stats_dir, exist_ok=True)
 
 	if mode == "l":
-		has_label = any(item.get("label") in (True, False, "true", "false") for item in data)
-		if not has_label:
+		if not any(item.get("label") in (True, False, "true", "false") for item in data):
 			return None
-		def is_true_label(item):
-			return item.get("label") in (True, "true")
-		def is_false_label(item):
-			return item.get("label") in (False, "false")
-		if total_items == 0:
-			accuracy = 0
-			tp = tn = fp = fn = 0
-			precision = recall = f1_score = mcc = kappa = 0
-		else:
-			label_true_score_0 = [item for item in data if is_true_label(item) and item.get("score") == 0.0]
-			label_false_score_1 = [item for item in data if is_false_label(item) and item.get("score") == 1.0]
-			correct_predictions = len([item for item in data if (is_true_label(item) and item.get("score") == 1.0) or (is_false_label(item) and item.get("score") == 0.0)])
-			accuracy = correct_predictions / total_items if total_items > 0 else 0
-			labels = [1 if is_true_label(item) else 0 for item in data]
-			scores = [1 if item.get("score") == 1.0 else 0 for item in data]
-			kappa = cohen_kappa_score(labels, scores) if len(labels) > 0 else 0
-			tp = len([item for item in data if is_true_label(item) and item.get("score") == 1.0])
-			tn = len([item for item in data if is_false_label(item) and item.get("score") == 0.0])
-			fp = len(label_false_score_1)
-			fn = len(label_true_score_0)
-			precision = tp / (tp + fp) if (tp + fp) > 0 else 0
-			recall = tp / (tp + fn) if (tp + fn) > 0 else 0
-			f1_score = 2 * (precision * recall) / (precision + recall) if (precision + recall) > 0 else 0
-			mcc_den = (tp + fp) * (tp + fn) * (tn + fp) * (tn + fn)
-			if mcc_den > 0:
-				mcc = ((tp * tn) - (fp * fn)) / (mcc_den ** 0.5)
+		
+		tp = tn = fp = fn = 0
+		labels = []
+		scores = []
+		
+		for item in data:
+			label = item.get("label")
+			score = item.get("score")
+			
+			is_true_label = label in (True, "true")
+			predicted_true = score == 1.0
+			
+			labels.append(1 if is_true_label else 0)
+			scores.append(1 if predicted_true else 0)
+			
+			if is_true_label and predicted_true:
+				tp += 1
+			elif is_true_label and not predicted_true:
+				fn += 1
+			elif not is_true_label and predicted_true:
+				fp += 1
 			else:
-				mcc = 0
-		stats = {
+				tn += 1
+		
+		accuracy = (tp + tn) / total_items if total_items > 0 else 0
+		precision = tp / (tp + fp) if (tp + fp) > 0 else 0
+		recall = tp / (tp + fn) if (tp + fn) > 0 else 0
+		f1_score = 2 * (precision * recall) / (precision + recall) if (precision + recall) > 0 else 0
+		kappa = cohen_kappa_score(labels, scores) if labels else 0
+		
+		mcc_den = (tp + fp) * (tp + fn) * (tn + fp) * (tn + fn)
+		mcc = ((tp * tn) - (fp * fn)) / (mcc_den ** 0.5) if mcc_den > 0 else 0
+		
+		return {
 			"total_items": total_items,
-			"confusion_matrix": {
-				"tp": tp,
-				"tn": tn,
-				"fp": fp,
-				"fn": fn
-			},
+			"confusion_matrix": {"tp": tp, "tn": tn, "fp": fp, "fn": fn},
 			"performance_metrics": {
 				"accuracy": f"{accuracy * 100:.2f}%",
 				"cohen_kappa": f"{kappa * 100:.2f}%",
 				"mcc": f"{mcc * 100:.2f}%",
 				"f1_score": f"{f1_score * 100:.2f}%"
 			}
-			}
-		return stats
+		}
 
 	def _simple_summary(items: list) -> dict:
 		n = len(items)
@@ -104,18 +104,51 @@ def analyze_results_for_dir(eval_dir: str, mode: str, name: str = None, skip: bo
 		return by_diff
 
 
+def _has_nested_structure(method_dir: str) -> bool:
+	subdirs = [d for d in os.listdir(method_dir) if os.path.isdir(os.path.join(method_dir, d))]
+	if not subdirs:
+		return False
+	
+	for subdir in subdirs:
+		subdir_path = os.path.join(method_dir, subdir)
+		variants = [d for d in os.listdir(subdir_path) if os.path.isdir(os.path.join(subdir_path, d))]
+		if variants:
+			for var in variants:
+				eval_file = os.path.join(subdir_path, var, "eval_results.json")
+				if os.path.exists(eval_file):
+					return True
+	return False
+
+
 def analyze_method(method_dir: str, mode: str, skip: bool = False) -> dict:
 	result = {}
 	if not os.path.isdir(method_dir):
 		return result
-	variants = [d for d in os.listdir(method_dir) if os.path.isdir(os.path.join(method_dir, d))]
-	for var in variants:
-		eval_dir = os.path.join(method_dir, var)
-		try:
-			res = analyze_results_for_dir(eval_dir, mode, name=var, skip=skip)
-			result[var] = res
-		except Exception:
-			continue
+	
+	if _has_nested_structure(method_dir):
+		subdirs = [d for d in os.listdir(method_dir) if os.path.isdir(os.path.join(method_dir, d))]
+		for subdir in subdirs:
+			subdir_path = os.path.join(method_dir, subdir)
+			variants = [d for d in os.listdir(subdir_path) if os.path.isdir(os.path.join(subdir_path, d))]
+			subdir_result = {}
+			for var in variants:
+				eval_dir = os.path.join(subdir_path, var)
+				try:
+					res = analyze_results_for_dir(eval_dir, mode, name=var, skip=skip)
+					subdir_result[var] = res
+				except Exception:
+					continue
+			if subdir_result:
+				result[subdir] = subdir_result
+	else:
+		variants = [d for d in os.listdir(method_dir) if os.path.isdir(os.path.join(method_dir, d))]
+		for var in variants:
+			eval_dir = os.path.join(method_dir, var)
+			try:
+				res = analyze_results_for_dir(eval_dir, mode, name=var, skip=skip)
+				result[var] = res
+			except Exception:
+				continue
 	return result
 
 
