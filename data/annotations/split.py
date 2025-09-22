@@ -137,6 +137,51 @@ def count_test_labels(test_data):
     false_count = sum(1 for item in test_data if item.get('label') == False)
     return true_count, false_count
 
+def find_gold_false_ids():
+    test_file_path = os.path.join(os.path.dirname(__file__), 'test.json')
+    
+    if not os.path.exists(test_file_path):
+        print("Warning: test.json file does not exist")
+        return []
+    
+    with open(test_file_path, 'r', encoding='utf-8') as f:
+        test_data = json.load(f)
+    
+    gold_false_ids = []
+    
+    for item in test_data:
+        reason_1 = item.get('reason_1', '').upper()
+        reason_2 = item.get('reason_2', '').upper()
+        question_id = item.get('question_id')
+        
+        if 'GOLD FALSE' in reason_1 or 'GOLD FALSE' in reason_2:
+            gold_false_ids.append(question_id)
+    
+    return gold_false_ids
+
+def find_ambiguous_question_ids():
+    test_file_path = os.path.join(os.path.dirname(__file__), 'test.json')
+    
+    if not os.path.exists(test_file_path):
+        print("Warning: test.json file does not exist")
+        return []
+    
+    with open(test_file_path, 'r', encoding='utf-8') as f:
+        test_data = json.load(f)
+    
+    ambq_ids = []
+    
+    for item in test_data:
+        reason_1 = item.get('reason_1', '').upper()
+        reason_2 = item.get('reason_2', '').upper()
+        question_id = item.get('question_id')
+        
+        if 'AMBIGUOUS QUESTION' in reason_1 or 'AMBIGUOUS QUESTION' in reason_2:
+            ambq_ids.append(question_id)
+    
+    return ambq_ids
+
+
 def main():
     data = load_annotation_files()
     grouped_data = group_by_question_id(data)
@@ -153,11 +198,22 @@ def main():
     
     true_count, false_count = count_test_labels(test_data)
     
+    gold_false_ids = find_gold_false_ids()
+    ambq_ids = find_ambiguous_question_ids()
+    
+    with open('gold_false_ids.json', 'w', encoding='utf-8') as f:
+        json.dump(gold_false_ids, f, ensure_ascii=False, indent=2)
+    
+    with open('ambq_ids.json', 'w', encoding='utf-8') as f:
+        json.dump(ambq_ids, f, ensure_ascii=False, indent=2)
+    
     print(f"- Consistent annotations (question_id): {len(test_cases)}")
     print(f"- Inconsistent annotations (question_id): {len(argue_cases)}")
     print(f"- Single annotation (question_id): {len(lack_cases)}")
     print(f"- Test data true labels: {true_count}")
     print(f"- Test data false labels: {false_count}")
+    print(f"- Gold false IDs count: {len(gold_false_ids)}")
+    print(f"- Ambiguous question IDs count: {len(ambq_ids)}")
 
 if __name__ == "__main__":
     main()

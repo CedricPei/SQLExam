@@ -7,8 +7,8 @@
     "gold_sql": "SELECT `Free Meal Count (K-12)` / `Enrollment (K-12)` FROM frpm WHERE `County Name` = 'Alameda' ORDER BY (CAST(`Free Meal Count (K-12)` AS REAL) / `Enrollment (K-12)`) DESC LIMIT 1",
     "label": false,
     "evidence": "Eligible free rate for K-12 = `Free Meal Count (K-12)` / `Enrollment (K-12)`",
-    "reason_1": "Wrong filter condition: County = 'Alameda County'.\nAMBIGUOUS SCHEMA",
-    "reason_2": "almeda county not correct"
+    "reason_1": "almeda county not correct",
+    "reason_2": "Wrong filter condition: County = 'Alameda County'.\nAMBIGUOUS SCHEMA"
   },
   {
     "question_id": 20,
@@ -62,8 +62,8 @@
     "gold_sql": "SELECT T1.AvgScrMath, T2.County FROM satscores AS T1 INNER JOIN schools AS T2 ON T1.cds = T2.CDSCode WHERE T1.AvgScrMath IS NOT NULL ORDER BY T1.AvgScrMath + T1.AvgScrRead + T1.AvgScrWrite ASC LIMIT 1",
     "label": false,
     "evidence": "Average score for all subjects can be computed by AvgScrMath + AvgScrRead + AvgScrWrite",
-    "reason_1": "do not handle null situation",
-    "reason_2": "Missing filter on NULL condition\nGOLD FALSE: Incomplete filter condition"
+    "reason_1": "Missing filter on NULL condition\nGOLD FALSE: Incomplete filter condition",
+    "reason_2": "do not handle null situation"
   },
   {
     "question_id": 51,
@@ -150,8 +150,8 @@
     "gold_sql": "SELECT district_id, A2 FROM district ORDER BY A13 DESC LIMIT 1",
     "label": false,
     "evidence": "A2 refers to district names; A13 refers to unemploymant rate in 1996",
-    "reason_1": "lack branch location required by question",
-    "reason_2": "no branch information in predicted sql"
+    "reason_1": "no branch information in predicted sql",
+    "reason_2": "lack branch location required by question"
   },
   {
     "question_id": 141,
@@ -172,8 +172,8 @@
     "gold_sql": "SELECT T1.frequency, T2.k_symbol FROM account AS T1 INNER JOIN (SELECT account_id, k_symbol, SUM(amount) AS total_amount FROM `order` GROUP BY account_id, k_symbol) AS T2 ON T1.account_id = T2.account_id WHERE T1.account_id = 3 AND T2.total_amount = 3539",
     "label": false,
     "evidence": "k_symbol refers to the purpose of payments",
-    "reason_1": "Error logic",
-    "reason_2": "Predicted SQL: wrong filter condition & wrong UNION\nGOLD FALSE: account.frequency is equal to the frequency of requesting an account statement\nCorrect SQL: \nWITH statement_times AS (\n    SELECT COUNT(*) AS stmt_cnt\n    FROM   trans\n    WHERE  account_id = 3\n      AND  k_symbol   = 'SLUZBY'\n),\n\ndebit_aim AS (\n    SELECT k_symbol\n    FROM   \"order\"\n    WHERE  account_id = 3\n    GROUP  BY k_symbol\n    HAVING SUM(amount) = 3539\n)\n\nSELECT\n    s.stmt_cnt               AS statement_request_times,\n    d.k_symbol               AS purpose_of_3539\nFROM statement_times s\nLEFT JOIN debit_aim d ON 1 = 1;"
+    "reason_1": "Predicted SQL: wrong filter condition & wrong UNION\nGOLD FALSE: account.frequency is equal to the frequency of requesting an account statement\nCorrect SQL: \nWITH statement_times AS (\n    SELECT COUNT(*) AS stmt_cnt\n    FROM   trans\n    WHERE  account_id = 3\n      AND  k_symbol   = 'SLUZBY'\n),\n\ndebit_aim AS (\n    SELECT k_symbol\n    FROM   \"order\"\n    WHERE  account_id = 3\n    GROUP  BY k_symbol\n    HAVING SUM(amount) = 3539\n)\n\nSELECT\n    s.stmt_cnt               AS statement_request_times,\n    d.k_symbol               AS purpose_of_3539\nFROM statement_times s\nLEFT JOIN debit_aim d ON 1 = 1;",
+    "reason_2": "Error logic"
   },
   {
     "question_id": 174,
@@ -194,8 +194,8 @@
     "gold_sql": "SELECT T4.balance, T1.gender FROM client AS T1 INNER JOIN disp AS T2 ON T1.client_id = T2.client_id INNER JOIN account AS T3 ON T2.account_id =T3.account_id INNER JOIN trans AS T4 ON T3.account_id = T4.account_id WHERE T1.client_id = 4 AND T4.trans_id = 851",
     "label": false,
     "evidence": "",
-    "reason_1": "Wrong filter condition: trans_id > 851. Should use trans_id = 851 and just return the balance without sum",
-    "reason_2": "Should use trans.trans_id =851 instead of trans.trans_id > 851"
+    "reason_1": "Should use trans.trans_id =851 instead of trans.trans_id > 851",
+    "reason_2": "Wrong filter condition: trans_id > 851. Should use trans_id = 851 and just return the balance without sum"
   },
   {
     "question_id": 218,
@@ -216,8 +216,8 @@
     "gold_sql": "SELECT DISTINCT T.element FROM atom AS T WHERE T.molecule_id = 'TR000' ORDER BY T.element LIMIT 3",
     "label": false,
     "evidence": "TR000 is the molecule id;",
-    "reason_1": "Missing the DISTINCT keyword, leading to only two elements returned",
-    "reason_2": "do not use distinct"
+    "reason_1": "do not use distinct",
+    "reason_2": "Missing the DISTINCT keyword, leading to only two elements returned"
   },
   {
     "question_id": 233,
@@ -249,8 +249,8 @@
     "gold_sql": "SELECT T2.atom_id, T2.atom_id2 FROM atom AS T1 INNER JOIN connected AS T2 ON T1.atom_id = T2.atom_id WHERE T1.element = 'pb'",
     "label": false,
     "evidence": "atom that has the element lead refers to atom_id where element = 'pb'",
-    "reason_1": "GOLD FALSE. Both predicted and gold don't consider the situation when atom_id2 is Pb.",
-    "reason_2": "Predicted SQL: does not cover the case that the element lead at connected.atom_id2\nGOLD FALSE: does not cover the case that the element lead at connected.atom_id2"
+    "reason_1": "Predicted SQL: does not cover the case that the element lead at connected.atom_id2\nGOLD FALSE: does not cover the case that the element lead at connected.atom_id2",
+    "reason_2": "GOLD FALSE. Both predicted and gold don't consider the situation when atom_id2 is Pb."
   },
   {
     "question_id": 257,
@@ -315,8 +315,8 @@
     "gold_sql": "SELECT T1.atom_id, COUNT(DISTINCT T2.bond_type),T1.molecule_id FROM atom AS T1 INNER JOIN bond AS T2 ON T1.molecule_id = T2.molecule_id WHERE T1.molecule_id = 'TR000' GROUP BY T1.atom_id, T2.bond_type",
     "label": true,
     "evidence": "",
-    "reason_1": "GOLD FALSE. The gold sql check TR000 rather than TR346",
-    "reason_2": "Gold SQL uses T1.molecule_id = 'TR000'. T1.molecule_id = 'TR346 'should be used."
+    "reason_1": "Gold SQL uses T1.molecule_id = 'TR000'. T1.molecule_id = 'TR346 'should be used.",
+    "reason_2": "GOLD FALSE. The gold sql check TR000 rather than TR346"
   },
   {
     "question_id": 344,
@@ -414,8 +414,8 @@
     "gold_sql": "SELECT T2.setCode FROM sets AS T1 INNER JOIN set_translations AS T2 ON T2.setCode = T1.code WHERE T1.type = 'commander'",
     "label": true,
     "evidence": "code of sets refers to setCode",
-    "reason_1": "",
-    "reason_2": "GOLD FALSE: INNER JOIN set_translations will generate duplicate code because the same sets have multilingual translations"
+    "reason_1": "GOLD FALSE: INNER JOIN set_translations will generate duplicate code because the same sets have multilingual translations",
+    "reason_2": ""
   },
   {
     "question_id": 451,
@@ -425,8 +425,8 @@
     "gold_sql": "SELECT SUM(CASE WHEN availability = 'paper' AND hAND = '3' THEN 1 ELSE 0 END) FROM cards",
     "label": false,
     "evidence": "available in paper refers to availability like '%paper%'; have a positive starting maximum hand size refers to hand = '3'",
-    "reason_1": "Wrong filter condition: does not fit the evidence required",
-    "reason_2": "hand=3 not satisfied"
+    "reason_1": "hand=3 not satisfied",
+    "reason_2": "Wrong filter condition: does not fit the evidence required"
   },
   {
     "question_id": 452,
@@ -447,8 +447,8 @@
     "gold_sql": "SELECT DISTINCT manaCost FROM cards WHERE name = 'Ancestor''s Chosen'",
     "label": false,
     "evidence": "card \"Ancestor's Chosen\" refers to name = 'Ancestor`s Chosen'",
-    "reason_1": "Error SELECT",
-    "reason_2": "wrong return column"
+    "reason_1": "wrong return column",
+    "reason_2": "Error SELECT"
   },
   {
     "question_id": 465,
@@ -546,8 +546,8 @@
     "gold_sql": "SELECT Name FROM badges WHERE Date = '2010-07-19 19:39:08.0'",
     "label": true,
     "evidence": "on 7/19/2010 7:39:08 PM refers to Date = '2010-07-19 19:39:08.0'",
-    "reason_1": "",
-    "reason_2": "Note: Gold SQL misses the DISTINCT keyword"
+    "reason_1": "Note: Gold SQL misses the DISTINCT keyword",
+    "reason_2": ""
   },
   {
     "question_id": 646,
@@ -579,8 +579,8 @@
     "gold_sql": "SELECT COUNT(DISTINCT T1.id) FROM comments AS T1 INNER JOIN users AS T2 ON T1.UserId = T2.Id WHERE T1.Score = 0 AND T2.Age = 40",
     "label": true,
     "evidence": "",
-    "reason_1": "GOLD FALSE.Gold sql returns comments.id and should return UserId",
-    "reason_2": "GOLD FALSE: Should use userID not commend id"
+    "reason_1": "GOLD FALSE: Should use userID not commend id",
+    "reason_2": "GOLD FALSE.Gold sql returns comments.id and should return UserId"
   },
   {
     "question_id": 718,
@@ -711,8 +711,8 @@
     "gold_sql": "SELECT DISTINCT T2.nationality FROM qualifying AS T1 INNER JOIN drivers AS T2 ON T2.driverId = T1.driverId WHERE T1.raceId = 355 AND T1.q2 LIKE '1:40%'",
     "label": false,
     "evidence": "race number refers to raceId;",
-    "reason_1": "Wrong filter condition: q2 = \"0:01:40\", but the question has a misleading word",
-    "reason_2": "do not use like. The format of the T2.q2 value might be incorrect."
+    "reason_1": "do not use like. The format of the T2.q2 value might be incorrect.",
+    "reason_2": "Wrong filter condition: q2 = \"0:01:40\", but the question has a misleading word"
   },
   {
     "question_id": 861,
@@ -722,8 +722,8 @@
     "gold_sql": "SELECT T2.number FROM qualifying AS T1 INNER JOIN drivers AS T2 ON T2.driverId = T1.driverId WHERE T1.raceId = 903 AND T1.q3 LIKE '1:54%'",
     "label": false,
     "evidence": "race number refers to raceId; finished 0:0M:SS in the Q3 refers to q3 LIKE 'M:SS%'",
-    "reason_1": "qualifying.number is not the drivers.number required by the question",
-    "reason_2": "Should return the number of the driver (don't know the meaning of the qualifying.number column)"
+    "reason_1": "Should return the number of the driver (don't know the meaning of the qualifying.number column)",
+    "reason_2": "qualifying.number is not the drivers.number required by the question"
   },
   {
     "question_id": 865,
@@ -832,8 +832,8 @@
     "gold_sql": "SELECT T1.forename, T1.surname FROM drivers AS T1 INNER JOIN results AS T2 ON T2.driverId = T1.driverId WHERE T2.fastestLapTime IS NOT NULL ORDER BY T2.fastestLapSpeed DESC LIMIT 1",
     "label": true,
     "evidence": "",
-    "reason_1": "",
-    "reason_2": "Note: Should add a NULL check: fastestLapTime IS NOT NULL"
+    "reason_1": "Note: Should add a NULL check: fastestLapTime IS NOT NULL",
+    "reason_2": ""
   },
   {
     "question_id": 940,
@@ -843,8 +843,8 @@
     "gold_sql": "SELECT COUNT(*) FROM ( SELECT T1.driverId FROM results AS T1 INNER JOIN races AS T2 on T1.raceId = T2.raceId WHERE T2.name = 'Chinese Grand Prix' AND T2.year = 2008 AND T1.time IS NOT NULL GROUP BY T1.driverId HAVING COUNT(T2.raceId) > 0 )",
     "label": true,
     "evidence": "COUNT(raceID) > 0 reveals that this driver participated in races; drivers who finished the race refers to time has value.",
-    "reason_1": "Note: HAVING COUNT(T2.raceId) > 0 in the Gold SQL is unnesessary",
-    "reason_2": ""
+    "reason_1": "",
+    "reason_2": "Note: HAVING COUNT(T2.raceId) > 0 in the Gold SQL is unnesessary"
   },
   {
     "question_id": 942,
@@ -854,8 +854,8 @@
     "gold_sql": "SELECT AVG(CAST(SUBSTR(T2.fastestLapTime, 1, INSTR(T2.fastestLapTime, ':') - 1) AS INTEGER) * 60 + CAST(SUBSTR(T2.fastestLapTime, INSTR(T2.fastestLapTime, ':') + 1) AS REAL)) FROM drivers AS T1 INNER JOIN results AS T2 ON T1.driverId = T2.driverId WHERE T1.surname = 'Hamilton' AND T1.forename = 'Lewis'",
     "label": false,
     "evidence": "average fastest lap time = avg(fastestLapTime); The time is recorded on 'MM:SS.mmm'",
-    "reason_1": "Error calculation",
-    "reason_2": "Wrong string processing"
+    "reason_1": "Wrong string processing",
+    "reason_2": "Error calculation"
   },
   {
     "question_id": 948,
@@ -865,8 +865,8 @@
     "gold_sql": "SELECT MAX(T1.points) FROM constructorStandings AS T1 INNER JOIN constructors AS T2 on T1.constructorId = T2.constructorId WHERE T2.nationality = 'British'",
     "label": false,
     "evidence": "maximum points = MAX(points); British is a nationality",
-    "reason_1": "Predicted SQL returns average points instead of maximum points.",
-    "reason_2": "Ask for maximum but return average."
+    "reason_1": "Ask for maximum but return average.",
+    "reason_2": "Predicted SQL returns average points instead of maximum points."
   },
   {
     "question_id": 949,
@@ -887,8 +887,8 @@
     "gold_sql": "SELECT DISTINCT location, lat, lng FROM circuits WHERE country = 'Austria'",
     "label": true,
     "evidence": "location coordinates refers to (lat,lng); Austria refers to country = 'Austria';",
-    "reason_1": "GOLD FALSE: Missing COUNT",
-    "reason_2": "GOLD FALSE: Missing the total times required"
+    "reason_1": "GOLD FALSE: Missing the total times required",
+    "reason_2": "GOLD FALSE: Missing COUNT"
   },
   {
     "question_id": 984,
@@ -898,8 +898,8 @@
     "gold_sql": "SELECT T1.url FROM constructors AS T1 INNER JOIN constructorStandings AS T2 on T1.constructorId = T2.constructorId ORDER BY T2.wins DESC LIMIT 1",
     "label": true,
     "evidence": "introduction website refers to url;",
-    "reason_1": "GOLD FALSE: Gold SQL sorts by the wins of a single race alone cannot yield the website of the team with the most total wins.",
-    "reason_2": "GOLD FALSE. Find the team with the most wins in a single season instead of the cumulative most."
+    "reason_1": "GOLD FALSE. Find the team with the most wins in a single season instead of the cumulative most.",
+    "reason_2": "GOLD FALSE: Gold SQL sorts by the wins of a single race alone cannot yield the website of the team with the most total wins."
   },
   {
     "question_id": 989,
@@ -953,8 +953,8 @@
     "gold_sql": "WITH fastest_lap_times AS ( SELECT T1.raceId, T1.FastestLapTime, (CAST(SUBSTR(T1.FastestLapTime, 1, INSTR(T1.FastestLapTime, ':') - 1) AS REAL) * 60) + (CAST(SUBSTR(T1.FastestLapTime, INSTR(T1.FastestLapTime, ':') + 1, INSTR(T1.FastestLapTime, '.') - INSTR(T1.FastestLapTime, ':') - 1) AS REAL)) + (CAST(SUBSTR(T1.FastestLapTime, INSTR(T1.FastestLapTime, '.') + 1) AS REAL) / 1000) as time_in_seconds FROM results AS T1 WHERE T1.FastestLapTime IS NOT NULL ) SELECT T2.name FROM races AS T2 INNER JOIN circuits AS T3 on T2.circuitId = T3.circuitId INNER JOIN results AS T1 on T2.raceId = T1.raceId INNER JOIN ( SELECT MIN(fastest_lap_times.time_in_seconds) as min_time_in_seconds FROM fastest_lap_times INNER JOIN races AS T2 on fastest_lap_times.raceId = T2.raceId INNER JOIN circuits AS T3 on T2.circuitId = T3.circuitId WHERE T2.name = 'Austrian Grand Prix') AS T4 ON (CAST(SUBSTR(T1.FastestLapTime, 1, INSTR(T1.FastestLapTime, ':') - 1) AS REAL) * 60) + (CAST(SUBSTR(T1.FastestLapTime, INSTR(T1.FastestLapTime, ':') + 1, INSTR(T1.FastestLapTime, '.') - INSTR(T1.FastestLapTime, ':') - 1) AS REAL)) + (CAST(SUBSTR(T1.FastestLapTime, INSTR(T1.FastestLapTime, '.') + 1) AS REAL) / 1000) = T4.min_time_in_seconds WHERE T2.name = 'Austrian Grand Prix'",
     "label": false,
     "evidence": "lap record means the fastest time recorded which refers to time",
-    "reason_1": "Should return the raceId, since it is the unique identification number identifying the race and there are many races with raceIds, but the names are the same. Thus both the predicted SQL and Gold SQL are wrong.\nGOLD FALSE",
-    "reason_2": "Predicted SQL selects the wrong table (results.FastestLapTime instead of laptime.milliseconds), takes the wrong field (races.name instead of circuits.name), and resolves the time incorrectly"
+    "reason_1": "Predicted SQL selects the wrong table (results.FastestLapTime instead of laptime.milliseconds), takes the wrong field (races.name instead of circuits.name), and resolves the time incorrectly",
+    "reason_2": "Should return the raceId, since it is the unique identification number identifying the race and there are many races with raceIds, but the names are the same. Thus both the predicted SQL and Gold SQL are wrong.\nGOLD FALSE"
   },
   {
     "question_id": 1020,
@@ -964,8 +964,8 @@
     "gold_sql": "SELECT player_api_id FROM Player_Attributes WHERE overall_rating = (SELECT MAX(overall_rating) FROM Player_Attributes)",
     "label": true,
     "evidence": "highest overall rating refers to MAX(overall_rating);",
-    "reason_1": "",
-    "reason_2": "Note: Gold SQL misses the DISTINCT keyword"
+    "reason_1": "Note: Gold SQL misses the DISTINCT keyword",
+    "reason_2": ""
   },
   {
     "question_id": 1032,
@@ -1041,8 +1041,8 @@
     "gold_sql": "SELECT t3.player_name FROM Country AS t1 INNER JOIN Match AS t2 ON t1.id = t2.country_id INNER JOIN Player AS t3 ON t2.home_player_1 = t3.player_api_id WHERE t1.name = 'Belgium'",
     "label": false,
     "evidence": "name of players refers to player_name; Belgium is name of country",
-    "reason_1": "Error WHERE condition",
-    "reason_2": "Missing filter condition\nGOLD FALSE: Only the column \"home_player_1\" was checked, and the remaining 21 player columns were ignored. The result is incomplete."
+    "reason_1": "Missing filter condition\nGOLD FALSE: Only the column \"home_player_1\" was checked, and the remaining 21 player columns were ignored. The result is incomplete.",
+    "reason_2": "Error WHERE condition"
   },
   {
     "question_id": 1129,
@@ -1107,8 +1107,8 @@
     "gold_sql": "SELECT STRFTIME('%Y', MAX(T1.Birthday)) - STRFTIME('%Y', MIN(T1.Birthday)) FROM Patient AS T1 INNER JOIN Laboratory AS T2 ON T1.ID = T2.ID WHERE T2.TG >= 200",
     "label": false,
     "evidence": "age gap refers to SUBTRACT(MAX(year(Birthday)) - MIN(year(Birthday))); normal triglyceride refers to tg > = 200",
-    "reason_1": "Wrong filter condition",
-    "reason_2": "Error WHERE condition"
+    "reason_1": "Error WHERE condition",
+    "reason_2": "Wrong filter condition"
   },
   {
     "question_id": 1177,
@@ -1162,8 +1162,8 @@
     "gold_sql": "SELECT SUM(CASE WHEN T2.PLT <= 100 THEN 1 ELSE 0 END) - SUM(CASE WHEN T2.PLT >= 400 THEN 1 ELSE 0 END) FROM Patient AS T1 INNER JOIN Laboratory AS T2 ON T1.ID = T2.ID",
     "label": false,
     "evidence": "abnormal platelet level refers to PLT <= 100 or PLT >= 400; platelet level lower than normal range refers to PLT < 100; calculation = SUBTRACT(SUM(PLT < 100), SUM(PLT > 400)); platelet level higher than normal range refers to PLT > 400;",
-    "reason_1": "GOLD FALSE. question asks for two numbers; lower than normal doesn't include the edge point.",
-    "reason_2": "wrong condition, evidence require >= and <="
+    "reason_1": "wrong condition, evidence require >= and <=",
+    "reason_2": "GOLD FALSE. question asks for two numbers; lower than normal doesn't include the edge point."
   },
   {
     "question_id": 1244,
@@ -1173,8 +1173,8 @@
     "gold_sql": "SELECT T1.ID FROM Patient AS T1 INNER JOIN Laboratory AS T2 ON T1.ID = T2.ID WHERE STRFTIME('%Y', T1.`First Date`) > '1992' AND T2.PT < 14",
     "label": true,
     "evidence": "first came to the hospital after year 1992 refers to year(`First Date`) > 1992; prothrombin time (PT) level that are normal refers to PT < 14;",
-    "reason_1": "",
-    "reason_2": "Note: Gold SQL misses the DISTINCT keyword"
+    "reason_1": "Note: Gold SQL misses the DISTINCT keyword",
+    "reason_2": ""
   },
   {
     "question_id": 1257,
@@ -1184,8 +1184,8 @@
     "gold_sql": "SELECT COUNT(DISTINCT T1.ID) FROM Patient AS T1 INNER JOIN Laboratory AS T2 ON T1.ID = T2.ID WHERE T2.CRE >= 1.5 AND STRFTIME('%Y', Date('now')) - STRFTIME('%Y', T1.Birthday) < 70",
     "label": false,
     "evidence": "creatinine level is abnormal refers to CRE >= 1.5; aren't 70 yet refers to SUBTRACT((YEAR(CURDATE()), YEAR(Birthday))) < 70; ",
-    "reason_1": "Missing DISTINCT",
-    "reason_2": "Missing distinct keyword"
+    "reason_1": "Missing distinct keyword",
+    "reason_2": "Missing DISTINCT"
   },
   {
     "question_id": 1261,
@@ -1195,8 +1195,8 @@
     "gold_sql": "SELECT COUNT(DISTINCT T1.ID) FROM Examination AS T1 INNER JOIN Laboratory AS T2 ON T1.ID = T2.ID WHERE T2.RF < 20 AND T1.Thrombosis = 0",
     "label": false,
     "evidence": "normal RF refers to RF < 20; don't have thrombosis refers to Thrombosis = '0';",
-    "reason_1": "should use distinct",
-    "reason_2": "no distinct count"
+    "reason_1": "no distinct count",
+    "reason_2": "should use distinct"
   },
   {
     "question_id": 1271,
@@ -1272,8 +1272,8 @@
     "gold_sql": "SELECT T1.type, SUM(T3.cost) FROM event AS T1 INNER JOIN budget AS T2 ON T1.event_id = T2.link_to_event INNER JOIN expense AS T3 ON T2.budget_id = T3.link_to_budget WHERE T1.event_name = 'October Meeting'",
     "label": false,
     "evidence": "total value refers to SUM(cost); 'October Meeting' is an event name;",
-    "reason_1": "Predicted SQL doesn't return the type of expense.",
-    "reason_2": "Pred does not include the type of expenses\nGOLD FALSE: The selected type column is from event.type (\" Meeting/Social... \") It is not a type of expenses; At the same time, the condition \"approved='true'\" is missing; and it is not grouped either."
+    "reason_1": "Pred does not include the type of expenses\nGOLD FALSE: The selected type column is from event.type (\" Meeting/Social... \") It is not a type of expenses; At the same time, the condition \"approved='true'\" is missing; and it is not grouped either.",
+    "reason_2": "Predicted SQL doesn't return the type of expense."
   },
   {
     "question_id": 1422,
@@ -1338,8 +1338,8 @@
     "gold_sql": "SELECT T1.CustomerID FROM customers AS T1 INNER JOIN yearmonth AS T2 ON T1.CustomerID = T2.CustomerID WHERE T1.Segment = 'LAM' AND SUBSTR(T2.Date, 1, 4) = '2012' GROUP BY T1.CustomerID ORDER BY SUM(T2.Consumption) ASC LIMIT 1",
     "label": false,
     "evidence": "Year 2012 can be presented as Between 201201 And 201212; The first 4 strings of the Date values in the yearmonth table can represent year.",
-    "reason_1": "Need group by and sum on consumption",
-    "reason_2": "Error consumption calculation"
+    "reason_1": "Error consumption calculation",
+    "reason_2": "Need group by and sum on consumption"
   },
   {
     "question_id": 1473,
@@ -1360,8 +1360,8 @@
     "gold_sql": "SELECT SUBSTR(T2.Date, 5, 2) FROM customers AS T1 INNER JOIN yearmonth AS T2 ON T1.CustomerID = T2.CustomerID WHERE SUBSTR(T2.Date, 1, 4) = '2013' AND T1.Segment = 'SME' GROUP BY SUBSTR(T2.Date, 5, 2) ORDER BY SUM(T2.Consumption) DESC LIMIT 1",
     "label": false,
     "evidence": "Year 2013 can be presented as Between 201301 And 201312; The first 4 strings of the Date values in the yearmonth table can represent year; The 5th and 6th string of the date can refer to month.",
-    "reason_1": "Should order by sum of consumption",
-    "reason_2": "Need to group by month and sum the consumption in that month"
+    "reason_1": "Need to group by month and sum the consumption in that month",
+    "reason_2": "Should order by sum of consumption"
   },
   {
     "question_id": 1481,
@@ -1393,8 +1393,8 @@
     "gold_sql": "SELECT T2.CustomerID, SUM(T2.Consumption) FROM customers AS T1 INNER JOIN yearmonth AS T2 ON T1.CustomerID = T2.CustomerID WHERE T1.Segment = 'KAM' GROUP BY T2.CustomerID ORDER BY SUM(T2.Consumption) DESC LIMIT 1",
     "label": false,
     "evidence": "",
-    "reason_1": "no sum consumption",
-    "reason_2": "do not group by year month"
+    "reason_1": "do not group by year month",
+    "reason_2": "no sum consumption"
   },
   {
     "question_id": 1491,
@@ -1404,8 +1404,8 @@
     "gold_sql": "SELECT Country , ( SELECT COUNT(GasStationID) FROM gasstations WHERE Segment = 'Value for money' ) FROM gasstations WHERE Segment = 'Value for money' GROUP BY Country ORDER BY COUNT(GasStationID) DESC LIMIT 1",
     "label": true,
     "evidence": "",
-    "reason_1": "GOLD FALSE. Gold gives the sum of gas stations in two countries.",
-    "reason_2": "GOLD FALSE: The question need data in each country, gold return a sum."
+    "reason_1": "GOLD FALSE: The question need data in each country, gold return a sum.",
+    "reason_2": "GOLD FALSE. Gold gives the sum of gas stations in two countries."
   },
   {
     "question_id": 1492,
@@ -1459,8 +1459,8 @@
     "gold_sql": "SELECT T2.Zip FROM frpm AS T1 INNER JOIN schools AS T2 ON T1.CDSCode = T2.CDSCode WHERE T1.`District Name` = 'Fresno County Office of Education' AND T1.`Charter School (Y/N)` = 1",
     "label": false,
     "evidence": "Charter schools refers to `Charter School (Y/N)` = 1 in the table fprm",
-    "reason_1": "WHERE condition",
-    "reason_2": "\"Fresno County Office of Education\" means `District Name` not County."
+    "reason_1": "\"Fresno County Office of Education\" means `District Name` not County.",
+    "reason_2": "WHERE condition"
   },
   {
     "question_id": 38,
@@ -1492,8 +1492,8 @@
     "gold_sql": "SELECT T1.`District Code` FROM frpm AS T1 INNER JOIN schools AS T2 ON T1.CDSCode = T2.CDSCode WHERE T2.City = 'Fresno' AND T2.Magnet = 0",
     "label": false,
     "evidence": "When magent is equal to 0 in the database, it means ths school doesn't offer a magnet program.",
-    "reason_1": "Predicted SQL does not return the 'District Code' required for question.",
-    "reason_2": "Question clearly asks for district code while predicted SQL returns the district name."
+    "reason_1": "Question clearly asks for district code while predicted SQL returns the district name.",
+    "reason_2": "Predicted SQL does not return the 'District Code' required for question."
   },
   {
     "question_id": 82,
@@ -1514,8 +1514,8 @@
     "gold_sql": "SELECT AdmLName1, District, County, School FROM schools WHERE CharterNum = '0040'",
     "label": false,
     "evidence": "",
-    "reason_1": "CharterNum the question refers to should be `0040` instead of `40`",
-    "reason_2": "CharterNum is not written in the correct format. Two zeros should be added"
+    "reason_1": "CharterNum is not written in the correct format. Two zeros should be added",
+    "reason_2": "CharterNum the question refers to should be `0040` instead of `40`"
   },
   {
     "question_id": 99,
@@ -1580,8 +1580,8 @@
     "gold_sql": "SELECT T.molecule_id FROM atom AS T WHERE T.element = 'c'",
     "label": false,
     "evidence": "carbon refers to element = 'c';",
-    "reason_1": "Predicted SQL used the wrong filtering condition element = 'si'; it should have been element = 'c'.",
-    "reason_2": "Condition contradicts evidence."
+    "reason_1": "Condition contradicts evidence.",
+    "reason_2": "Predicted SQL used the wrong filtering condition element = 'si'; it should have been element = 'c'."
   },
   {
     "question_id": 213,
@@ -1591,8 +1591,8 @@
     "gold_sql": "SELECT T1.bond_type FROM bond AS T1 INNER JOIN connected AS T2 ON T1.bond_id = T2.bond_id WHERE T2.atom_id = 'TR004_8' AND T2.atom_id2 = 'TR004_20' OR T2.atom_id2 = 'TR004_8' AND T2.atom_id = 'TR004_20'",
     "label": false,
     "evidence": "type of bond refers to bond_type; between the atoms TR004_8 and TR004_20 refers to atom_id = 'TR004_8' AND atom_id2 = 'TR004_20' OR another way around",
-    "reason_1": "Pred do not consider another direction",
-    "reason_2": "Predicted SQL should consider both directions."
+    "reason_1": "Predicted SQL should consider both directions.",
+    "reason_2": "Pred do not consider another direction"
   },
   {
     "question_id": 223,
@@ -1624,8 +1624,8 @@
     "gold_sql": "SELECT CAST(COUNT( CASE WHEN T1.element = 'cl' THEN T1.element ELSE NULL END) AS REAL) * 100 / COUNT(T1.element) FROM atom AS T1 INNER JOIN molecule AS T2 ON T1.molecule_id = T2.molecule_id WHERE T2.label = '+'",
     "label": false,
     "evidence": "chlorine refers to element = 'cl'; label = '+' mean molecules are carcinogenic; percentage = DIVIDE(SUM(element = 'pb'); COUNT(molecule_id)) as percentage where label = '+'",
-    "reason_1": "Predicted SQL calculates cl/ （the number of carcinogenic molecules）. The question requirement should be cl/ t（he total number of atoms）.",
-    "reason_2": "Predicted SQL counts at module level instead of the atom level."
+    "reason_1": "Predicted SQL counts at module level instead of the atom level.",
+    "reason_2": "Predicted SQL calculates cl/ （the number of carcinogenic molecules）. The question requirement should be cl/ t（he total number of atoms）."
   },
   {
     "question_id": 284,
@@ -1635,8 +1635,8 @@
     "gold_sql": "SELECT DISTINCT T2.bond_type FROM atom AS T1 INNER JOIN bond AS T2 ON T1.molecule_id = T2.molecule_id WHERE T1.element = 'c'",
     "label": false,
     "evidence": "Carbon refers to element = 'c'; double bond refers to bond_type = ' = '; single bond refers to bond_type = '-'; triple bond refers to bond_type = '#';",
-    "reason_1": "Predicted SQL used the wrong filtering condition atom.element = 'te', which should be element = 'c'.",
-    "reason_2": "Error condition"
+    "reason_1": "Error condition",
+    "reason_2": "Predicted SQL used the wrong filtering condition atom.element = 'te', which should be element = 'c'."
   },
   {
     "question_id": 349,
@@ -1701,8 +1701,8 @@
     "gold_sql": "SELECT CAST(SUM(CASE WHEN isTextless = 0 THEN 1 ELSE 0 END) AS REAL) * 100 / COUNT(id) FROM cards WHERE isStorySpotlight = 1",
     "label": false,
     "evidence": "Story Spotlight cards that do not have a text box refers to isStorylight = 1 and isTextless = 0; Percentage = DIVIDE(SUM(count(id) where isStorylight = 1 AND isTextless = 0 ), SUM(count(id))) * 100",
-    "reason_1": "Error WHERE condition; Error SELECT calculation logic",
-    "reason_2": "The condition should be isTextless = 0, while Predicted SQL is isTextless = 1"
+    "reason_1": "The condition should be isTextless = 0, while Predicted SQL is isTextless = 1",
+    "reason_2": "Error WHERE condition; Error SELECT calculation logic"
   },
   {
     "question_id": 426,
@@ -1833,8 +1833,8 @@
     "gold_sql": "SELECT CAST(SUM(IIF(T3.TagName = 'r', 1, 0)) AS REAL) * 100 / COUNT(T1.Id) FROM users AS T1 INNER JOIN postHistory AS T2 ON T1.Id = T2.UserId INNER JOIN tags AS T3 ON T3.ExcerptPostId = T2.PostId WHERE T1.DisplayName = 'Community'",
     "label": false,
     "evidence": "DIVIDE(COUNT(PostId WHERE TagName = 'r')), (COUNT(PostId WHERE DisplayName = 'Community')) as percentage; R language refers to tagname = 'r'",
-    "reason_1": "Error CASE WHEN",
-    "reason_2": "It should be tags.TagName = 'r' instead of posts.tags"
+    "reason_1": "It should be tags.TagName = 'r' instead of posts.tags",
+    "reason_2": "Error CASE WHEN"
   },
   {
     "question_id": 668,
@@ -1899,8 +1899,8 @@
     "gold_sql": "SELECT DISTINCT T1.url FROM circuits AS T1 INNER JOIN races AS T2 ON T2.circuitID = T1.circuitId WHERE T1.name = 'Circuit de Barcelona-Catalunya'",
     "label": true,
     "evidence": "introduction of races refers to url; Circuit de Barcelona-Catalunya is a name of circuit;",
-    "reason_1": "GOLD FALSE. Gold SQL returns circuits.url, but the question requires races.url",
-    "reason_2": "Ambiguous Question. URL could either be race URL or  circuit URL."
+    "reason_1": "Ambiguous Question. URL could either be race URL or  circuit URL.",
+    "reason_2": "GOLD FALSE. Gold SQL returns circuits.url, but the question requires races.url"
   },
   {
     "question_id": 854,
@@ -1921,8 +1921,8 @@
     "gold_sql": "SELECT T1.forename, T1.surname, T1.nationality, MAX(T2.points) FROM drivers AS T1 INNER JOIN driverStandings AS T2 ON T2.driverId = T1.driverId WHERE T2.wins >= 1 GROUP BY T1.forename, T1.surname, T1.nationality ORDER BY COUNT(T2.wins) DESC LIMIT 1",
     "label": false,
     "evidence": "Full name of the driver refers to drivers.forename and drivers.surname; the most winning refers to MAX(COUNT(wins)); average point scores refers to MAX(points);",
-    "reason_1": "Predicted SQL calculates the average score, while the question requires the highest score",
-    "reason_2": "Evidence False. Question asks to return the maximum point while predicted SQL returns the average points."
+    "reason_1": "Evidence False. Question asks to return the maximum point while predicted SQL returns the average points.",
+    "reason_2": "Predicted SQL calculates the average score, while the question requires the highest score"
   },
   {
     "question_id": 907,
@@ -1954,8 +1954,8 @@
     "gold_sql": "SELECT CAST(SUM(CASE WHEN year BETWEEN 2000 AND 2010 THEN 1 ELSE 0 END) AS REAL) / 10 FROM races WHERE date BETWEEN '2000-01-01' AND '2010-12-31'",
     "label": false,
     "evidence": "races in date between '2000-01-01' and '2010-12-31'",
-    "reason_1": "Error SELECT",
-    "reason_2": "Predicted SQL uses COUNT(DISTINCT YEAR). If there is no competition in a certain year, the denominator will not be 10."
+    "reason_1": "Predicted SQL uses COUNT(DISTINCT YEAR). If there is no competition in a certain year, the denominator will not be 10.",
+    "reason_2": "Error SELECT"
   },
   {
     "question_id": 1024,
@@ -2020,8 +2020,8 @@
     "gold_sql": "SELECT SEX FROM Patient WHERE Diagnosis = 'AORTITIS' AND `First Date` IS NOT NULL ORDER BY `First Date` ASC LIMIT 1",
     "label": false,
     "evidence": "gender means SEX; 'AORTITIS' refers to Diagnosis;",
-    "reason_1": "Missing NOT NULL",
-    "reason_2": "Predicted SQL does NOT filter the case where 'First Date' IS NOT NULL."
+    "reason_1": "Predicted SQL does NOT filter the case where 'First Date' IS NOT NULL.",
+    "reason_2": "Missing NOT NULL"
   },
   {
     "question_id": 1179,
@@ -2042,8 +2042,8 @@
     "gold_sql": "SELECT STRFTIME('%d', T3.`Examination Date`) - STRFTIME('%d', T1.`First Date`) FROM Patient AS T1 INNER JOIN Examination AS T3 ON T1.ID = T3.ID WHERE T1.ID = 821298",
     "label": true,
     "evidence": "DATEDIFF(`Examination Date`, `First Date`)",
-    "reason_1": "GOLD FALSE. Gold SQL only subtracts day-of-month values, which fails across months or years.It might even be a negative number.Predicted SQL TRUE.",
-    "reason_2": "GOLD FLASE. Gold doesn't consider the dates of different months."
+    "reason_1": "GOLD FLASE. Gold doesn't consider the dates of different months.",
+    "reason_2": "GOLD FALSE. Gold SQL only subtracts day-of-month values, which fails across months or years.It might even be a negative number.Predicted SQL TRUE."
   },
   {
     "question_id": 1209,
@@ -2218,8 +2218,8 @@
     "gold_sql": "SELECT T2.School, T1.AvgScrWrite, T2.Phone FROM schools AS T2 LEFT JOIN satscores AS T1 ON T2.CDSCode = T1.cds WHERE strftime('%Y', T2.OpenDate) > '1991' OR strftime('%Y', T2.ClosedDate) < '2000'",
     "label": true,
     "evidence": "Communication number refers to phone number.",
-    "reason_1": "GOLD FALSE: Using Left Join will include schools that lack records in the stascores table, which is not aligned with the intent",
-    "reason_2": ""
+    "reason_1": "",
+    "reason_2": "GOLD FALSE: Using Left Join will include schools that lack records in the stascores table, which is not aligned with the intent"
   },
   {
     "question_id": 28,
@@ -2273,8 +2273,8 @@
     "gold_sql": "SELECT T2.City, T1.`Low Grade`, T1.`School Name` FROM frpm AS T1 INNER JOIN schools AS T2 ON T1.CDSCode = T2.CDSCode WHERE T2.State = 'CA' AND T2.Latitude IS NOT NULL AND T2.Latitude = (SELECT MIN(Latitude) FROM schools WHERE State = 'CA' AND Latitude IS NOT NULL)",
     "label": false,
     "evidence": "State of California refers to state = 'CA'",
-    "reason_1": "Predicted SQL does not filter the situation where Latitude IS NULL",
-    "reason_2": "Should use Latitude IS NOT NULL to filter"
+    "reason_1": "Should use Latitude IS NOT NULL to filter",
+    "reason_2": "Predicted SQL does not filter the situation where Latitude IS NULL"
   },
   {
     "question_id": 83,
@@ -2284,8 +2284,8 @@
     "gold_sql": "SELECT T2.City, COUNT(T2.CDSCode) FROM frpm AS T1 INNER JOIN schools AS T2 ON T1.CDSCode = T2.CDSCode WHERE T2.Magnet = 1 AND T2.GSoffered = 'K-8' AND T1.`NSLP Provision Status` = 'Multiple Provision Types' GROUP BY T2.City",
     "label": false,
     "evidence": "Kindergarten to 8th grade refers to K-8; 'Offers a magnet program' means Magnet = 1; Multiple Provision Types refers to `NSLP Provision Status` = 'Multiple Provision Types'",
-    "reason_1": "Missing filter on  `NSLP Provision Status` = 'Multiple Provision Types'",
-    "reason_2": "Predicted SQL do not use NSLP Provision Status` = 'Multiple Provision Types'"
+    "reason_1": "Predicted SQL do not use NSLP Provision Status` = 'Multiple Provision Types'",
+    "reason_2": "Missing filter on  `NSLP Provision Status` = 'Multiple Provision Types'"
   },
   {
     "question_id": 91,
@@ -2405,8 +2405,8 @@
     "gold_sql": "SELECT AVG(oxygen_count) FROM (SELECT T1.molecule_id, COUNT(T1.element) AS oxygen_count FROM atom AS T1 INNER JOIN bond AS T2 ON T1.molecule_id = T2.molecule_id  WHERE T2.bond_type = '-' AND T1.element = 'o'  GROUP BY T1.molecule_id) AS oxygen_counts",
     "label": false,
     "evidence": "single-bonded molecules refers to bond_type = '-' ; average number of oxygen atom = AVG(element = 'o')",
-    "reason_1": "include the atoms without o, the filter condition T1.element = 'o' should be added.",
-    "reason_2": "Predicted SQL: Repeated Counting\nGOLD FALSE: Repeated Counting"
+    "reason_1": "Predicted SQL: Repeated Counting\nGOLD FALSE: Repeated Counting",
+    "reason_2": "include the atoms without o, the filter condition T1.element = 'o' should be added."
   },
   {
     "question_id": 228,
@@ -2471,8 +2471,8 @@
     "gold_sql": "SELECT T.atom_id FROM atom AS T WHERE T.molecule_id = 'TR186'",
     "label": true,
     "evidence": "TR186 is a molecule id",
-    "reason_1": "AMBIGUOUS QUESTION (both columns are acceptable)",
-    "reason_2": ""
+    "reason_1": "",
+    "reason_2": "AMBIGUOUS QUESTION (both columns are acceptable)"
   },
   {
     "question_id": 302,
@@ -2537,8 +2537,8 @@
     "gold_sql": "SELECT id FROM cards WHERE cardKingdomFoilId IS NOT NULL AND cardKingdomId IS NOT NULL",
     "label": false,
     "evidence": "incredibly poweful foils refers to cardKingdomFoilId is not null AND cardKingdomId is not null",
-    "reason_1": "Wrong filter condition",
-    "reason_2": "In Predicted SQL, cardKingdomFoilId and cardKingdomId must be equal, but they just need not be empty"
+    "reason_1": "In Predicted SQL, cardKingdomFoilId and cardKingdomId must be equal, but they just need not be empty",
+    "reason_2": "Wrong filter condition"
   },
   {
     "question_id": 358,
@@ -2570,8 +2570,8 @@
     "gold_sql": "SELECT COUNT(DISTINCT T1.id) FROM cards AS T1 INNER JOIN legalities AS T2 ON T1.uuid = T2.uuid WHERE T2.status = 'Restricted' AND T1.isStarter = 1",
     "label": false,
     "evidence": "restricted refers to status = 'restricted'; found in the starter deck refers to isStarter = 1;",
-    "reason_1": "Missing DISTINCT in the count function",
-    "reason_2": "Predicted SQL does not use DISTINCT to remove duplicate card id."
+    "reason_1": "Predicted SQL does not use DISTINCT to remove duplicate card id.",
+    "reason_2": "Missing DISTINCT in the count function"
   },
   {
     "question_id": 364,
@@ -2603,8 +2603,8 @@
     "gold_sql": "SELECT T1.artist FROM cards AS T1 INNER JOIN foreign_data AS T2 ON T1.uuid = T2.uuid WHERE T2.language = 'Phyrexian'",
     "label": false,
     "evidence": "Phyrexian' is the language; name of artists refers to artist;",
-    "reason_1": "Lack of enough information regarding the illustrated card art in Phyrexian (Ambiguous column)",
-    "reason_2": "foreign_data.language should be used as the filtering condition"
+    "reason_1": "foreign_data.language should be used as the filtering condition",
+    "reason_2": "Lack of enough information regarding the illustrated card art in Phyrexian (Ambiguous column)"
   },
   {
     "question_id": 389,
@@ -2636,8 +2636,8 @@
     "gold_sql": "SELECT manaCost FROM cards WHERE artist = 'Rob Alexander'",
     "label": false,
     "evidence": "unconverted mana refer to manaCost; Rob Alexander refer to artist",
-    "reason_1": "GOLD FALSE: Should add manaCost IS NOT NULL",
-    "reason_2": "non-readonly SQL blocked."
+    "reason_1": "non-readonly SQL blocked.",
+    "reason_2": "GOLD FALSE: Should add manaCost IS NOT NULL"
   },
   {
     "question_id": 400,
@@ -2669,8 +2669,8 @@
     "gold_sql": "SELECT DISTINCT T1.artist FROM cards AS T1 INNER JOIN foreign_data AS T2 ON T1.uuid = T2.uuid WHERE T2.flavorText LIKE '%DAS perfekte Gegenmittel zu einer dichten Formation%'",
     "label": false,
     "evidence": "",
-    "reason_1": "AMBIGUOUS QUESTION: We do not know the difference of \"text\" vs. \"flavorText\"",
-    "reason_2": "should use flavortext, not text column"
+    "reason_1": "should use flavortext, not text column",
+    "reason_2": "AMBIGUOUS QUESTION: We do not know the difference of \"text\" vs. \"flavorText\""
   },
   {
     "question_id": 418,
@@ -2724,8 +2724,8 @@
     "gold_sql": "SELECT DISTINCT language FROM foreign_data WHERE name = 'A Pedra Fellwar'",
     "label": false,
     "evidence": "\"A Pedra Fellwar\" refers to name = 'A Pedra Fellwar'",
-    "reason_1": "Wrong filter condition",
-    "reason_2": "Predicted SQL uses incorrect tables and columns"
+    "reason_1": "Predicted SQL uses incorrect tables and columns",
+    "reason_2": "Wrong filter condition"
   },
   {
     "question_id": 483,
@@ -2889,8 +2889,8 @@
     "gold_sql": "SELECT T2.ViewCount, T3.DisplayName FROM postHistory AS T1 INNER JOIN posts AS T2 ON T1.PostId = T2.Id INNER JOIN users AS T3 ON T2.LastEditorUserId = T3.Id WHERE T1.Text = 'Computer Game Datasets'",
     "label": false,
     "evidence": "total views refer to ViewCount; Name the user refers to DisplayName; post 'Computer Game Datasets' refers to Text = 'Computer Game Datasets';",
-    "reason_1": "GOLD FALSE. LastEditorUserId is not necessarily the last person to post",
-    "reason_2": "Should find LastEditorUserId instead of OwnerUserId"
+    "reason_1": "Should find LastEditorUserId instead of OwnerUserId",
+    "reason_2": "GOLD FALSE. LastEditorUserId is not necessarily the last person to post"
   },
   {
     "question_id": 710,
@@ -3021,8 +3021,8 @@
     "gold_sql": "SELECT AVG(T2.milliseconds) FROM races AS T1 INNER JOIN lapTimes AS T2 ON T2.raceId = T1.raceId INNER JOIN drivers AS T3 ON T3.driverId = T2.driverId WHERE T3.forename = 'Lewis' AND T3.surname = 'Hamilton' AND T1.year = 2009 AND T1.name = 'Malaysian Grand Prix'",
     "label": false,
     "evidence": "average lap time = AVG(milliseconds); 'Lewis Hamilton' refers to the full name of the driver; Full name of the driver refers to drivers.forename and drivers.surname; 'Malaysian Grand Prix' refers to races.name = 'Malaysian Grand Prix'",
-    "reason_1": "Wrong filter condition, wrong return column",
-    "reason_2": "Predicted SQL does not filter the names of the drivers"
+    "reason_1": "Predicted SQL does not filter the names of the drivers",
+    "reason_2": "Wrong filter condition, wrong return column"
   },
   {
     "question_id": 899,
@@ -3131,8 +3131,8 @@
     "gold_sql": "SELECT forename, surname, url, dob FROM drivers WHERE nationality = 'German' AND STRFTIME('%Y', dob) BETWEEN '1971' AND '1985' ORDER BY dob DESC",
     "label": true,
     "evidence": "FFull name refers to forname+surname; Nationality refers to German; Date of birth refers to dob; year(dob) BETWEEN '1971' AND '1985'",
-    "reason_1": "Ambiguous Question (Ambiguous output format)",
-    "reason_2": ""
+    "reason_1": "",
+    "reason_2": "Ambiguous Question (Ambiguous output format)"
   },
   {
     "question_id": 1006,
@@ -3186,8 +3186,8 @@
     "gold_sql": "SELECT p.player_api_id FROM Player_Attributes AS p WHERE SUBSTR(p.date, 1, 4) = '2010' AND p.overall_rating = (SELECT MAX(pa.overall_rating) FROM Player_Attributes AS pa WHERE SUBSTR(pa.date, 1, 4) = '2010')",
     "label": false,
     "evidence": "highest above average overall ratings refers to MAX(overall_rating); in 2010 refers to substr(date,1,4) = '2010';",
-    "reason_1": "do not use max",
-    "reason_2": "Wrong filter condition, should use max(overall_rating) as provided in the evidence"
+    "reason_1": "Wrong filter condition, should use max(overall_rating) as provided in the evidence",
+    "reason_2": "do not use max"
   },
   {
     "question_id": 1035,
@@ -3263,8 +3263,8 @@
     "gold_sql": "SELECT COUNT(DISTINCT t1.id) FROM Player AS t1 INNER JOIN Player_Attributes AS t2 ON t1.player_api_id = t2.player_api_id WHERE t1.height > 180 AND t2.volleys > 70",
     "label": false,
     "evidence": "height > 180; volley score refers to volleys; volleys > 70;",
-    "reason_1": "Missing DISTINCT keyword",
-    "reason_2": "DISTINCT needs to be used to remove duplicate data."
+    "reason_1": "DISTINCT needs to be used to remove duplicate data.",
+    "reason_2": "Missing DISTINCT keyword"
   },
   {
     "question_id": 1122,
@@ -3274,8 +3274,8 @@
     "gold_sql": "SELECT DISTINCT t1.player_name FROM Player AS t1 INNER JOIN Player_Attributes AS t2 ON t1.player_api_id = t2.player_api_id WHERE t2.overall_rating = (SELECT MAX(overall_rating) FROM Player_Attributes)",
     "label": false,
     "evidence": "strongest players refers to player has MAX(overall_rating)",
-    "reason_1": "Should use MAX(overall_rating) rather than ORDER BY overall_rating DESC LIMIT 10; Should use DISTINCT to remove duplicates",
-    "reason_2": "The strongest player should only return one result, which should be limit 1."
+    "reason_1": "The strongest player should only return one result, which should be limit 1.",
+    "reason_2": "Should use MAX(overall_rating) rather than ORDER BY overall_rating DESC LIMIT 10; Should use DISTINCT to remove duplicates"
   },
   {
     "question_id": 1124,
@@ -3296,8 +3296,8 @@
     "gold_sql": "SELECT t1.name FROM League AS t1 INNER JOIN Match AS t2 ON t1.id = t2.league_id WHERE t2.season = '2015/2016' GROUP BY t1.name ORDER BY COUNT(t2.id) DESC LIMIT 4",
     "label": false,
     "evidence": "in the 2015-2016 season refers to season = '2015/2016'; league with most games refers to League.name where MAX(COUNT(id))",
-    "reason_1": "Should use limit 4",
-    "reason_2": "Predicted SQL only returns top 1, while the question requires top 4."
+    "reason_1": "Predicted SQL only returns top 1, while the question requires top 4.",
+    "reason_2": "Should use limit 4"
   },
   {
     "question_id": 1148,
@@ -3307,8 +3307,8 @@
     "gold_sql": "SELECT CAST(COUNT(CASE WHEN t2.overall_rating > 70 THEN t1.id ELSE NULL END) AS REAL) * 100 / COUNT(t1.id) percent FROM Player AS t1 INNER JOIN Player_Attributes AS t2 ON t1.player_api_id = t2.player_api_id WHERE t1.height < 180",
     "label": false,
     "evidence": "percentage refers to DIVIDE(COUNT(height < 180 AND overall_rating > 70),COUNT(id)) * 100",
-    "reason_1": "Predicted SQL: Missing DISTINCT keyword. GOLD FALSE: Missing DISTINCT keyword",
-    "reason_2": "1. If Player_Attributes.overall_rating > 70 exists in the where clause, it will be restricted to the numerator and denominator. 2. The positions of the numerator and denominator are incorrect."
+    "reason_1": "1. If Player_Attributes.overall_rating > 70 exists in the where clause, it will be restricted to the numerator and denominator. 2. The positions of the numerator and denominator are incorrect.",
+    "reason_2": "Predicted SQL: Missing DISTINCT keyword. GOLD FALSE: Missing DISTINCT keyword"
   },
   {
     "question_id": 1152,
@@ -3351,8 +3351,8 @@
     "gold_sql": "SELECT STRFTIME('%Y', T2.Date) - STRFTIME('%Y', T1.Birthday), T1.Diagnosis FROM Patient AS T1 INNER JOIN Laboratory AS T2 ON T1.ID = T2.ID ORDER BY T2.HGB DESC LIMIT 1",
     "label": true,
     "evidence": "How old the patient refers to SUBTRACT(year(`Examination Date`), year(Birthday)); the highest hemoglobin count refers to MAX(HGB)",
-    "reason_1": "GOLD FALSE: Should use  SUBTRACT(year(`Examination Date`), year(Birthday))",
-    "reason_2": "GOLD FALSE. Without using SUBTRACT(year(' Examination Date ')"
+    "reason_1": "GOLD FALSE. Without using SUBTRACT(year(' Examination Date ')",
+    "reason_2": "GOLD FALSE: Should use  SUBTRACT(year(`Examination Date`), year(Birthday))"
   },
   {
     "question_id": 1216,
@@ -3384,8 +3384,8 @@
     "gold_sql": "SELECT T1.ID,T1.SEX FROM Patient AS T1 INNER JOIN Laboratory AS T2 ON T1.ID = T2.ID WHERE T2.`T-BIL` >= 2.0 GROUP BY T1.SEX,T1.ID",
     "label": true,
     "evidence": "List refers to GROUP_CONCAT(DISTINCT ID); total bilirubin (T-BIL) not within normal range refers to T-BIL > = 2.0",
-    "reason_1": "",
-    "reason_2": "The question didn't specify the output format (Ambiguous output)"
+    "reason_1": "The question didn't specify the output format (Ambiguous output)",
+    "reason_2": ""
   },
   {
     "question_id": 1235,
@@ -3439,8 +3439,8 @@
     "gold_sql": "SELECT COUNT(DISTINCT T1.ID) FROM Patient AS T1 INNER JOIN Laboratory AS T2 ON T1.ID = T2.ID WHERE T2.SSB = 'negative' OR '0' AND T1.Diagnosis = 'SLE'",
     "label": false,
     "evidence": "normal anti-SSB refers to SSB IN('-', '+-'); '-' is expressed as 'negative' and '+-' is expressed as '0' in the database ; diagnosed with SLE refers to Diagnosis = 'SLE'; Should compute the number of distinct ones",
-    "reason_1": "Predicted SQL uses a wrong filter condition\nGOLD FALSE: Wrong grammar: WHERE T2.SSB = 'negative' OR '0', will lead to a wrong result, should be written as WHERE (T2.SSB = 'negative'  OR T1.SSB = '0')",
-    "reason_2": "should use negative instead of '-'"
+    "reason_1": "should use negative instead of '-'",
+    "reason_2": "Predicted SQL uses a wrong filter condition\nGOLD FALSE: Wrong grammar: WHERE T2.SSB = 'negative' OR '0', will lead to a wrong result, should be written as WHERE (T2.SSB = 'negative'  OR T1.SSB = '0')"
   },
   {
     "question_id": 1298,
@@ -3472,8 +3472,8 @@
     "gold_sql": "SELECT T3.approved FROM event AS T1 INNER JOIN budget AS T2 ON T1.event_id = T2.link_to_event INNER JOIN expense AS T3 ON T2.budget_id = T3.link_to_budget WHERE T1.event_name = 'October Meeting' AND T1.event_date LIKE '2019-10-08%'",
     "label": false,
     "evidence": "event_name = 'October Meeting' where event_date = '2019-10-08'; approved = True means expenses was approved; approved = False means expenses was not approved",
-    "reason_1": "Join Error: Should use event → budget → expense join logic to filter the expenses",
-    "reason_2": "\"expense\" is not directly linked to \"event\" through the \"attendance\" of members, but through the budget → link_to_event → event."
+    "reason_1": "\"expense\" is not directly linked to \"event\" through the \"attendance\" of members, but through the budget → link_to_event → event.",
+    "reason_2": "Join Error: Should use event → budget → expense join logic to filter the expenses"
   },
   {
     "question_id": 1387,
@@ -3615,8 +3615,8 @@
     "gold_sql": "SELECT CustomerID FROM transactions_1k WHERE Date = '2012-08-25' GROUP BY CustomerID ORDER BY SUM(Price) DESC LIMIT 1",
     "label": true,
     "evidence": "'2012/8/25' can be represented by '2012-08-25'",
-    "reason_1": "GOLD FALSE: total price = Amount x Price, so should use ORDER BY SUM(\"transactions_1k\".\"Amount\" * \"transactions_1k\".\"Price\")",
-    "reason_2": "GOLD FALSE. the gold SQL treats Price as the total payment per transaction and sums it directly.However, \"price\" refers to the unit price rather than the total amount."
+    "reason_1": "GOLD FALSE. the gold SQL treats Price as the total payment per transaction and sums it directly.However, \"price\" refers to the unit price rather than the total amount.",
+    "reason_2": "GOLD FALSE: total price = Amount x Price, so should use ORDER BY SUM(\"transactions_1k\".\"Amount\" * \"transactions_1k\".\"Price\")"
   },
   {
     "question_id": 1526,
@@ -3626,8 +3626,8 @@
     "gold_sql": "SELECT CAST(SUM(IIF(SUBSTR(Date, 1, 4) = '2012', Consumption, 0)) - SUM(IIF(SUBSTR(Date, 1, 4) = '2013', Consumption, 0)) AS FLOAT) / SUM(IIF(SUBSTR(Date, 1, 4) = '2012', Consumption, 0)) FROM yearmonth WHERE CustomerID = ( SELECT T1.CustomerID FROM transactions_1k AS T1 INNER JOIN gasstations AS T2 ON T1.GasStationID = T2.GasStationID WHERE T1.Date = '2012-08-25' AND T1.Price = 634.8 )",
     "label": false,
     "evidence": "'2012/8/24' can be represented by '2012-08-24'; Consumption decrease rate = (consumption_2012 - consumption_2013) / consumption_2012",
-    "reason_1": "should use price instead of amount",
-    "reason_2": "Missing aggregation: to compute the consumption for a year, need to aggregate all consumption records in that year"
+    "reason_1": "Missing aggregation: to compute the consumption for a year, need to aggregate all consumption records in that year",
+    "reason_2": "should use price instead of amount"
   },
   {
     "question_id": 1527,
@@ -3637,8 +3637,8 @@
     "gold_sql": "SELECT GasStationID FROM transactions_1k GROUP BY GasStationID ORDER BY SUM(Price) DESC LIMIT 1",
     "label": true,
     "evidence": "",
-    "reason_1": "GOLD FALSE: Should use SUM(amount * price) for the ranking",
-    "reason_2": "GOLD FALSE. Price is the unit price, not the total amount."
+    "reason_1": "GOLD FALSE. Price is the unit price, not the total amount.",
+    "reason_2": "GOLD FALSE: Should use SUM(amount * price) for the ranking"
   },
   {
     "question_id": 934,
