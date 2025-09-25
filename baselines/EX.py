@@ -28,12 +28,19 @@ def _sqlite_fetchall(db_id: str, sql: str):
 
 
 def _rows_equal(pred_rows, gold_rows) -> bool:
+    if pred_rows is None and gold_rows is None:
+        return True
+    if pred_rows is None or gold_rows is None:
+        return False
     try:
         return set(pred_rows) == set(gold_rows)
     except Exception:
-        pred_rows = [tuple(r) for r in pred_rows]
-        gold_rows = [tuple(r) for r in gold_rows]
-        return set(pred_rows) == set(gold_rows)
+        try:
+            pred_rows = [tuple(r) for r in (pred_rows or [])]
+            gold_rows = [tuple(r) for r in (gold_rows or [])]
+            return set(pred_rows) == set(gold_rows)
+        except Exception:
+            return False
 
 
 def EX(question: dict, pred_sql: str) -> bool:
@@ -79,9 +86,23 @@ def main():
     os.makedirs(out_dir, exist_ok=True)
     out_file = os.path.join(out_dir, 'eval_results.json')
 
-    for q in tqdm(questions):
-        if skip_ids and str(q.get('question_id')) in skip_ids:
-            continue
+    processed_ids = set()
+    if os.path.exists(out_file):
+        try:
+            with open(out_file, 'r', encoding='utf-8') as ef:
+                existing = json.load(ef)
+                for item in existing:
+                    qid = str(item.get('question_id'))
+                    if qid:
+                        processed_ids.add(qid)
+        except Exception:
+            processed_ids = set()
+
+    if skip_ids:
+        processed_ids.update(skip_ids)
+
+    to_process = [q for q in questions if str(q.get('question_id')) not in processed_ids]
+    for q in tqdm(to_process, total=len(to_process)):
         pred_sql = q.get('predicted_sql') or ''
         score = 1.0 if EX(q, pred_sql) else 0.0
         out_row = {
