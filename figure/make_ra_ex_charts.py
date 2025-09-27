@@ -6,7 +6,7 @@ import matplotlib.dates as mdates
 data = [
     ("OpenSearch-SQL", "Sep 2024", "DeepSeek-Chat", 77.94, 91.18, 69.78, 80.44, 56.25, 67.71, 69.37, 80.96),
     ("CSC-SQL-32B", "May 2025", "FT", 85.00, 87.14, 71.99, 77.54, 53.06, 67.35, 71.52, 78.27),
-    ("Alpha-SQL", "Feb 2025", "Qwen2.5 Coder 32B", 81.02, 91.24, 69.47, 79.65, 52.58, 70.10, 69.35, 81.09),
+    ("Alpha-SQL-32B", "Feb 2025", "Qwen2.5 Coder 32B", 81.02, 91.24, 69.47, 79.65, 52.58, 70.10, 69.35, 81.09),
     ("RSL-SQL", "Oct 2024", "GPT-4o", 80.15, 91.18, 64.60, 80.09, 53.61, 73.20, 66.88, 81.92),
     ("RSL-SQL", "Oct 2024", "DeepSeek-Chat", 74.29, 86.43, 59.83, 71.79, 52.04, 62.24, 62.50, 74.15),
     ("SuperSQL", "Jul 2024", "GPT-4", 67.65, 72.79, 48.66, 69.38, 45.83, 48.96, 53.73, 61.18),
@@ -70,7 +70,7 @@ plt.setp(ax.get_xticklabels(), fontsize=12)
 ax.grid(axis="x", alpha=0.3)
 ax.spines["top"].set_visible(False)
 ax.spines["right"].set_visible(False)
-ax.legend(frameon=False, ncols=2, loc="upper center", bbox_to_anchor=(0.5, -0.12), fontsize=16)
+ax.legend(frameon=False, ncol=2, loc="upper center", bbox_to_anchor=(0.5, -0.12), fontsize=16)
 plt.subplots_adjust(bottom=0.22)
 plt.tight_layout()
 plt.savefig("figure/diff_method.png", bbox_inches="tight", dpi=200)
@@ -79,6 +79,9 @@ plt.close()
 # Convert PNG to PDF using Pillow
 from PIL import Image
 img = Image.open("figure/diff_method.png")
+# Convert RGBA to RGB if necessary
+if img.mode == 'RGBA':
+    img = img.convert('RGB')
 img.save("figure/diff_method.pdf", "PDF")
 
 
@@ -174,14 +177,18 @@ for _, r in system_df.iterrows():
     txt = _point_label(r["method"], r["model"])
     if r["method"] == "OpenSearch-SQL":
         ax.annotate(txt, (r["date"], r["overall_delta"]),
-                    textcoords="offset points", xytext=(-5, 3),
-                    ha="right", va="bottom", fontsize=12)
+                    textcoords="offset points", xytext=(5, -7),
+                    ha="right", va="top", fontsize=12)
     elif r["method"] == "DeepSeek-Chat":
         ax.annotate(txt, (r["date"], r["overall_delta"]),
                     textcoords="offset points", xytext=(-30, 15),
                     ha="right", va="bottom", fontsize=12,
                     bbox=dict(fc="white", ec="none", alpha=0.85, pad=0.2))
-    elif r["method"] in ["Alpha-SQL", "SuperSQL"]:
+    elif r["method"] == "Alpha-SQL-32B":
+        ax.annotate(txt, (r["date"], r["overall_delta"]),
+                    textcoords="offset points", xytext=(10, 0),
+                    ha="left", va="center", fontsize=12)
+    elif r["method"] == "SuperSQL":
         ax.annotate(txt, (r["date"], r["overall_delta"]),
                     textcoords="offset points", xytext=(6, -5),
                     ha="left", va="top", fontsize=12)
@@ -210,7 +217,7 @@ ax.set_ylabel("RA − EX", fontsize=16)
 ax.grid(True, axis="y", alpha=0.3)
 ax.spines["top"].set_visible(False)
 ax.spines["right"].set_visible(False)
-ax.legend(frameon=False, ncols=3, loc="upper left", fontsize=14)
+ax.legend(frameon=False, ncol=3, loc="upper left", fontsize=14)
 ax.xaxis.set_major_locator(mdates.AutoDateLocator(minticks=6, maxticks=9))
 ax.xaxis.set_major_formatter(mdates.DateFormatter("%Y-%b"))
 plt.setp(ax.get_xticklabels(), rotation=0, ha="center", fontsize=14)
@@ -222,4 +229,7 @@ plt.close()
 
 # Convert PNG to PDF using Pillow
 img2 = Image.open("figure/diff_time.png")
+# Convert RGBA to RGB if necessary
+if img2.mode == 'RGBA':
+    img2 = img2.convert('RGB')
 img2.save("figure/diff_time.pdf", "PDF")

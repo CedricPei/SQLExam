@@ -28,7 +28,7 @@ from PIL import Image, ImageDraw, ImageFont
 # Data (Discordance Share, in %)
 # =====================
 ROWS = [
-    {"Method": "Opensearch",     "GF_share": 46.24, "AmbQ_share": 15.05, "Overall_share": 58.06},
+    {"Method": "OpenSearch-SQL",     "GF_share": 46.24, "AmbQ_share": 15.05, "Overall_share": 58.06},
     {"Method": "Alpha-SQL-32B",  "GF_share": 51.14, "AmbQ_share": 11.36, "Overall_share": 57.95},
     {"Method": "RSL-SQL",        "GF_share": 53.01, "AmbQ_share": 18.07, "Overall_share": 63.86},
     {"Method": "OmniSQL-32B",    "GF_share": 44.19, "AmbQ_share": 13.95, "Overall_share": 54.65},
@@ -169,6 +169,9 @@ def compose_canvas(tile_paths: List[str], legend_path: str, out_path: str) -> st
     # Convert PNG to PDF using Pillow
     from PIL import Image as PILImage
     img = PILImage.open(png_path)
+    # Convert RGBA to RGB if necessary
+    if img.mode == 'RGBA':
+        img = img.convert('RGB')
     img.save(out_path, "PDF")
     
     # Keep PNG file (don't delete it)
