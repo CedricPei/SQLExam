@@ -52,7 +52,11 @@ def color_of(model, group):
 origin = 25
 xmin, xmax = origin, 78
 ymin, ymax = 30, 90
-fig, ax = plt.subplots(figsize=(10, 11))
+# 计算合适的figsize，使纵轴稍微压缩
+x_range = xmax - xmin  # 78 - 25 = 53
+y_range = ymax - ymin  # 90 - 30 = 60
+aspect_ratio = y_range / x_range * 0.9  # 60/53 * 0.9 ≈ 1.02
+fig, ax = plt.subplots(figsize=(10, 10 * aspect_ratio))
 
 # 先画点
 points = []  # (name, x, y)
@@ -99,8 +103,8 @@ ax.text(65, 66, "RA=EX", fontsize=14, color="black", weight='bold', ha='left', v
 # 轴、网格、标题
 ax.set_xlim(xmin, xmax)
 ax.set_ylim(ymin, ymax)
-ax.set_xlabel("EX", fontsize=16)
-ax.set_ylabel("RA", fontsize=16)
+ax.set_xlabel("EX", fontsize=18)
+ax.set_ylabel("RA", fontsize=18)
 ax.tick_params(axis='both', which='major', labelsize=14)
 ax.grid(True, linestyle="--", alpha=0.35, zorder=0)
 
