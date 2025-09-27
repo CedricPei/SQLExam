@@ -51,7 +51,7 @@ def color_of(model, group):
 # ===== 绘图参数 =====
 origin = 25
 xmin, xmax = origin, 78
-ymin, ymax = origin, 95
+ymin, ymax = 30, 90
 fig, ax = plt.subplots(figsize=(10, 11))
 
 # 先画点
@@ -127,14 +127,14 @@ ax.legend(handles=shape_handles,
 # 标签已经直接放在点的下方，无需额外处理
 
 plt.tight_layout()
-plt.savefig("figure/ra_vs_ex_overall.png", dpi=240)
-print("Saved figure to figure/ra_vs_ex_overall.png")
+plt.savefig("figure/scatter.png", dpi=240)
+print("Saved figure to figure/scatter.png")
 
 # Convert PNG to PDF using Pillow
 from PIL import Image
-img = Image.open("figure/ra_vs_ex_overall.png")
+img = Image.open("figure/scatter.png")
 # Convert RGBA to RGB if necessary
 if img.mode == 'RGBA':
     img = img.convert('RGB')
-img.save("figure/ra_vs_ex_overall.pdf", "PDF")
-print("Saved figure to figure/ra_vs_ex_overall.pdf")
+img.save("figure/scatter.pdf", "PDF")
+print("Saved figure to figure/scatter.pdf")
