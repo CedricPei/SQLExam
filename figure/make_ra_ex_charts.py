@@ -19,8 +19,8 @@ data = [
     ("C3-SQL", "Jul 2023", "GPT-3.5", 61.03, 62.50, 36.89, 43.11, 28.87, 30.93, 42.36, 46.29),
     ("RESD SQL-3B", "Feb 2023", "FT", 56.30, 54.07, 31.44, 31.00, 17.71, 15.62, 35.87, 34.57),
 ]
-cols = ["method","date_str","model","simple_ex","simple_ra","moderate_ex","moderate_ra",
-        "challenge_ex","challenge_ra","overall_ex","overall_ra"]
+cols = ["method","date_str","model","simple_ex","simple_prose","moderate_ex","moderate_prose",
+        "challenge_ex","challenge_prose","overall_ex","overall_prose"]
 df = pd.DataFrame(data, columns=cols)
 
 base_models = [
@@ -42,7 +42,7 @@ df["date"] = df["date_str"].apply(parse_dt)
 df["is_ft"] = df["model"] == "FT"
 df["is_base"] = df["model"] == "Base"
 for level in ["simple","moderate","challenge","overall"]:
-    df[f"{level}_delta"] = df[f"{level}_ra"].astype(float) - df[f"{level}_ex"].astype(float)
+    df[f"{level}_delta"] = df[f"{level}_prose"].astype(float) - df[f"{level}_ex"].astype(float)
 
 os.makedirs("figure", exist_ok=True)
 means = df.groupby("is_ft")[["overall_delta","challenge_delta","moderate_delta","simple_delta"]].mean()
@@ -65,7 +65,7 @@ for bars in (b1, b2):
 
 ax.set_yticks(y)
 ax.set_yticklabels(labels, fontsize=16)
-ax.set_xlabel("Mean RA - EX", fontsize=16)
+ax.set_xlabel("Mean PROSE - EX", fontsize=16)
 plt.setp(ax.get_xticklabels(), fontsize=12)
 ax.grid(axis="x", alpha=0.3)
 ax.spines["top"].set_visible(False)
@@ -213,7 +213,7 @@ for _, r in base_df.iterrows():
                     ha="center", va="top", fontsize=12)
 
 ax.set_xlabel("Date", fontsize=16)
-ax.set_ylabel("RA − EX", fontsize=16)
+ax.set_ylabel("PROSE − EX", fontsize=16)
 ax.grid(True, axis="y", alpha=0.3)
 ax.spines["top"].set_visible(False)
 ax.spines["right"].set_visible(False)

@@ -4,26 +4,26 @@ from matplotlib.lines import Line2D
 # ===== 数据（Overall） =====
 rows = [
     # Instruct Model Based
-    {"method":"GPT-5",            "model":"GPT-5",             "group":"base",     "EX":55.74, "RA":88.93},
-    {"method":"Alpha-SQL-32B",    "model":"Qwen2.5 Coder",     "group":"instruct", "EX":69.35, "RA":81.09},
-    {"method":"OpenSearch-SQL",       "model":"DeepSeek-Chat",       "group":"instruct", "EX":69.37, "RA":80.96},
-    {"method":"RSL-SQL (DS)",   "model":"DeepSeek-Chat",       "group":"instruct", "EX":62.50, "RA":74.15},
-    {"method":"DeepSeek-Chat",      "model":"DeepSeek-Chat",       "group":"base",     "EX":52.13, "RA":72.21},
-    {"method":"RSL-SQL (GPT)",     "model":"GPT-4o",            "group":"instruct", "EX":66.88, "RA":81.92},
-    {"method":"GPT-4o",           "model":"GPT-4o",            "group":"base",     "EX":52.20, "RA":71.37},
-    {"method":"SuperSQL",         "model":"GPT-4",             "group":"instruct", "EX":53.73, "RA":61.18},
-    {"method":"TA-SQL",           "model":"GPT-4",             "group":"instruct", "EX":51.06, "RA":57.63},
-    {"method":"DAIL-SQL",         "model":"GPT-4",             "group":"instruct", "EX":48.79, "RA":55.60},
-    {"method":"GPT-4",            "model":"GPT-4",             "group":"base",     "EX":48.98, "RA":66.53},
-    {"method":"CoT",              "model":"GPT-3.5",           "group":"instruct", "EX":25.87, "RA":32.83},
-    {"method":"C3-SQL",           "model":"GPT-3.5",           "group":"instruct", "EX":42.36, "RA":46.29},
-    {"method":"GPT-3.5",          "model":"GPT-3.5",           "group":"base",     "EX":41.22, "RA":50.61},
+    {"method":"GPT-5",            "model":"GPT-5",             "group":"base",     "EX":55.74, "PROSE":88.93},
+    {"method":"Alpha-SQL-32B",    "model":"Qwen2.5 Coder",     "group":"instruct", "EX":69.35, "PROSE":81.09},
+    {"method":"OpenSearch-SQL",       "model":"DeepSeek-Chat",       "group":"instruct", "EX":69.37, "PROSE":80.96},
+    {"method":"RSL-SQL (DS)",   "model":"DeepSeek-Chat",       "group":"instruct", "EX":62.50, "PROSE":74.15},
+    {"method":"DeepSeek-Chat",      "model":"DeepSeek-Chat",       "group":"base",     "EX":52.13, "PROSE":72.21},
+    {"method":"RSL-SQL (GPT)",     "model":"GPT-4o",            "group":"instruct", "EX":66.88, "PROSE":81.92},
+    {"method":"GPT-4o",           "model":"GPT-4o",            "group":"base",     "EX":52.20, "PROSE":71.37},
+    {"method":"SuperSQL",         "model":"GPT-4",             "group":"instruct", "EX":53.73, "PROSE":61.18},
+    {"method":"TA-SQL",           "model":"GPT-4",             "group":"instruct", "EX":51.06, "PROSE":57.63},
+    {"method":"DAIL-SQL",         "model":"GPT-4",             "group":"instruct", "EX":48.79, "PROSE":55.60},
+    {"method":"GPT-4",            "model":"GPT-4",             "group":"base",     "EX":48.98, "PROSE":66.53},
+    {"method":"CoT",              "model":"GPT-3.5",           "group":"instruct", "EX":25.87, "PROSE":32.83},
+    {"method":"C3-SQL",           "model":"GPT-3.5",           "group":"instruct", "EX":42.36, "PROSE":46.29},
+    {"method":"GPT-3.5",          "model":"GPT-3.5",           "group":"base",     "EX":41.22, "PROSE":50.61},
     # Fine-tuned Model Based
-    {"method":"CSC-SQL-32B",      "model":"FT (XiYan-Qwen2.5)","group":"finetune", "EX":71.52, "RA":78.27},
-    {"method":"OmniSQL-32B",      "model":"FT (Qwen2.5 Coder)","group":"finetune", "EX":68.92, "RA":79.49},
-    {"method":"CodeS-15B",        "model":"FT (StarCoder)",    "group":"finetune", "EX":50.77, "RA":49.01},
-    {"method":"CHESS-V1",         "model":"FT (Mixed)",        "group":"finetune", "EX":59.28, "RA":62.24},
-    {"method":"RESDSQL-3B",       "model":"FT (T5)",           "group":"finetune", "EX":35.87, "RA":34.57},
+    {"method":"CSC-SQL-32B",      "model":"FT (XiYan-Qwen2.5)","group":"finetune", "EX":71.52, "PROSE":78.27},
+    {"method":"OmniSQL-32B",      "model":"FT (Qwen2.5 Coder)","group":"finetune", "EX":68.92, "PROSE":79.49},
+    {"method":"CodeS-15B",        "model":"FT (StarCoder)",    "group":"finetune", "EX":50.77, "PROSE":49.01},
+    {"method":"CHESS-V1",         "model":"FT (Mixed)",        "group":"finetune", "EX":59.28, "PROSE":62.24},
+    {"method":"RESDSQL-3B",       "model":"FT (T5)",           "group":"finetune", "EX":35.87, "PROSE":34.57},
 ]
 
 # ===== 样式 =====
@@ -65,7 +65,7 @@ for r in rows:
     color = color_of(r["model"], r["group"])
     size  = 170 if mkr == "*" else 110
     # 若低于下限则钳位在边界上（同时仍可读）
-    x, y = r["EX"], r["RA"]
+    x, y = r["EX"], r["PROSE"]
     cx, cy = (max(x, xmin), max(y, ymin))
     ax.scatter(cx, cy, s=size, marker=mkr,
                facecolors=color, edgecolors="black", linewidths=0.5, zorder=3)
@@ -93,18 +93,18 @@ for name, x, y in points:
         # 默认下方标签
         texts.append(ax.text(x, y-1, name, fontsize=12, ha='center', va='top', zorder=4))
 
-# 45° 参考线（RA=EX），从 (30,30) 到右上角
+# 45° 参考线（PROSE=EX），从 (30,30) 到右上角
 ax.plot([origin, xmax], [origin, xmax],
         linestyle="--", color="#888888", linewidth=1.2, zorder=1)
 # 在虚线上添加标签
-ax.text(65, 66, "RA=EX", fontsize=14, color="black", weight='bold', ha='left', va='bottom', 
+ax.text(65, 66, "PROSE=EX", fontsize=14, color="black", weight='bold', ha='left', va='bottom', 
         rotation=45)
 
 # 轴、网格、标题
 ax.set_xlim(xmin, xmax)
 ax.set_ylim(ymin, ymax)
 ax.set_xlabel("EX", fontsize=18)
-ax.set_ylabel("RA", fontsize=18)
+ax.set_ylabel("PROSE", fontsize=18)
 ax.tick_params(axis='both', which='major', labelsize=14)
 ax.grid(True, linestyle="--", alpha=0.35, zorder=0)
 
